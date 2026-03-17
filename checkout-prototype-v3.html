@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Atlantic — Checkout</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:              #000000;
+  --atlantic-black:     #2C2825;
+  --page-bg:            #F8F7F4;
+  --white:              #FFFFFF;
+  --card-outline:       #E7E3DB;
+  --warm-gray:          #E7E3DB;
+  --dark-warm-gray:     #45423F;
+  --field-border:       #2C2825;
+  --field-placeholder:  #6F6C69;
+  --btn-inactive-bg:    #D9D9D9;
+  --btn-inactive-text:  #ABA9A8;
+  --link-blue:          #166999;
+  --renewal-bg:         #FDF5E6;
+  --renewal-border:     #E8D5A3;
+  --green:              #2A7A3B;
+  --focus-ring:         rgba(44,40,37,0.10);
+  --font-garamond:      'Adobe Garamond Pro', 'EB Garamond', Georgia, serif;
+  --font-graphik:       'Graphik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-logic:         'Logic Monospace', 'SF Mono', Menlo, monospace;
+  --font-arial:         Arial, Helvetica, sans-serif;
+  --ease:               cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body {
+  font-family: var(--font-graphik);
+  background: var(--page-bg);
+  color: var(--atlantic-black);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   PROGRESS BAR (top of page)
+═══════════════════════════════════ */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--atlantic-black);
+  width: 0%;
+  z-index: 100;
+  transition: width 0.6s var(--ease);
+}
+
+/* ══════════════════════════════════
+   NAV
+═══════════════════════════════════ */
+.nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--card-outline);
+  position: sticky; top: 0; z-index: 50;
+}
+.nav-stripe { height: 4px; background: var(--black); }
+.nav-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  max-width: 1440px; margin: 0 auto;
+}
+.nav-link {
+  font-size: 13px; font-weight: 500; color: var(--atlantic-black);
+  text-decoration: none; letter-spacing: 0.2px;
+}
+.nav-link:hover { text-decoration: underline; }
+.nav-wordmark {
+  font-family: Georgia, serif; font-style: italic;
+  font-size: 26px; color: var(--black); text-decoration: none;
+  letter-spacing: 0.3px;
+}
+
+/* ══════════════════════════════════
+   PAGE LAYOUT
+═══════════════════════════════════ */
+.page-layout {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 24px 120px;
+}
+
+
+/* ══════════════════════════════════
+   CHECKOUT HEADING
+═══════════════════════════════════ */
+.checkout-heading {
+  font-family: var(--font-garamond);
+  font-size: 36px;
+  font-weight: 400;
+  color: var(--atlantic-black);
+  line-height: 1.1;
+  letter-spacing: -0.4px;
+  margin-bottom: 12px;
+}
+
+/* ══════════════════════════════════
+   ACCORDION STEPS
+═══════════════════════════════════ */
+.step { border-top: 1px solid var(--card-outline); }
+.step:last-of-type { border-bottom: 1px solid var(--card-outline); }
+
+.step-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 20px 0;
+  cursor: default;
+  transition: padding 0.3s ease;
+}
+.step--active .step-header { padding-bottom: 0; }
+
+.step-num,
+.step-title {
+  font-family: var(--font-graphik);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--atlantic-black);
+  flex-shrink: 0;
+  transition: color 0.25s ease, font-weight 0.25s ease;
+}
+.step--active .step-title { font-weight: 600; }
+.step--pending .step-num,
+.step--pending .step-title { color: var(--btn-inactive-text); }
+
+/* Completed step checkmark */
+.step--complete .step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--atlantic-black);
+  color: var(--white);
+  font-size: 0;
+  position: relative;
+  top: 2px;
+  animation: checkPop 0.3s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.step--complete .step-num::after {
+  content: '✓';
+  font-size: 11px;
+  font-weight: 600;
+}
+@keyframes checkPop {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+
+.step-summary {
+  font-size: 14px;
+  color: var(--field-placeholder);
+  margin-left: 10px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s;
+}
+.step--complete .step-summary {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.step-edit {
+  display: none;
+  background: none; border: none;
+  color: var(--link-blue);
+  font-family: var(--font-graphik);
+  font-size: 13px; cursor: pointer;
+  padding: 0; margin-left: auto; flex-shrink: 0;
+  text-decoration: underline;
+  opacity: 0;
+  transition: opacity 0.25s ease 0.2s;
+}
+.step-edit:hover { color: var(--atlantic-black); }
+.step--complete .step-edit { display: block; opacity: 1; }
+
+/* ── Accordion body ── */
+.step-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s var(--ease);
+}
+.step--active .step-body { max-height: 1400px; }
+
+.step-content { padding: 16px 0 32px; }
+
+/* Step content fade + lift */
+.step-content {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease 0.12s, transform 0.4s var(--ease) 0.12s;
+}
+.step--active .step-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step-intro {
+  font-size: 14px;
+  color: var(--field-placeholder);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   FORM ELEMENTS (v1 fidelity)
+═══════════════════════════════════ */
+.form-group { margin-bottom: 12px; }
+.form-group:last-of-type { margin-bottom: 0; }
+.form-label {
+  display: block;
+  font-family: var(--font-graphik); font-size: 12px;
+  color: var(--atlantic-black);
+  padding-left: 3px; margin-bottom: 6px; line-height: 14px;
+}
+.form-field {
+  display: flex; align-items: center;
+  background: var(--white);
+  border: 1px solid var(--field-border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  min-height: 52px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.form-field:focus-within {
+  border-color: var(--atlantic-black);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+.form-field--muted { background: #F5F4F2; border-color: var(--card-outline); }
+.form-input {
+  flex: 1; border: none; outline: none;
+  font-family: var(--font-arial); font-size: 16px;
+  color: var(--atlantic-black); background: transparent; line-height: 1.3;
+}
+.form-input::placeholder { color: var(--field-placeholder); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-select {
+  width: 100%; height: 52px;
+  border: 1px solid var(--field-border); border-radius: 4px;
+  padding: 0 16px;
+  font-family: var(--font-arial); font-size: 16px;
+  color: var(--atlantic-black); background: var(--white);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%232C2825' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 16px center;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+.form-select:focus { box-shadow: 0 0 0 3px var(--focus-ring); }
+
+/* ── CC compound row (v1) ── */
+.cc-row { display: grid; grid-template-columns: 1fr 90px 70px; gap: 0; }
+.cc-row .form-field { border-radius: 0; border-right: none; }
+.cc-row .form-field:first-child { border-radius: 4px 0 0 4px; }
+.cc-row .form-field:last-child { border-radius: 0 4px 4px 0; border-right: 1px solid var(--field-border); }
+
+/* ── Or divider (v1) ── */
+.or-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0 16px;
+}
+.or-line { flex: 1; height: 1px; background: var(--card-outline); }
+.or-text {
+  font-family: var(--font-graphik);
+  font-size: 12px; color: var(--field-placeholder);
+  letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* ── Social buttons (v1 style) ── */
+.social-btn {
+  display: flex; align-items: center;
+  width: 100%; height: 44px;
+  background: var(--white);
+  border: 1px solid var(--warm-gray);
+  border-radius: 4px;
+  padding: 0 16px;
+  font-family: var(--font-graphik); font-size: 14px; font-weight: 500;
+  color: var(--atlantic-black); cursor: pointer; margin-bottom: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.social-btn:last-child { margin-bottom: 0; }
+.social-btn:hover { background: #F5F4F2; border-color: var(--dark-warm-gray); }
+.social-btn:active { transform: scale(0.99); }
+.social-icon {
+  width: 20px; height: 20px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.social-icon svg { width: 16px; height: 16px; }
+.social-label { flex: 1; text-align: center; }
+
+/* ── Forgot link ── */
+.forgot {
+  text-align: center; font-size: 13px; margin-top: 16px;
+  color: var(--field-placeholder);
+}
+.forgot a { color: var(--link-blue); text-decoration: underline; }
+
+/* ══════════════════════════════════
+   BUTTONS (v1 — Logic Monospace)
+═══════════════════════════════════ */
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 51px; border-radius: 4px; border: none;
+  font-family: var(--font-logic); font-size: 16px; font-weight: 500;
+  cursor: pointer;
+  line-height: 1.1; margin-top: 20px;
+  transition: opacity 0.15s, background 0.25s, transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn--active {
+  background: var(--atlantic-black); color: var(--white);
+}
+.btn--active:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44,40,37,0.18);
+}
+.btn--active:active { transform: translateY(0); box-shadow: none; }
+.btn--inactive {
+  background: var(--btn-inactive-bg); color: var(--btn-inactive-text);
+  cursor: default; pointer-events: none;
+}
+
+.btn-note {
+  text-align: center; font-size: 12px;
+  color: var(--field-placeholder);
+  margin-top: 10px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+
+/* ══════════════════════════════════
+   PAYMENT METHOD SWITCHER
+═══════════════════════════════════ */
+.payment-methods {
+  border: 1px solid var(--card-outline);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.payment-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  background: var(--white);
+  border-bottom: 1px solid var(--card-outline);
+  transition: background 0.12s;
+}
+.payment-option:last-child { border-bottom: none; }
+.payment-option:hover { background: #FAF8F5; }
+
+.payment-option input[type="radio"] {
+  width: 18px; height: 18px;
+  accent-color: var(--atlantic-black);
+  flex-shrink: 0; cursor: pointer;
+}
+.payment-option-label {
+  font-family: var(--font-graphik);
+  font-size: 14px; font-weight: 500;
+  color: var(--atlantic-black); cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* Card form slide-in */
+.card-form {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.35s var(--ease);
+}
+.card-form--open { max-height: 450px; }
+.card-form-inner {
+  padding: 20px 16px;
+  background: #FAF8F5;
+  border-top: 1px solid var(--card-outline);
+}
+
+/* ══════════════════════════════════
+   ORDER SUMMARY SIDEBAR (v1)
+═══════════════════════════════════ */
+.sidebar-card {
+  background: var(--white);
+  border: 1px solid var(--card-outline);
+  border-radius: 4px;
+  padding: 24px;
+}
+.plan-name {
+  font-family: var(--font-garamond); font-size: 20px;
+  color: var(--atlantic-black); margin-bottom: 16px;
+  letter-spacing: -0.2px;
+}
+.feature-list { list-style: none; margin-bottom: 24px; }
+.feature-list li {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 13px; line-height: 1.5; margin-bottom: 6px;
+}
+.feature-list li::before {
+  content: '✓'; color: var(--atlantic-black); font-weight: 600;
+  flex-shrink: 0; margin-top: 1px;
+}
+.order-summary-title {
+  font-family: var(--font-graphik); font-size: 11px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+  color: var(--atlantic-black);
+}
+.order-rule { height: 1px; background: var(--card-outline); margin: 12px 0; }
+.order-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+.order-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; margin-top: 12px; }
+.order-note { font-size: 12px; color: var(--field-placeholder); margin-top: 8px; line-height: 1.5; }
+
+/* ══════════════════════════════════
+   REVIEW STEP — constrained width
+═══════════════════════════════════ */
+/* Review card */
+.review-card {
+  background: var(--white);
+  border: 1px solid var(--card-outline);
+  border-radius: 4px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.review-card .plan-name { margin-bottom: 4px; }
+.review-card-desc {
+  font-size: 14px; color: var(--field-placeholder);
+  margin-bottom: 20px; line-height: 1.5;
+}
+.review-row {
+  display: flex; justify-content: space-between;
+  font-size: 14px; margin-bottom: 6px;
+}
+.review-row .label { color: var(--field-placeholder); }
+.review-total {
+  display: flex; justify-content: space-between;
+  font-size: 16px; font-weight: 600;
+  padding-top: 14px;
+}
+
+/* Automatic Renewal box */
+.renewal-box {
+  background: var(--renewal-bg);
+  border: 1px solid var(--renewal-border);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.renewal-box-title {
+  font-family: var(--font-graphik);
+  font-size: 15px; font-weight: 600;
+  color: var(--atlantic-black);
+  margin-bottom: 12px;
+}
+.renewal-box p {
+  font-size: 13px; line-height: 1.65;
+  color: var(--atlantic-black);
+}
+.renewal-box a { color: var(--link-blue); text-decoration: underline; }
+
+.legal {
+  font-size: 13px; line-height: 1.5;
+  color: var(--field-placeholder); margin-bottom: 8px;
+}
+.legal a { color: var(--link-blue); text-decoration: underline; }
+
+/* ══════════════════════════════════
+   CONFIRMATION
+═══════════════════════════════════ */
+.confirmation { display: none; }
+.confirm-wrap {
+  max-width: 480px; margin: 48px auto 0; padding: 0 24px;
+}
+.confirm-h1 {
+  font-family: var(--font-garamond); font-size: 36px; font-weight: 400;
+  color: var(--atlantic-black); margin-bottom: 16px;
+  letter-spacing: -0.3px;
+}
+.confirm-sub {
+  font-size: 15px; line-height: 1.6;
+  margin-bottom: 24px; color: var(--atlantic-black);
+}
+.confirm-rule { height: 1px; background: var(--card-outline); margin: 24px 0; }
+.confirm-section-title {
+  font-family: var(--font-garamond); font-size: 22px;
+  margin-bottom: 24px; color: var(--atlantic-black);
+  letter-spacing: -0.2px;
+}
+.confirm-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px 32px; margin-bottom: 24px;
+}
+.confirm-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--field-placeholder);
+  margin-bottom: 4px;
+}
+.confirm-value { font-size: 15px; color: var(--atlantic-black); line-height: 1.4; }
+.visa-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #1A1F71; color: var(--white);
+  font-size: 9px; font-weight: 700; border-radius: 3px;
+  padding: 2px 5px; margin-right: 6px; letter-spacing: 0.5px;
+}
+.confirm-feedback { font-size: 14px; line-height: 1.6; color: var(--atlantic-black); }
+.confirm-feedback a { color: var(--link-blue); text-decoration: underline; }
+
+/* Confirmation entrance */
+.confirmation.show { display: block; animation: confirmIn 0.5s var(--ease); }
+@keyframes confirmIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Sticky bar ── */
+.sticky-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--atlantic-black); color: var(--white);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 48px; z-index: 40;
+  transform: translateY(100%);
+  transition: transform 0.4s var(--ease);
+}
+.sticky-bar.show { transform: translateY(0); }
+.sticky-bar-text { font-family: var(--font-garamond); font-size: 22px; line-height: 1.2; letter-spacing: -0.2px; }
+.sticky-bar-sub { font-size: 13px; opacity: 0.7; margin-top: 2px; }
+.sticky-bar-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.sticky-bar-btn {
+  background: var(--white); color: var(--atlantic-black);
+  border: none; border-radius: 4px; padding: 12px 32px;
+  font-family: var(--font-logic); font-size: 15px; font-weight: 500; cursor: pointer;
+  transition: opacity 0.15s;
+}
+.sticky-bar-btn:hover { opacity: 0.9; }
+.sticky-bar-link { font-size: 13px; color: rgba(255,255,255,0.6); text-decoration: underline; cursor: pointer; }
+
+/* ══════════════════════════════════
+   FOOTER (v1)
+═══════════════════════════════════ */
+.footer {
+  border-top: 1px solid var(--card-outline);
+  padding: 48px 80px 40px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  max-width: 1440px; margin: 0 auto; background: var(--page-bg);
+}
+.footer-links { display: flex; flex-wrap: wrap; gap: 12px 32px; margin-bottom: 28px; }
+.footer-links a { font-size: 13px; color: var(--atlantic-black); text-decoration: none; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-legal-row { display: flex; align-items: center; gap: 12px; font-size: 12px; margin-bottom: 6px; }
+.footer-legal-row a { color: var(--atlantic-black); text-decoration: none; }
+.footer-legal-div { width: 1px; height: 12px; background: var(--atlantic-black); }
+.footer-fine { font-size: 11px; line-height: 1.6; color: var(--field-placeholder); }
+.footer-brand { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+.footer-glyph { font-family: Georgia, serif; font-size: 64px; line-height: 0.85; color: var(--atlantic-black); }
+.footer-brand-name { font-family: Georgia, serif; font-size: 16px; font-style: italic; color: var(--atlantic-black); }
+
+/* ══════════════════════════════════
+   STEP SWITCHER (prototype tool)
+═══════════════════════════════════ */
+.switcher {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--atlantic-black); border-radius: 48px;
+  padding: 6px; display: flex; align-items: center; gap: 2px;
+  z-index: 200; box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  font-family: var(--font-graphik);
+}
+.switcher button {
+  background: none; border: none; color: var(--white);
+  font-family: var(--font-graphik); font-size: 12px;
+  cursor: pointer; padding: 7px 13px; border-radius: 32px;
+  white-space: nowrap; transition: background 0.2s;
+}
+.switcher button:hover { background: rgba(255,255,255,0.15); }
+.switcher button.sw-active { background: var(--link-blue); font-weight: 600; }
+.switcher-div { width: 1px; height: 18px; background: rgba(255,255,255,0.2); }
+
+/* ══════════════════════════════════
+   MOBILE RESPONSIVE
+═══════════════════════════════════ */
+@media (max-width: 600px) {
+  .nav-row { padding: 14px 16px; }
+  .nav-wordmark { font-size: 22px; }
+  .nav-link { font-size: 12px; }
+
+  .page-layout { padding: 24px 16px 100px; }
+
+  .checkout-heading { font-size: 28px; margin-bottom: 8px; }
+
+  .step-header { padding: 16px 0; }
+  .step-num, .step-title { font-size: 15px; }
+  .step-summary { font-size: 13px; }
+  .step-content { padding: 12px 0 24px; }
+
+  .form-field { padding: 12px 14px; min-height: 48px; }
+  .form-input { font-size: 16px; } /* prevents iOS zoom */
+  .form-row { grid-template-columns: 1fr; }
+  .cc-row { grid-template-columns: 1fr; }
+  .cc-row .form-field { border-radius: 4px; border-right: 1px solid var(--field-border); margin-bottom: -1px; }
+  .cc-row .form-field:first-child { border-radius: 4px; }
+  .cc-row .form-field:last-child { border-radius: 4px; margin-bottom: 0; }
+
+  .social-btn { height: 48px; font-size: 14px; }
+
+  .btn { height: 52px; font-size: 15px; }
+
+  .review-card { padding: 20px 16px; }
+  .renewal-box { padding: 16px; }
+
+  .confirm-wrap { padding: 0 16px; margin-top: 32px; }
+  .confirm-h1 { font-size: 28px; }
+  .confirm-grid { grid-template-columns: 1fr; gap: 16px; }
+
+  .footer { padding: 32px 16px; flex-direction: column-reverse; gap: 32px; align-items: flex-start; }
+  .footer-brand { align-items: flex-start; }
+
+  .sticky-bar { padding: 14px 16px; flex-direction: column; gap: 12px; text-align: center; }
+  .sticky-bar-actions { align-items: center; width: 100%; }
+  .sticky-bar-btn { width: 100%; text-align: center; }
+
+  .switcher { bottom: 12px; padding: 4px; gap: 1px; }
+  .switcher button { font-size: 11px; padding: 6px 8px; }
+}
+
+@media (max-width: 380px) {
+  .switcher button span.sw-label { display: none; }
+  .checkout-heading { font-size: 24px; }
+  .plan-name { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div class="progress-bar" id="progress-bar"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-stripe"></div>
+  <div class="nav-row">
+    <a href="#" class="nav-link">Home</a>
+    <a href="#" class="nav-wordmark">The Atlantic</a>
+    <a href="#" class="nav-link">Sign out</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════
+     CHECKOUT
+════════════════════════════════ -->
+<div class="page-layout" id="checkout-page">
+
+  <div class="checkout-main">
+    <h1 class="checkout-heading">Checkout</h1>
+
+    <!-- ── STEP 1: ACCOUNT ── -->
+    <div class="step step--active" id="step-1">
+      <div class="step-header">
+        <span class="step-num">1.</span>
+        <span class="step-title">Account</span>
+        <span class="step-summary" id="summary-1"></span>
+        <button class="step-edit" onclick="editStep(1)">Edit</button>
+      </div>
+      <div class="step-body">
+        <div class="step-content">
+          <p class="step-intro">Get started by logging in or creating your account.</p>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <div class="form-field">
+              <input class="form-input" type="email" id="email-input"
+                     placeholder="name@provider.com"
+                     oninput="onEmailInput(this)">
+            </div>
+          </div>
+
+          <button class="btn btn--inactive" id="btn-account" onclick="completeAccount()">Continue</button>
+
+          <div class="or-bar">
+            <div class="or-line"></div>
+            <span class="or-text">Or</span>
+            <div class="or-line"></div>
+          </div>
+
+          <!-- Social sign-in (visual only) -->
+          <button class="social-btn" onclick="completeAccountSocial('Google')">
+            <span class="social-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M15.68 8.182c0-.567-.05-1.112-.144-1.636H8v3.094h4.306a3.68 3.68 0 0 1-1.597 2.415v2.007h2.587c1.513-1.394 2.384-3.447 2.384-5.88Z" fill="#4285F4"/><path d="M8 16c2.16 0 3.971-.716 5.294-1.938l-2.587-2.007c-.716.48-1.632.763-2.707.763-2.082 0-3.847-1.407-4.476-3.298H.852v2.073A7.997 7.997 0 0 0 8 16Z" fill="#34A853"/><path d="M3.524 9.52A4.812 4.812 0 0 1 3.273 8c0-.528.091-1.04.251-1.52V4.407H.852A7.997 7.997 0 0 0 0 8c0 1.29.308 2.51.852 3.593L3.524 9.52Z" fill="#FBBC05"/><path d="M8 3.182c1.172 0 2.225.403 3.053 1.194l2.29-2.29C11.967.793 10.156 0 8 0A7.997 7.997 0 0 0 .852 4.407L3.524 6.48C4.153 4.589 5.918 3.182 8 3.182Z" fill="#EA4335"/></svg></span>
+            <span class="social-label">Continue with Google</span>
+          </button>
+          <button class="social-btn" onclick="completeAccountSocial('Apple')">
+            <span class="social-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M12.152 8.374c-.02-1.89 1.544-2.8 1.614-2.844-.878-1.285-2.246-1.461-2.732-1.481-1.163-.118-2.27.685-2.862.685-.59 0-1.504-.668-2.471-.65-1.272.019-2.446.74-3.1 1.88-1.322 2.293-.338 5.69.95 7.55.63.91 1.38 1.934 2.367 1.897.95-.038 1.308-.615 2.456-.615 1.148 0 1.468.615 2.466.596.022 0-.001 0 0 0 1.002-.018 1.648-.928 2.275-1.84.717-1.055.998-2.008 1.012-2.06-.022-.01-1.943-.746-1.975-2.118ZM10.303 2.895c.524-.635.878-1.516.781-2.395-.754.031-1.668.502-2.21 1.136-.486.563-.91 1.461-.796 2.324.842.065 1.701-.428 2.225-1.065Z" fill="#2C2825"/></svg></span>
+            <span class="social-label">Continue with Apple</span>
+          </button>
+          <button class="social-btn" onclick="completeAccountSocial('Institution')">
+            <span class="social-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1L1 5v1h14V5L8 1ZM3 7v5h2V7H3Zm4 0v5h2V7H7Zm4 0v5h2V7h-2ZM1 13v2h14v-2H1Z" fill="#2C2825"/></svg></span>
+            <span class="social-label">Continue with institution</span>
+          </button>
+
+          <p class="forgot">
+            Forgot your <a href="#">email</a> or <a href="#">password</a>?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: PAYMENT ── -->
+    <div class="step step--pending" id="step-2">
+      <div class="step-header">
+        <span class="step-num">2.</span>
+        <span class="step-title">Payment</span>
+        <span class="step-summary" id="summary-2"></span>
+        <button class="step-edit" onclick="editStep(2)">Edit</button>
+      </div>
+      <div class="step-body">
+        <div class="step-content">
+
+          <!-- Payment method switcher -->
+          <div class="payment-methods">
+            <label class="payment-option" for="pm-card">
+              <input type="radio" id="pm-card" name="payment-method" value="card" checked
+                     onchange="selectPayment('card')">
+              <span class="payment-option-label">Credit or Debit Card</span>
+            </label>
+
+            <div class="card-form card-form--open" id="card-form">
+              <div class="card-form-inner">
+                <div class="form-group">
+                  <label class="form-label">Credit Card</label>
+                  <div class="cc-row">
+                    <div class="form-field">
+                      <input class="form-input" type="text" id="cc-number"
+                             placeholder="Card Number" maxlength="19"
+                             oninput="formatCard(this)">
+                    </div>
+                    <div class="form-field">
+                      <input class="form-input" type="text" id="cc-expiry"
+                             placeholder="MM/YY" maxlength="5"
+                             oninput="formatExpiry(this)" style="font-size:14px">
+                    </div>
+                    <div class="form-field">
+                      <input class="form-input" type="text" id="cc-cvc"
+                             placeholder="CVC" maxlength="4" style="font-size:14px">
+                    </div>
+                  </div>
+                </div>
+                <div class="form-row" style="margin-top:12px">
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Country</label>
+                    <select class="form-select" style="height:46px">
+                      <option>United States</option><option>Canada</option>
+                      <option>United Kingdom</option><option>Australia</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label">Zip / Postal Code</label>
+                    <div class="form-field" style="min-height:46px;padding:12px 16px">
+                      <input class="form-input" type="text" id="cc-zip" placeholder="00000" maxlength="10" style="font-size:15px">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <label class="payment-option" for="pm-paypal">
+              <input type="radio" id="pm-paypal" name="payment-method" value="paypal"
+                     onchange="selectPayment('paypal')">
+              <span class="payment-option-label">
+                <span style="font-style:italic;font-weight:700;letter-spacing:-0.5px;color:#003087">Pay</span><span style="font-style:italic;font-weight:700;letter-spacing:-0.5px;color:#009cde">Pal</span>
+              </span>
+            </label>
+
+            <label class="payment-option" for="pm-applepay">
+              <input type="radio" id="pm-applepay" name="payment-method" value="applepay"
+                     onchange="selectPayment('applepay')">
+              <span class="payment-option-label" style="font-size:16px;letter-spacing:-0.3px">&#xF8FF; Pay</span>
+            </label>
+          </div>
+
+          <button class="btn btn--active" id="btn-payment" onclick="completePayment()">Continue</button>
+          <div class="btn-note">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="5" width="10" height="7" rx="1" stroke="#6F6C69" stroke-width="1.2"/>
+              <path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#6F6C69" stroke-width="1.2"/>
+            </svg>
+            Secure form
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: REVIEW ── -->
+    <div class="step step--pending" id="step-3">
+      <div class="step-header">
+        <span class="step-num">3.</span>
+        <span class="step-title">Review</span>
+        <span class="step-summary" id="summary-3"></span>
+        <button class="step-edit" style="display:none !important"></button>
+      </div>
+      <div class="step-body">
+        <div class="step-content">
+          <!-- Review card -->
+          <div class="review-card">
+            <div class="plan-name">Digital Subscription</div>
+            <div class="review-card-desc">Unlimited access to The Atlantic, across all platforms.</div>
+            <ul class="feature-list">
+              <li>Unlimited access on any device</li>
+              <li>12 magazine issues in PDF</li>
+              <li>The Atlantic app for iOS and Android</li>
+              <li>Narrated articles and podcasts</li>
+              <li>Our digital archive, from 1857 to today</li>
+              <li>Gift articles to share with other readers</li>
+              <li>Screenings, Q&amp;As, and more subscriber events</li>
+            </ul>
+            <div class="order-rule"></div>
+            <div class="review-row"><span class="label">Subtotal</span><span>$79.99</span></div>
+            <div class="review-row"><span class="label">Estimated Tax</span><span>—</span></div>
+            <div class="order-rule"></div>
+            <div class="review-total"><span>Due today</span><span>$79.99</span></div>
+          </div>
+
+          <!-- Automatic Renewal box -->
+          <div class="renewal-box">
+            <div class="renewal-box-title">Automatic Renewal</div>
+            <p>
+              By proceeding, you agree that your subscription will renew on an annual basis until you cancel.
+              Before each renewal, you will receive a notification of your term and rate then in effect.
+              Visit your <a href="#">account page</a>, <a href="#">email</a>, or call (855) 940-0585 to cancel.
+              Cancellations take effect at the end of your current billing period.
+              Please read our full terms <a href="#">here</a>.
+            </p>
+          </div>
+
+          <p class="legal">
+            By subscribing, you agree to The Atlantic's
+            <a href="#">Terms of Sale</a> and <a href="#">Terms of Service</a>.
+          </p>
+
+          <button class="btn btn--active" id="btn-subscribe" onclick="completeSubscribe()">
+            Start My Subscription
+          </button>
+          <div class="btn-note" style="margin-top:10px">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="5" width="10" height="7" rx="1" stroke="#6F6C69" stroke-width="1.2"/>
+              <path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#6F6C69" stroke-width="1.2"/>
+            </svg>
+            Secure transaction
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.checkout-main -->
+
+
+
+</div><!-- /.page-layout -->
+
+<!-- ═══════════════════════════════
+     CONFIRMATION
+════════════════════════════════ -->
+<div class="confirmation" id="confirmation-page">
+  <div class="confirm-wrap">
+    <h1 class="confirm-h1">You are now a subscriber.</h1>
+    <p class="confirm-sub">
+      A confirmation email is on the way. Thank you for joining The Atlantic and supporting our journalism.
+    </p>
+    <div class="confirm-rule"></div>
+    <div class="confirm-section-title">Order Summary</div>
+    <div class="confirm-grid">
+      <div>
+        <div class="confirm-label">Subscription Plan</div>
+        <div class="confirm-value">Digital</div>
+      </div>
+      <div>
+        <div class="confirm-label">Email</div>
+        <div class="confirm-value" id="confirm-email">—</div>
+      </div>
+      <div>
+        <div class="confirm-label">Next Billing Date</div>
+        <div class="confirm-value" id="confirm-billing-date">—</div>
+      </div>
+      <div>
+        <div class="confirm-label">Payment</div>
+        <div class="confirm-value" id="confirm-payment">—</div>
+      </div>
+      <div>
+        <div class="confirm-label">You Paid</div>
+        <div class="confirm-value">$79.99</div>
+      </div>
+    </div>
+    <div class="confirm-rule"></div>
+    <p class="confirm-feedback">
+      Do you have suggestions for how we can improve the checkout experience?
+      Let us know at <a href="mailto:checkoutfeedback@theatlantic.com">checkoutfeedback@theatlantic.com</a>.
+    </p>
+  </div>
+  <footer class="footer" style="margin-top:64px; padding-bottom:140px;">
+    <div>
+      <div class="footer-links">
+        <a href="#">Sign In</a>
+        <a href="#">Visit our Help Center</a>
+        <a href="#">Accounts &amp; Subscription help</a>
+      </div>
+      <div class="footer-legal-row">
+        <a href="#">Privacy Policy</a>
+        <div class="footer-legal-div"></div>
+        <a href="#">Terms &amp; Conditions</a>
+      </div>
+      <p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p>
+    </div>
+    <div class="footer-brand">
+      <div class="footer-glyph">A</div>
+      <div class="footer-brand-name">The Atlantic</div>
+    </div>
+  </footer>
+</div>
+
+<!-- Sticky bar -->
+<div class="sticky-bar" id="sticky-bar">
+  <div>
+    <div class="sticky-bar-text">Get the most out of your subscription.</div>
+    <div class="sticky-bar-sub">We'll help you get started with your new benefits.</div>
+  </div>
+  <div class="sticky-bar-actions">
+    <button class="sticky-bar-btn" onclick="resetFlow()">Continue</button>
+    <span class="sticky-bar-link" onclick="resetFlow()">Return to Article</span>
+  </div>
+</div>
+
+<!-- Footer (checkout) -->
+<div id="checkout-footer">
+  <footer class="footer">
+    <div>
+      <div class="footer-links">
+        <a href="#">Sign In</a>
+        <a href="#">Visit our Help Center</a>
+        <a href="#">Accounts &amp; Subscription help</a>
+      </div>
+      <div class="footer-legal-row">
+        <a href="#">Privacy Policy</a>
+        <div class="footer-legal-div"></div>
+        <a href="#">Terms &amp; Conditions</a>
+      </div>
+      <p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p>
+    </div>
+    <div class="footer-brand">
+      <div class="footer-glyph">A</div>
+      <div class="footer-brand-name">The Atlantic</div>
+    </div>
+  </footer>
+</div>
+
+<!-- Step Switcher -->
+<div class="switcher" id="switcher">
+  <button class="sw-active" onclick="jumpTo(1)">1 · Account</button>
+  <div class="switcher-div"></div>
+  <button onclick="jumpTo(2)">2 · Payment</button>
+  <div class="switcher-div"></div>
+  <button onclick="jumpTo(3)">3 · Review</button>
+  <div class="switcher-div"></div>
+  <button onclick="jumpTo(4)">4 · Confirm</button>
+  <div class="switcher-div"></div>
+  <button onclick="jumpTo(Math.max(1,currentStep-1))" style="padding:7px 9px">←</button>
+  <button onclick="jumpTo(Math.min(4,currentStep+1))" style="padding:7px 9px">→</button>
+</div>
+
+<script>
+// ─────────────────────────────────────
+// STATE
+// ─────────────────────────────────────
+let currentStep = 1;
+let currentPaymentMethod = 'card';
+let emailValue = '';
+
+// ─────────────────────────────────────
+// PROGRESS BAR
+// ─────────────────────────────────────
+function updateProgress() {
+  const pcts = { 1: '8%', 2: '36%', 3: '68%', 4: '100%' };
+  document.getElementById('progress-bar').style.width = pcts[currentStep] || '0%';
+}
+
+// ─────────────────────────────────────
+// SIDEBAR ANIMATION
+// ─────────────────────────────────────
+function updateSidebar() {}
+
+// ─────────────────────────────────────
+// ACCORDION
+// ─────────────────────────────────────
+function setStepState(n, state) {
+  const el = document.getElementById('step-' + n);
+  if (!el) return;
+  el.classList.remove('step--active', 'step--pending', 'step--complete');
+  el.classList.add('step--' + state);
+}
+
+function openStep(n) {
+  currentStep = n;
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('step-' + i);
+    if (!el) continue;
+    if (i === n) {
+      setStepState(i, 'active');
+    } else if (el.classList.contains('step--complete')) {
+      // keep complete
+    } else {
+      setStepState(i, 'pending');
+    }
+  }
+  updateProgress();
+  updateSwitcher();
+  updateSidebar();
+  updateReview();
+}
+
+function updateReview() {
+  const reviewEmail = document.getElementById('review-email');
+  const reviewPayment = document.getElementById('review-payment');
+  if (!reviewEmail) return;
+  reviewEmail.textContent = emailValue || '—';
+  if (currentPaymentMethod === 'card') {
+    const num = document.getElementById('cc-number').value.replace(/\s/g, '');
+    const last4 = num.length >= 4 ? num.slice(-4) : '••••';
+    reviewPayment.textContent = 'Visa ending in ' + last4;
+  } else if (currentPaymentMethod === 'paypal') {
+    reviewPayment.textContent = 'PayPal';
+  } else {
+    reviewPayment.textContent = 'Apple Pay';
+  }
+}
+
+function editStep(n) {
+  setStepState(n, 'active');
+  currentStep = n;
+  for (let i = n + 1; i <= 3; i++) {
+    setStepState(i, 'pending');
+    document.getElementById('summary-' + i).textContent = '';
+  }
+  updateProgress();
+  updateSwitcher();
+  updateSidebar();
+}
+
+// ─────────────────────────────────────
+// STEP 1: ACCOUNT
+// ─────────────────────────────────────
+function onEmailInput(el) {
+  const valid = el.value.trim().length > 3 && el.value.includes('@');
+  setBtn(document.getElementById('btn-account'), valid);
+}
+
+function completeAccount() {
+  emailValue = document.getElementById('email-input').value.trim();
+  if (!emailValue) return;
+  document.getElementById('summary-1').textContent = emailValue;
+  setStepState(1, 'complete');
+  openStep(2);
+}
+
+function completeAccountSocial(provider) {
+  emailValue = 'jsmith@email.com';
+  document.getElementById('summary-1').textContent = provider + ' · ' + emailValue;
+  setStepState(1, 'complete');
+  openStep(2);
+}
+
+// ─────────────────────────────────────
+// STEP 2: PAYMENT
+// ─────────────────────────────────────
+function selectPayment(method) {
+  currentPaymentMethod = method;
+  const cardForm = document.getElementById('card-form');
+  const subscribeBtn = document.getElementById('btn-subscribe');
+  if (method === 'card') {
+    cardForm.classList.add('card-form--open');
+  } else {
+    cardForm.classList.remove('card-form--open');
+  }
+  if (method === 'paypal') {
+    subscribeBtn.innerHTML = '<span style="font-style:italic;font-weight:700;letter-spacing:-0.5px">Pay with PayPal</span>';
+  } else if (method === 'applepay') {
+    subscribeBtn.textContent = '\uF8FF Pay';
+  } else {
+    subscribeBtn.textContent = 'Start My Subscription';
+  }
+}
+
+function completePayment() {
+  let summary = '';
+  if (currentPaymentMethod === 'card') {
+    const num = document.getElementById('cc-number').value.replace(/\s/g, '');
+    const last4 = num.length >= 4 ? num.slice(-4) : '••••';
+    summary = 'Visa ···' + last4;
+  } else if (currentPaymentMethod === 'paypal') {
+    summary = 'PayPal';
+  } else {
+    summary = 'Apple Pay';
+  }
+  document.getElementById('summary-2').textContent = summary;
+  setStepState(2, 'complete');
+  openStep(3);
+}
+
+// ─────────────────────────────────────
+// STEP 3: REVIEW → CONFIRMATION
+// ─────────────────────────────────────
+function completeSubscribe() {
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  const renewalStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  let paymentDisplay = '';
+  if (currentPaymentMethod === 'card') {
+    const num = document.getElementById('cc-number').value.replace(/\s/g, '');
+    const last4 = num.length >= 4 ? num.slice(-4) : '4242';
+    paymentDisplay = '<span class="visa-badge">VISA</span> Ending in ' + last4;
+  } else if (currentPaymentMethod === 'paypal') {
+    paymentDisplay = 'PayPal';
+  } else {
+    paymentDisplay = 'Apple Pay';
+  }
+
+  document.getElementById('confirm-email').textContent = emailValue || 'jsmith@email.com';
+  document.getElementById('confirm-billing-date').textContent = renewalStr;
+  document.getElementById('confirm-payment').innerHTML = paymentDisplay;
+
+  document.getElementById('checkout-page').style.display = 'none';
+  document.getElementById('checkout-footer').style.display = 'none';
+  document.getElementById('confirmation-page').classList.add('show');
+  document.getElementById('sticky-bar').classList.add('show');
+  currentStep = 4;
+  updateProgress();
+  updateSwitcher();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetFlow() {
+  document.getElementById('checkout-page').style.display = 'flex';
+  document.getElementById('checkout-footer').style.display = 'block';
+  document.getElementById('confirmation-page').classList.remove('show');
+  document.getElementById('sticky-bar').classList.remove('show');
+
+  setStepState(1, 'active');
+  setStepState(2, 'pending');
+  setStepState(3, 'pending');
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('summary-' + i).textContent = '';
+  }
+
+  document.getElementById('email-input').value = '';
+  setBtn(document.getElementById('btn-account'), false);
+  emailValue = '';
+  currentPaymentMethod = 'card';
+  document.getElementById('card-form').classList.add('card-form--open');
+  document.getElementById('cc-number').value = '';
+  document.getElementById('cc-expiry').value = '';
+  document.getElementById('cc-cvc').value = '';
+  document.getElementById('cc-zip').value = '';
+  document.getElementById('pm-card').checked = true;
+  document.getElementById('btn-subscribe').textContent = 'Start My Subscription';
+  currentStep = 1;
+  updateProgress();
+  updateSwitcher();
+  updateSidebar();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─────────────────────────────────────
+// CARD FORMATTING
+// ─────────────────────────────────────
+function formatCard(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 16);
+  el.value = v.replace(/(.{4})/g, '$1 ').trim();
+}
+function formatExpiry(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 4);
+  if (v.length >= 3) v = v.substring(0, 2) + '/' + v.substring(2);
+  el.value = v;
+}
+
+// ─────────────────────────────────────
+// UTILITY
+// ─────────────────────────────────────
+function setBtn(btn, active) {
+  if (active) {
+    btn.classList.remove('btn--inactive');
+    btn.classList.add('btn--active');
+    btn.disabled = false;
+  } else {
+    btn.classList.remove('btn--active');
+    btn.classList.add('btn--inactive');
+    btn.disabled = true;
+  }
+}
+
+// ─────────────────────────────────────
+// STEP SWITCHER
+// ─────────────────────────────────────
+function jumpTo(n) {
+  if (n < 1 || n > 4) return;
+  if (n === 4) {
+    if (!emailValue) emailValue = 'jsmith@email.com';
+    completeSubscribe();
+    return;
+  }
+  if (currentStep === 4) {
+    document.getElementById('checkout-page').style.display = 'flex';
+    document.getElementById('checkout-footer').style.display = 'block';
+    document.getElementById('confirmation-page').classList.remove('show');
+    document.getElementById('sticky-bar').classList.remove('show');
+  }
+  for (let i = 1; i < n; i++) {
+    setStepState(i, 'complete');
+    if (i === 1 && !document.getElementById('summary-1').textContent) {
+      document.getElementById('summary-1').textContent = 'jsmith@email.com';
+      emailValue = 'jsmith@email.com';
+    }
+    if (i === 2 && !document.getElementById('summary-2').textContent) {
+      document.getElementById('summary-2').textContent = 'Visa ···4242';
+    }
+  }
+  openStep(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSwitcher() {
+  const btns = document.querySelectorAll('#switcher > button');
+  for (let i = 0; i < 4 && i < btns.length; i++) {
+    btns[i].classList.toggle('sw-active', i + 1 === currentStep);
+  }
+}
+
+// ─────────────────────────────────────
+// KEYBOARD NAV
+// ─────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); jumpTo(Math.min(4, currentStep + 1)); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); jumpTo(Math.max(1, currentStep - 1)); }
+  if (e.key >= '1' && e.key <= '4') jumpTo(+e.key);
+});
+
+// Init
+document.getElementById('btn-account').disabled = true;
+updateProgress();
+</script>
+
+</body>
+</html>

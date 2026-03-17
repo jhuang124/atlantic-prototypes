@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Atlantic — Checkout</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black:              #000000;
+  --atlantic-black:     #2C2825;
+  --page-bg:            #F8F7F4;
+  --white:              #FFFFFF;
+  --warm-gray:          #E7E3DB;
+  --mid-gray:           #ABA9A8;
+  --field-placeholder:  #6F6C69;
+  --link-blue:          #166999;
+  --green:              #2A7A3B;
+  --btn-inactive-bg:    #D9D9D9;
+  --btn-inactive-text:  #ABA9A8;
+  --font-garamond:      'Adobe Garamond Pro', 'EB Garamond', Georgia, serif;
+  --font-graphik:       'Graphik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+body {
+  font-family: var(--font-graphik);
+  background: var(--page-bg);
+  color: var(--atlantic-black);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+.nav { background: var(--white); border-bottom: 1px solid var(--warm-gray); }
+.nav-stripe { height: 4px; background: var(--black); }
+.nav-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 40px;
+  max-width: 1200px; margin: 0 auto;
+}
+.nav-wordmark {
+  font-family: Georgia, serif; font-style: italic;
+  font-size: 24px; color: var(--black); text-decoration: none;
+}
+.nav-help {
+  font-size: 13px; color: var(--atlantic-black); text-decoration: none;
+  border-bottom: 1px solid currentColor;
+}
+
+/* ── LAYOUT ── */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 40px 80px;
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 64px;
+  align-items: start;
+}
+
+/* ── MAIN CHECKOUT ── */
+.checkout-main h1 {
+  font-family: var(--font-garamond);
+  font-size: 44px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: var(--atlantic-black);
+}
+
+/* ── STEPS ── */
+.step {
+  border-top: 1px solid var(--warm-gray);
+}
+.step:last-child {
+  border-bottom: 1px solid var(--warm-gray);
+}
+
+.step-header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 18px 0 18px;
+  cursor: default;
+}
+.step--active .step-header {
+  padding-bottom: 0;
+}
+
+.step-num {
+  font-family: var(--font-graphik);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--atlantic-black);
+  flex-shrink: 0;
+}
+.step--pending .step-num,
+.step--pending .step-title {
+  color: var(--mid-gray);
+}
+
+.step-title {
+  font-family: var(--font-graphik);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--atlantic-black);
+  flex-shrink: 0;
+}
+.step--active .step-title {
+  font-weight: 600;
+}
+
+.step-summary {
+  font-size: 14px;
+  color: var(--field-placeholder);
+  margin-left: 8px;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.step-edit {
+  background: none;
+  border: none;
+  color: var(--link-blue);
+  font-family: var(--font-graphik);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.step-edit:hover { text-decoration: underline; }
+.step-edit { display: none; }
+.step--complete .step-edit { display: block; }
+
+/* ── ACCORDION BODY ── */
+.step-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.32s ease;
+}
+.step--active .step-body {
+  max-height: 900px;
+}
+
+.step-content {
+  padding: 20px 0 28px;
+}
+
+/* ── FORM FIELDS ── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.field-group:last-of-type { margin-bottom: 0; }
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--atlantic-black);
+}
+
+.field-input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid var(--atlantic-black);
+  background: var(--white);
+  border-radius: 2px;
+  padding: 0 12px;
+  font-family: var(--font-graphik);
+  font-size: 15px;
+  color: var(--atlantic-black);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field-input::placeholder { color: var(--field-placeholder); }
+.field-input:focus { border-color: var(--atlantic-black); box-shadow: 0 0 0 2px rgba(44,40,37,0.12); }
+.field-input[readonly] {
+  background: #F0EDE8;
+  color: var(--field-placeholder);
+  cursor: default;
+}
+
+.field-row {
+  display: grid;
+  gap: 12px;
+}
+.field-row--2 { grid-template-columns: 1fr 1fr; }
+.field-row--3 { grid-template-columns: 2fr 1fr 1fr; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: block;
+  width: 100%;
+  height: 48px;
+  border-radius: 2px;
+  border: none;
+  font-family: var(--font-graphik);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 20px;
+}
+.btn--primary {
+  background: var(--atlantic-black);
+  color: var(--white);
+}
+.btn--primary:hover { opacity: 0.88; }
+.btn--primary:disabled,
+.btn--inactive {
+  background: var(--btn-inactive-bg);
+  color: var(--btn-inactive-text);
+  cursor: default;
+  pointer-events: none;
+}
+
+.btn-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--field-placeholder);
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ── PAYMENT METHOD SWITCHER ── */
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 20px;
+  border: 1px solid var(--warm-gray);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.payment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  background: var(--white);
+  border-bottom: 1px solid var(--warm-gray);
+  transition: background 0.12s;
+}
+.payment-option:last-child { border-bottom: none; }
+.payment-option:hover { background: #FAF8F5; }
+
+.payment-option input[type="radio"] {
+  width: 18px; height: 18px;
+  accent-color: var(--atlantic-black);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.payment-option-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--atlantic-black);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.payment-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Card form panel */
+.card-form {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.28s ease;
+}
+.card-form--open {
+  max-height: 400px;
+}
+.card-form-inner {
+  padding: 16px;
+  background: #FAF8F5;
+  border-top: 1px solid var(--warm-gray);
+}
+
+/* ── ORDER SUMMARY SIDEBAR ── */
+.sidebar {
+  position: sticky;
+  top: 24px;
+}
+
+.sidebar-card {
+  background: var(--white);
+  border: 1px solid var(--warm-gray);
+  border-radius: 2px;
+  padding: 24px;
+}
+
+.sidebar-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--mid-gray);
+  margin-bottom: 16px;
+}
+
+.sidebar-promo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--atlantic-black);
+  margin-bottom: 4px;
+}
+
+.sidebar-plan {
+  font-family: var(--font-garamond);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--atlantic-black);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.sidebar-desc {
+  font-size: 13px;
+  color: var(--field-placeholder);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid var(--warm-gray);
+  margin: 16px 0;
+}
+
+.sidebar-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--atlantic-black);
+}
+.sidebar-price-row .label { color: var(--field-placeholder); }
+.sidebar-price-row .value { font-weight: 500; }
+
+.sidebar-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--warm-gray);
+  color: var(--atlantic-black);
+}
+
+.sidebar-savings {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--green);
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* ── REVIEW STEP CONTENT ── */
+.review-order-card {
+  border: 1px solid var(--warm-gray);
+  border-radius: 2px;
+  padding: 20px;
+  background: var(--white);
+  margin-bottom: 20px;
+}
+
+.review-promo {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--atlantic-black);
+  margin-bottom: 4px;
+}
+
+.review-plan {
+  font-family: var(--font-garamond);
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+.review-plan-desc {
+  font-size: 13px;
+  color: var(--field-placeholder);
+  margin-bottom: 16px;
+}
+
+.review-price-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--atlantic-black);
+  margin-bottom: 6px;
+}
+.review-price-row .label { color: var(--field-placeholder); }
+
+.review-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--warm-gray);
+}
+
+.review-savings {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--green);
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+.review-divider {
+  border: none;
+  border-top: 1px solid var(--warm-gray);
+  margin: 4px 0 12px;
+}
+
+.renewal-terms {
+  font-size: 12px;
+  color: var(--field-placeholder);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.renewal-terms a { color: var(--link-blue); }
+
+.terms-line {
+  font-size: 12px;
+  color: var(--field-placeholder);
+  margin-top: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+.terms-line a { color: var(--link-blue); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-stripe"></div>
+  <div class="nav-row">
+    <span style="width:80px"></span>
+    <a href="#" class="nav-wordmark">The Atlantic</a>
+    <a href="#" class="nav-help">Need help?</a>
+  </div>
+</nav>
+
+<!-- PAGE LAYOUT -->
+<div class="page">
+
+  <!-- MAIN CHECKOUT COLUMN -->
+  <div class="checkout-main">
+    <h1>Checkout</h1>
+
+    <!-- STEP 1: ACCOUNT -->
+    <div class="step step--active" id="step-1">
+      <div class="step-header">
+        <span class="step-num">1.</span>
+        <span class="step-title">Account</span>
+        <span class="step-summary" id="summary-1"></span>
+        <button class="step-edit" onclick="editStep(1)">Edit</button>
+      </div>
+      <div class="step-body">
+        <div class="step-content">
+          <p style="font-size:13px;color:var(--field-placeholder);margin-bottom:18px;line-height:1.5;">
+            Get started by logging in or creating your account.
+          </p>
+          <div class="field-group">
+            <label class="field-label" for="email">Email address</label>
+            <input class="field-input" type="email" id="email" placeholder=""
+              oninput="onEmailInput(this)">
+          </div>
+          <button class="btn btn--inactive" id="btn-account" onclick="completeAccount()">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: PAYMENT -->
+    <div class="step step--pending" id="step-2">
+      <div class="step-header">
+        <span class="step-num">2.</span>
+        <span class="step-title">Payment</span>
+        <span class="step-summary" id="summary-2"></span>
+        <button class="step-edit" onclick="editStep(2)">Edit</button>
+      </div>
+      <div class="step-body">
+        <div class="step-content">
+
+          <!-- Payment method switcher -->
+          <div class="payment-methods">
+
+            <!-- Credit / Debit Card -->
+            <label class="payment-option" for="pm-card" onclick="selectPayment('card')">
+              <input type="radio" id="pm-card" name="payment-method" value="card" checked>
+              <span class="payment-option-label">
+                <span class="payment-icon">
+                  <svg width="28" height="18" viewBox="0 0 28 18" fill="none">
+                    <rect x="0.5" y="0.5" width="27" height="17" rx="2.5" fill="white" stroke="#D9D9D9"/>
+                    <rect x="2" y="5" width="24" height="3" fill="#2C2825"/>
+                    <rect x="2" y="11" width="8" height="2" rx="1" fill="#ABA9A8"/>
+                  </svg>
+                </span>
+                Credit or Debit Card
+              </span>
+            </label>
+
+            <!-- Card form (slides open when card selected) -->
+            <div class="card-form card-form--open" id="card-form">
+              <div class="card-form-inner">
+                <div class="field-row field-row--2" style="margin-bottom:12px">
+                  <div class="field-group" style="margin-bottom:0">
+                    <label class="field-label" for="cc-first">First Name</label>
+                    <input class="field-input" type="text" id="cc-first" placeholder="">
+                  </div>
+                  <div class="field-group" style="margin-bottom:0">
+                    <label class="field-label" for="cc-last">Last Name</label>
+                    <input class="field-input" type="text" id="cc-last" placeholder="">
+                  </div>
+                </div>
+                <div class="field-group" style="margin-bottom:12px">
+                  <label class="field-label" for="cc-number">Card Number</label>
+                  <div style="position:relative">
+                    <input class="field-input" type="text" id="cc-number" placeholder="•••• •••• •••• ••••"
+                      maxlength="19" oninput="formatCard(this)" style="padding-right:100px">
+                    <div style="position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;gap:8px;align-items:center">
+                      <input class="field-input" type="text" id="cc-exp" placeholder="MM/YY" maxlength="5"
+                        oninput="formatExpiry(this)"
+                        style="width:68px;height:28px;font-size:12px;padding:0 6px;border:1px solid #E7E3DB">
+                      <input class="field-input" type="text" id="cc-cvv" placeholder="CVV" maxlength="4"
+                        style="width:48px;height:28px;font-size:12px;padding:0 6px;border:1px solid #E7E3DB">
+                    </div>
+                  </div>
+                </div>
+                <div class="field-row field-row--2">
+                  <div class="field-group" style="margin-bottom:0">
+                    <label class="field-label" for="cc-country">Country</label>
+                    <select class="field-input" id="cc-country" style="appearance:auto;cursor:pointer">
+                      <option>United States</option>
+                      <option>Canada</option>
+                      <option>United Kingdom</option>
+                      <option>Australia</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div class="field-group" style="margin-bottom:0">
+                    <label class="field-label" for="cc-zip">Zip / Postal Code</label>
+                    <input class="field-input" type="text" id="cc-zip" placeholder="">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PayPal -->
+            <label class="payment-option" for="pm-paypal" onclick="selectPayment('paypal')">
+              <input type="radio" id="pm-paypal" name="payment-method" value="paypal">
+              <span class="payment-option-label">
+                <span class="payment-icon">
+                  <svg width="60" height="16" viewBox="0 0 60 16" fill="none">
+                    <text y="13" font-family="Arial" font-size="13" font-weight="700" fill="#003087">Pay</text>
+                    <text x="22" y="13" font-family="Arial" font-size="13" font-weight="700" fill="#009cde">Pal</text>
+                  </svg>
+                </span>
+              </span>
+            </label>
+
+            <!-- Google Pay -->
+            <label class="payment-option" for="pm-gpay" onclick="selectPayment('gpay')">
+              <input type="radio" id="pm-gpay" name="payment-method" value="gpay">
+              <span class="payment-option-label">
+                <span class="payment-icon">
+                  <svg width="54" height="22" viewBox="0 0 54 22" fill="none">
+                    <text y="16" font-family="Arial" font-size="13" font-weight="500" fill="#5F6368">G</text>
+                    <text x="10" y="16" font-family="Arial" font-size="13" font-weight="500" fill="#EA4335">o</text>
+                    <text x="19" y="16" font-family="Arial" font-size="13" font-weight="500" fill="#4285F4">o</text>
+                    <text x="28" y="16" font-family="Arial" font-size="13" font-weight="500" fill="#34A853">g</text>
+                    <text x="37" y="16" font-family="Arial" font-size="13" font-weight="500" fill="#EA4335">l</text>
+                    <text x="42" y="16" font-family="Arial" font-size="13" font-weight="500" fill="#4285F4">e</text>
+                    <text x="50" y="16" font-family="Arial" font-size="14" font-weight="400" fill="#5F6368"> Pay</text>
+                  </svg>
+                </span>
+              </span>
+            </label>
+
+          </div><!-- /.payment-methods -->
+
+          <button class="btn btn--primary" id="btn-payment" onclick="completePayment()">Continue</button>
+          <div class="btn-note">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="5" width="10" height="7" rx="1" stroke="#6F6C69" stroke-width="1.2"/>
+              <path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#6F6C69" stroke-width="1.2"/>
+            </svg>
+            Secure form
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: REVIEW -->
+    <div class="step step--pending" id="step-3">
+      <div class="step-header">
+        <span class="step-num">3.</span>
+        <span class="step-title">Review</span>
+        <span class="step-summary" id="summary-3"></span>
+        <button class="step-edit" onclick="editStep(3)">Edit</button>
+      </div>
+      <div class="step-body">
+        <div class="step-content">
+
+          <div class="review-order-card">
+            <div class="review-promo">Limited Time Offer</div>
+            <div class="review-plan">All Access Subscription</div>
+            <div class="review-plan-desc">Unlimited access to The Atlantic, across all platforms.</div>
+            <hr class="review-divider">
+            <div class="review-price-row">
+              <span class="label">Annual price</span>
+              <span>$89.99</span>
+            </div>
+            <div class="review-price-row">
+              <span class="label">Offer ends</span>
+              <span id="review-offer-end">—</span>
+            </div>
+            <div class="review-total">
+              <span>Total due today</span>
+              <span>$89.99</span>
+            </div>
+            <div class="review-savings">
+              <span>You save</span>
+              <span>$30.00</span>
+            </div>
+          </div>
+
+          <div class="renewal-terms">
+            You will be automatically charged $89.99 USD/year for the first year, and
+            $119.99 USD/year thereafter. Cancel anytime from your account settings.
+            Prices subject to change. Sales tax may apply.
+            See our <a href="#">Terms of Sale</a>.
+          </div>
+
+          <p style="font-size:12px;color:var(--field-placeholder);margin-bottom:16px;line-height:1.5;">
+            By subscribing, you agree to our <a href="#" style="color:var(--link-blue)">Terms of Sale</a>
+            and <a href="#" style="color:var(--link-blue)">Terms of Service</a>.
+          </p>
+
+          <!-- CTA changes based on payment method -->
+          <button class="btn btn--primary" id="btn-subscribe" onclick="completeSubscribe()">
+            Start My Subscription
+          </button>
+          <div class="btn-note">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="5" width="10" height="7" rx="1" stroke="#6F6C69" stroke-width="1.2"/>
+              <path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#6F6C69" stroke-width="1.2"/>
+            </svg>
+            Secure transaction
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.checkout-main -->
+
+  <!-- ORDER SUMMARY SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-label">Order Summary</div>
+
+      <div class="sidebar-promo">Limited Time Offer</div>
+      <div class="sidebar-plan">All Access Subscription</div>
+      <div class="sidebar-desc">Unlimited access to The Atlantic, across all platforms.</div>
+
+      <hr class="sidebar-divider">
+
+      <div class="sidebar-price-row">
+        <span class="label">Annual price</span>
+        <span class="value">$89.99</span>
+      </div>
+      <div class="sidebar-price-row">
+        <span class="label">Offer valid until</span>
+        <span class="value" id="sidebar-offer-end">—</span>
+      </div>
+
+      <div class="sidebar-total-row">
+        <span>Total</span>
+        <span>$89.99 / year</span>
+      </div>
+
+      <div class="sidebar-savings">
+        <span>You save</span>
+        <span>$30.00</span>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /.page -->
+
+<!-- CONFIRMATION STATE (hidden by default) -->
+<div id="confirmation" style="display:none;max-width:600px;margin:60px auto;padding:0 40px 80px;text-align:center">
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin-bottom:20px">
+    <circle cx="24" cy="24" r="23" stroke="#2A7A3B" stroke-width="2"/>
+    <path d="M14 24l7 7 13-14" stroke="#2A7A3B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <h2 style="font-family:var(--font-garamond);font-size:32px;font-weight:400;margin-bottom:12px;color:var(--atlantic-black)">
+    You're all set.
+  </h2>
+  <p style="font-size:15px;color:var(--field-placeholder);line-height:1.6;margin-bottom:8px">
+    Welcome to The Atlantic. Your subscription begins today.
+  </p>
+  <p style="font-size:13px;color:var(--field-placeholder);margin-bottom:32px" id="confirm-email-line"></p>
+  <div style="border:1px solid var(--warm-gray);border-radius:2px;background:var(--white);padding:24px;text-align:left;margin-bottom:28px">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mid-gray);margin-bottom:12px">Order Confirmation</div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+      <span style="color:var(--field-placeholder)">Plan</span><span>All Access Subscription</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+      <span style="color:var(--field-placeholder)">Payment</span>
+      <span id="confirm-payment">—</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+      <span style="color:var(--field-placeholder)">Charged today</span><span>$89.99</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;border-top:1px solid var(--warm-gray);padding-top:12px;margin-top:4px">
+      <span style="color:var(--field-placeholder)">Next renewal</span>
+      <span id="confirm-renewal">—</span>
+    </div>
+  </div>
+  <a href="#" style="font-size:14px;color:var(--link-blue);border-bottom:1px solid currentColor;text-decoration:none" onclick="resetFlow(); return false">
+    ← Start over
+  </a>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let currentPaymentMethod = 'card';
+let emailValue = '';
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+(function init() {
+  // Set offer end date = 30 days from today
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  const formatted = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  document.getElementById('sidebar-offer-end').textContent = formatted;
+  document.getElementById('review-offer-end').textContent = formatted;
+})();
+
+// ─────────────────────────────────────────────
+// ACCORDION MECHANICS
+// ─────────────────────────────────────────────
+function setStepState(n, state) {
+  const el = document.getElementById('step-' + n);
+  el.classList.remove('step--active', 'step--pending', 'step--complete');
+  el.classList.add('step--' + state);
+}
+
+function openStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    if (i === n) {
+      setStepState(i, 'active');
+    } else {
+      const current = document.getElementById('step-' + i);
+      if (current.classList.contains('step--active')) {
+        setStepState(i, 'pending');
+      }
+      // leave complete steps as complete
+    }
+  }
+}
+
+function editStep(n) {
+  // Re-open this step; steps after it revert to pending
+  setStepState(n, 'active');
+  for (let i = n + 1; i <= 3; i++) {
+    setStepState(i, 'pending');
+    document.getElementById('summary-' + i).textContent = '';
+  }
+}
+
+// ─────────────────────────────────────────────
+// STEP 1: ACCOUNT
+// ─────────────────────────────────────────────
+function onEmailInput(el) {
+  const valid = el.value.trim().length > 3 && el.value.includes('@');
+  const btn = document.getElementById('btn-account');
+  if (valid) {
+    btn.classList.remove('btn--inactive');
+    btn.classList.add('btn--primary');
+  } else {
+    btn.classList.add('btn--inactive');
+    btn.classList.remove('btn--primary');
+  }
+}
+
+function completeAccount() {
+  emailValue = document.getElementById('email').value.trim();
+  if (!emailValue) return;
+  document.getElementById('summary-1').textContent = emailValue;
+  setStepState(1, 'complete');
+  openStep(2);
+}
+
+// ─────────────────────────────────────────────
+// STEP 2: PAYMENT METHOD SWITCHER
+// ─────────────────────────────────────────────
+function selectPayment(method) {
+  currentPaymentMethod = method;
+  const cardForm = document.getElementById('card-form');
+  const subscribeBtn = document.getElementById('btn-subscribe');
+
+  if (method === 'card') {
+    cardForm.classList.add('card-form--open');
+  } else {
+    cardForm.classList.remove('card-form--open');
+  }
+
+  // Update review CTA button text
+  if (method === 'paypal') {
+    subscribeBtn.textContent = 'Continue with PayPal';
+  } else if (method === 'gpay') {
+    subscribeBtn.textContent = 'Continue with Google Pay';
+  } else {
+    subscribeBtn.textContent = 'Start My Subscription';
+  }
+}
+
+function completePayment() {
+  let summary = '';
+  if (currentPaymentMethod === 'card') {
+    const num = document.getElementById('cc-number').value.replace(/\s/g, '');
+    const last4 = num.length >= 4 ? num.slice(-4) : '••••';
+    summary = 'Visa ···' + last4;
+  } else if (currentPaymentMethod === 'paypal') {
+    summary = 'PayPal';
+  } else if (currentPaymentMethod === 'gpay') {
+    summary = 'Google Pay';
+  }
+  document.getElementById('summary-2').textContent = summary;
+  setStepState(2, 'complete');
+  openStep(3);
+}
+
+// ─────────────────────────────────────────────
+// STEP 3: REVIEW → CONFIRM
+// ─────────────────────────────────────────────
+function completeSubscribe() {
+  // Build confirmation data
+  const renewalDate = new Date();
+  renewalDate.setFullYear(renewalDate.getFullYear() + 1);
+  const renewalStr = renewalDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+  let paymentDisplay = '';
+  if (currentPaymentMethod === 'card') {
+    const num = document.getElementById('cc-number').value.replace(/\s/g, '');
+    const last4 = num.length >= 4 ? num.slice(-4) : '••••';
+    paymentDisplay = 'Visa ···' + last4;
+  } else if (currentPaymentMethod === 'paypal') {
+    paymentDisplay = 'PayPal';
+  } else {
+    paymentDisplay = 'Google Pay';
+  }
+
+  document.getElementById('confirm-email-line').textContent =
+    'A confirmation has been sent to ' + emailValue;
+  document.getElementById('confirm-payment').textContent = paymentDisplay;
+  document.getElementById('confirm-renewal').textContent = renewalStr;
+
+  // Hide checkout, show confirmation
+  document.querySelector('.page').style.display = 'none';
+  document.getElementById('confirmation').style.display = 'block';
+}
+
+function resetFlow() {
+  document.querySelector('.page').style.display = 'grid';
+  document.getElementById('confirmation').style.display = 'none';
+  // Reset steps
+  setStepState(1, 'active');
+  setStepState(2, 'pending');
+  setStepState(3, 'pending');
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('summary-' + i).textContent = '';
+  }
+  document.getElementById('email').value = '';
+  document.getElementById('btn-account').classList.add('btn--inactive');
+  document.getElementById('btn-account').classList.remove('btn--primary');
+  emailValue = '';
+  currentPaymentMethod = 'card';
+  document.getElementById('card-form').classList.add('card-form--open');
+  document.getElementById('cc-number').value = '';
+  document.getElementById('cc-exp').value = '';
+  document.getElementById('cc-cvv').value = '';
+  document.getElementById('cc-zip').value = '';
+  document.getElementById('pm-card').checked = true;
+  document.getElementById('btn-subscribe').textContent = 'Start My Subscription';
+}
+
+// ─────────────────────────────────────────────
+// CARD FORMATTING
+// ─────────────────────────────────────────────
+function formatCard(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 16);
+  el.value = v.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function formatExpiry(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 4);
+  if (v.length >= 3) {
+    v = v.substring(0, 2) + '/' + v.substring(2);
+  }
+  el.value = v;
+}
+</script>
+
+</body>
+</html>

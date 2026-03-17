@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Atlantic — Subscribe</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #000000;
+  --atlantic-black: #2C2825;
+  --page-bg: #F8F7F4;
+  --white: #FFFFFF;
+  --card-outline: #E7E3DB;
+  --warm-gray: #E7E3DB;
+  --dark-warm-gray: #45423F;
+  --field-border: #2C2825;
+  --field-placeholder: #6F6C69;
+  --btn-inactive-bg: #D9D9D9;
+  --btn-inactive-text: #ABA9A8;
+  --link-blue: #166999;
+  --renewal-bg: #FDF5E6;
+  --renewal-border: #E8D5A3;
+  --font-garamond: 'Adobe Garamond Pro', 'EB Garamond', Georgia, serif;
+  --font-graphik: 'Graphik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-logic: 'Logic Monospace', 'SF Mono', Menlo, monospace;
+  --font-arial: Arial, Helvetica, sans-serif;
+}
+
+body {
+  font-family: var(--font-graphik);
+  background: var(--page-bg);
+  color: var(--atlantic-black);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── NAV ── */
+.nav {
+  background: var(--white);
+  border-bottom: 1px solid var(--card-outline);
+  position: sticky; top: 0; z-index: 50;
+}
+.nav-stripe { height: 4px; background: var(--black); }
+.nav-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px;
+  max-width: 1440px; margin: 0 auto;
+}
+.nav-link { font-size: 14px; font-weight: 600; color: var(--black); text-decoration: none; }
+.nav-link:hover { text-decoration: underline; }
+.nav-wordmark {
+  font-family: Georgia, serif; font-style: italic;
+  font-size: 26px; color: var(--black); text-decoration: none;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap {
+  background: var(--white);
+  border-bottom: 1px solid rgba(0,0,0,0.12);
+  padding: 18px 32px 14px;
+  display: flex; justify-content: center;
+}
+.progress-inner {
+  display: flex; align-items: flex-start;
+  width: 340px;
+}
+.prog-step {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  flex-shrink: 0;
+  /* wide enough to not clip label */
+  width: 64px;
+}
+.prog-dot {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-graphik); font-size: 9px; font-weight: 600;
+  transition: all 0.3s;
+}
+.prog-dot--active   { background: var(--black); color: var(--white); }
+.prog-dot--done     { background: var(--black); color: var(--white); font-size: 0; }
+.prog-dot--done::after { content: '✓'; font-size: 11px; }
+.prog-dot--inactive { background: var(--white); border: 1px solid var(--black); color: var(--black); }
+.prog-label {
+  font-size: 12px; color: var(--black); white-space: nowrap;
+  font-family: var(--font-graphik); line-height: 1;
+  text-align: center;
+}
+.prog-line {
+  flex: 1; height: 1px; background: var(--field-border);
+  margin-top: 10px; min-width: 0;
+}
+
+/* ── PAGE SHELL ── */
+.page { display: none; min-height: calc(100vh - 110px); }
+.page.active { display: block; }
+
+/* ── MAIN CONTENT AREA ── */
+.main {
+  width: 376px; max-width: 100%; margin: 0 auto;
+  padding: 48px 0 80px;
+}
+.main--wide {
+  max-width: 1100px; margin: 0 auto;
+  padding: 40px 48px 80px;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 48px;
+  align-items: start;
+}
+
+/* ── HEADINGS ── */
+.h1 {
+  font-family: var(--font-garamond);
+  font-size: 30px; font-weight: 400;
+  color: var(--atlantic-black);
+  text-align: center; line-height: 1.1;
+  margin-bottom: 32px; letter-spacing: -0.2px;
+}
+.h1--left { text-align: left; margin-bottom: 16px; }
+.h2 {
+  font-family: var(--font-garamond);
+  font-size: 20px; font-weight: 400;
+  color: var(--atlantic-black); margin-bottom: 12px;
+}
+
+/* ── SIGNED-IN NOTICE ── */
+.signed-in {
+  font-size: 14px; color: var(--atlantic-black);
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 28px; line-height: 1.4;
+}
+.signed-in-check { color: var(--link-blue); font-size: 14px; }
+.signed-in a { color: var(--link-blue); text-decoration: underline; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 0; }
+.form-label {
+  display: block;
+  font-family: var(--font-graphik); font-size: 12px;
+  color: var(--atlantic-black);
+  padding-left: 3px; margin-bottom: 6px; line-height: 14px;
+}
+.form-field {
+  display: flex; align-items: center;
+  background: var(--white);
+  border: 1px solid var(--field-border);
+  border-radius: 4px;
+  padding: 14px 16px;
+  min-height: 52px;
+}
+.form-field--muted { background: #F5F4F2; border-color: var(--card-outline); }
+.form-input {
+  flex: 1; border: none; outline: none;
+  font-family: var(--font-arial); font-size: 16px;
+  color: var(--atlantic-black); background: transparent; line-height: 1.3;
+}
+.form-input::placeholder { color: var(--field-placeholder); }
+.form-input--muted { color: var(--field-placeholder); }
+.field-btn {
+  font-family: var(--font-graphik); font-size: 14px;
+  color: var(--atlantic-black); background: none; border: none;
+  cursor: pointer; text-decoration: underline; margin-left: 10px; flex-shrink: 0;
+}
+.field-btn:hover { color: var(--link-blue); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.form-select {
+  width: 100%; height: 52px;
+  border: 1px solid var(--field-border); border-radius: 4px;
+  padding: 0 16px;
+  font-family: var(--font-arial); font-size: 16px;
+  color: var(--atlantic-black); background: var(--white);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%232C2825' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 16px center;
+  outline: none;
+}
+
+/* ── CHECKBOX ── */
+.check-row { display: flex; gap: 10px; align-items: flex-start; margin: 16px 0; }
+.check-input { width: 16px; height: 16px; margin-top: 2px; accent-color: var(--link-blue); flex-shrink: 0; cursor: pointer; }
+.check-label { font-family: var(--font-graphik); font-size: 14px; line-height: 1.4; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 51px; border-radius: 4px; border: none;
+  font-family: var(--font-logic); font-size: 16px; font-weight: 500;
+  cursor: pointer; transition: opacity 0.15s, background 0.2s;
+  line-height: 1.1;
+}
+.btn--active   { background: var(--atlantic-black); color: var(--white); }
+.btn--active:hover { opacity: 0.88; }
+.btn--inactive { background: var(--btn-inactive-bg); color: var(--btn-inactive-text); cursor: default; }
+.btn--outline-dark {
+  background: var(--atlantic-black); color: var(--white);
+  border-radius: 4px; height: 48px; font-size: 15px;
+}
+.btn--paypal { background: var(--atlantic-black); color: var(--white); height: 48px; }
+.btn--applepay { background: var(--atlantic-black); color: var(--white); height: 48px; font-size: 20px; }
+
+/* ── OR DIVIDER ── */
+.or-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin: 16px 0;
+}
+.or-line { flex: 1; height: 1px; background: var(--card-outline); }
+.or-text {
+  font-family: var(--font-graphik);
+  font-size: 14px; color: var(--atlantic-black);
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+
+/* ── SOCIAL BUTTONS ── */
+.social-section { margin-top: 32px; }
+.social-btn {
+  display: flex; align-items: center;
+  width: 100%; height: 42px;
+  background: var(--warm-gray);
+  border: 1px solid var(--dark-warm-gray);
+  border-radius: 4px;
+  padding: 0 16px;
+  font-family: var(--font-logic); font-size: 16px; font-weight: 500;
+  color: var(--atlantic-black); cursor: pointer; margin-bottom: 8px;
+  transition: background 0.15s;
+}
+.social-btn:last-child { margin-bottom: 0; }
+.social-btn:hover { background: #DDD9D1; }
+.social-icon {
+  width: 20px; height: 20px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.social-icon svg { width: 16px; height: 16px; }
+.social-label { flex: 1; text-align: center; }
+
+/* ── FORGOT LINK ── */
+.forgot {
+  text-align: center; font-size: 16px; margin-top: 8px;
+  color: var(--atlantic-black); letter-spacing: 0.32px;
+}
+.forgot a { color: var(--link-blue); text-decoration: underline; }
+
+/* ── LEGAL COPY ── */
+.legal {
+  font-size: 14px; line-height: 1.5;
+  color: var(--atlantic-black); margin-top: 12px; text-align: center;
+}
+.legal a { color: var(--link-blue); text-decoration: underline; }
+
+/* ── PAYMENT SPECIFIC ── */
+.payment-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+.cc-row { display: grid; grid-template-columns: 1fr 90px 70px; gap: 0; }
+.cc-row .form-field {
+  border-radius: 0;
+  border-right: none;
+}
+.cc-row .form-field:first-child { border-radius: 4px 0 0 4px; }
+.cc-row .form-field:last-child { border-radius: 0 4px 4px 0; border-right: 1px solid var(--field-border); }
+
+.renewal-box {
+  background: var(--renewal-bg); border: 1px solid var(--renewal-border);
+  border-radius: 4px; padding: 20px; margin: 24px 0;
+  font-size: 13px; line-height: 1.55; color: var(--atlantic-black);
+}
+.renewal-box strong { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+.renewal-box a { color: var(--link-blue); text-decoration: underline; }
+
+.section-gap { margin-top: 28px; }
+
+/* ── SIDEBAR ── */
+.sidebar-card {
+  background: var(--white); border: 1px solid var(--card-outline);
+  border-radius: 4px; padding: 24px;
+}
+.plan-name {
+  font-family: var(--font-garamond); font-size: 20px;
+  color: var(--atlantic-black); margin-bottom: 16px;
+}
+.feature-list { list-style: none; margin-bottom: 24px; }
+.feature-list li {
+  display: flex; gap: 10px; align-items: flex-start;
+  font-size: 14px; line-height: 1.5; margin-bottom: 6px;
+}
+.feature-list li::before { content: '✓'; color: var(--atlantic-black); font-weight: 600; flex-shrink: 0; margin-top: 1px; }
+.order-summary-title {
+  font-family: var(--font-graphik); font-size: 11px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px;
+  color: var(--atlantic-black);
+}
+.order-rule { height: 1px; background: var(--card-outline); margin: 12px 0; }
+.order-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px; }
+.order-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 600; margin-top: 12px; }
+.order-note { font-size: 12px; color: var(--field-placeholder); margin-top: 8px; line-height: 1.5; }
+
+/* ── CONFIRMATION ── */
+.confirm-wrap { max-width: 420px; margin: 48px auto 0; padding: 0 24px; }
+.confirm-h1 {
+  font-family: var(--font-garamond); font-size: 36px; font-weight: 400;
+  color: var(--atlantic-black); margin-bottom: 16px;
+}
+.confirm-sub { font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: var(--atlantic-black); }
+.confirm-rule { height: 1px; background: var(--card-outline); margin: 24px 0; }
+.confirm-section-title {
+  font-family: var(--font-garamond); font-size: 22px;
+  margin-bottom: 24px; color: var(--atlantic-black);
+}
+.confirm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 32px; margin-bottom: 24px; }
+.confirm-label {
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--atlantic-black);
+  margin-bottom: 4px;
+}
+.confirm-value { font-size: 15px; color: var(--atlantic-black); line-height: 1.4; }
+.visa-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #1A1F71; color: var(--white);
+  font-size: 9px; font-weight: 700; border-radius: 3px;
+  padding: 2px 5px; margin-right: 6px; letter-spacing: 0.5px;
+}
+.confirm-feedback { font-size: 14px; line-height: 1.6; color: var(--atlantic-black); }
+.confirm-feedback a { color: var(--link-blue); text-decoration: underline; }
+
+/* ── STICKY BOTTOM BAR ── */
+.sticky-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--atlantic-black); color: var(--white);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 48px; z-index: 40;
+}
+.sticky-bar-text { font-family: var(--font-garamond); font-size: 22px; line-height: 1.2; }
+.sticky-bar-sub { font-size: 14px; opacity: 0.8; margin-top: 2px; }
+.sticky-bar-actions { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.sticky-bar-btn {
+  background: var(--white); color: var(--atlantic-black);
+  border: none; border-radius: 4px; padding: 12px 32px;
+  font-family: var(--font-logic); font-size: 15px; font-weight: 500;
+  cursor: pointer;
+}
+.sticky-bar-btn:hover { opacity: 0.9; }
+.sticky-bar-link { font-size: 13px; color: rgba(255,255,255,0.7); text-decoration: underline; cursor: pointer; }
+
+/* ── FOOTER ── */
+.footer {
+  border-top: 1px solid var(--card-outline);
+  padding: 48px 80px 40px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  max-width: 1440px; margin: 0 auto; background: var(--page-bg);
+}
+.footer-links { display: flex; flex-wrap: wrap; gap: 12px 32px; margin-bottom: 28px; }
+.footer-links a { font-size: 14px; color: var(--atlantic-black); text-decoration: none; }
+.footer-links a:hover { text-decoration: underline; }
+.footer-legal-row { display: flex; align-items: center; gap: 12px; font-size: 12px; margin-bottom: 6px; }
+.footer-legal-row a { color: var(--atlantic-black); text-decoration: none; }
+.footer-legal-div { width: 1px; height: 12px; background: var(--atlantic-black); }
+.footer-fine { font-size: 12px; line-height: 1.6; }
+.footer-brand { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+.footer-glyph { font-family: Georgia, serif; font-size: 64px; line-height: 0.85; }
+.footer-brand-name { font-family: Georgia, serif; font-size: 16px; font-style: italic; }
+
+/* ── STEP SWITCHER ── */
+.switcher {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--atlantic-black); border-radius: 48px;
+  padding: 6px; display: flex; align-items: center; gap: 2px;
+  z-index: 200; box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  font-family: var(--font-graphik);
+}
+.switcher button {
+  background: none; border: none; color: var(--white);
+  font-family: var(--font-graphik); font-size: 12px;
+  cursor: pointer; padding: 7px 13px; border-radius: 32px;
+  white-space: nowrap; transition: background 0.2s;
+}
+.switcher button:hover { background: rgba(255,255,255,0.15); }
+.switcher button.active { background: var(--link-blue); font-weight: 600; }
+.switcher-div { width: 1px; height: 18px; background: rgba(255,255,255,0.2); }
+.switcher-arrows button { padding: 7px 9px; font-size: 13px; }
+
+/* Confirmation page bottom padding for sticky bar */
+#page-4.active { padding-bottom: 120px; }
+
+/* Animation */
+.page { animation: fadeUp 0.25s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     NAV (shared)
+════════════════════════════════════════════ -->
+<nav class="nav">
+  <div class="nav-stripe"></div>
+  <div class="nav-row">
+    <a href="#" class="nav-link">Home</a>
+    <a href="#" class="nav-wordmark">The Atlantic</a>
+    <a href="#" class="nav-link">Sign out</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 1 — ENTER EMAIL
+════════════════════════════════════════════ -->
+<div class="page active" id="page-1">
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-inner">
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--active" id="p1-d1">1</div>
+        <div class="prog-label">Account</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--inactive">2</div>
+        <div class="prog-label">Payment</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--inactive">3</div>
+        <div class="prog-label">Confirmation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <h1 class="h1">Subscribe to The Atlantic</h1>
+
+    <div class="form-group">
+      <label class="form-label">Your Email</label>
+      <div class="form-field">
+        <input class="form-input" type="email" id="email-input"
+               placeholder="name@provider.com"
+               oninput="onEmailInput(this)">
+      </div>
+    </div>
+
+    <button class="btn btn--inactive" id="continue-btn"
+            onclick="goToCreateAccount()">Continue</button>
+
+    <div class="social-section">
+      <div class="or-bar">
+        <div class="or-line"></div>
+        <span class="or-text">Or Use</span>
+        <div class="or-line"></div>
+      </div>
+      <button class="social-btn">
+        <span class="social-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M14 8.049C14 4.711 11.314 2 8 2S2 4.711 2 8.049C2 11.067 4.171 13.563 7.063 14v-4.204H5.388V8.049h1.675V6.58c0-1.662.985-2.58 2.492-2.58.722 0 1.477.13 1.477.13v1.633h-.832c-.82 0-1.075.511-1.075 1.036v1.25h1.831l-.293 1.747H9.125V14C12.029 13.563 14 11.067 14 8.049Z" fill="#2C2825"/></svg></span>
+        <span class="social-label">Facebook</span>
+      </button>
+      <button class="social-btn">
+        <span class="social-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M15.68 8.182c0-.567-.05-1.112-.144-1.636H8v3.094h4.306a3.68 3.68 0 0 1-1.597 2.415v2.007h2.587c1.513-1.394 2.384-3.447 2.384-5.88Z" fill="#4285F4"/><path d="M8 16c2.16 0 3.971-.716 5.294-1.938l-2.587-2.007c-.716.48-1.632.763-2.707.763-2.082 0-3.847-1.407-4.476-3.298H.852v2.073A7.997 7.997 0 0 0 8 16Z" fill="#34A853"/><path d="M3.524 9.52A4.812 4.812 0 0 1 3.273 8c0-.528.091-1.04.251-1.52V4.407H.852A7.997 7.997 0 0 0 0 8c0 1.29.308 2.51.852 3.593L3.524 9.52Z" fill="#FBBC05"/><path d="M8 3.182c1.172 0 2.225.403 3.053 1.194l2.29-2.29C11.967.793 10.156 0 8 0A7.997 7.997 0 0 0 .852 4.407L3.524 6.48C4.153 4.589 5.918 3.182 8 3.182Z" fill="#EA4335"/></svg></span>
+        <span class="social-label">Google</span>
+      </button>
+      <button class="social-btn">
+        <span class="social-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M10.5 2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM8 7C5.51 7 3.5 8.12 3.5 9.5V11h9V9.5C12.5 8.12 10.49 7 8 7Z" fill="#2C2825"/></svg></span>
+        <span class="social-label">An institution login</span>
+      </button>
+      <button class="social-btn">
+        <span class="social-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M1.5 3A1.5 1.5 0 0 0 0 4.5v7A1.5 1.5 0 0 0 1.5 13h13a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 14.5 3h-13Zm0 1h13c.28 0 .5.22.5.5v.73L8 9.5 1.5 5.23V4.5c0-.28.22-.5.5-.5ZM1 6.4l6.55 4.37a.75.75 0 0 0 .9 0L15 6.4V11.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V6.4Z" fill="#2C2825"/></svg></span>
+        <span class="social-label">A one-time email link</span>
+      </button>
+    </div>
+
+    <p class="forgot" style="margin-top:24px;">
+      Forgot your <a href="#">email</a> or <a href="#">password?</a>
+    </p>
+  </div>
+
+  <footer class="footer">
+    <div>
+      <div class="footer-links">
+        <a href="#">Sign In</a>
+        <a href="#">Visit our Help Center</a>
+        <a href="#">Accounts &amp; Subscription help</a>
+      </div>
+      <div class="footer-legal-row">
+        <a href="#">Privacy Policy</a>
+        <div class="footer-legal-div"></div>
+        <a href="#">Terms &amp; Conditions</a>
+      </div>
+      <p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p>
+    </div>
+    <div class="footer-brand">
+      <div class="footer-glyph">A</div>
+      <div class="footer-brand-name">The Atlantic</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 2 — CREATE ACCOUNT
+════════════════════════════════════════════ -->
+<div class="page" id="page-2">
+  <div class="progress-wrap">
+    <div class="progress-inner">
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--active">1</div>
+        <div class="prog-label">Account</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--inactive">2</div>
+        <div class="prog-label">Payment</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--inactive">3</div>
+        <div class="prog-label">Confirmation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <h1 class="h1">Create an Account</h1>
+
+    <!-- Email locked -->
+    <div class="form-group">
+      <label class="form-label">Your Email</label>
+      <div class="form-field form-field--muted">
+        <input class="form-input form-input--muted" type="email"
+               id="email-locked" readonly>
+        <button class="field-btn" onclick="goTo(1)">Edit</button>
+      </div>
+    </div>
+
+    <!-- Name row -->
+    <div class="form-row" style="margin-bottom:12px;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">First Name</label>
+        <div class="form-field">
+          <input class="form-input" type="text" id="first-name"
+                 oninput="checkCreateForm()">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Last Name</label>
+        <div class="form-field">
+          <input class="form-input" type="text" id="last-name"
+                 oninput="checkCreateForm()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <div class="form-field">
+        <input class="form-input" type="password" id="password"
+               oninput="checkCreateForm()">
+        <button class="field-btn" onclick="togglePw()">Show</button>
+      </div>
+    </div>
+
+    <!-- Newsletter checkbox -->
+    <div class="check-row">
+      <input class="check-input" type="checkbox" id="newsletter" checked>
+      <label class="check-label" for="newsletter">
+        Sign me up for The Atlantic Daily newsletter, our editors' guide to the stories and ideas that matter.
+      </label>
+    </div>
+
+    <button class="btn btn--inactive" id="create-btn"
+            onclick="goToPayment()">Create Account</button>
+
+    <p class="legal">
+      By creating an account, you agree to The Atlantic's
+      <a href="#">terms of service</a> and <a href="#">privacy policy</a>.
+    </p>
+  </div>
+
+  <footer class="footer">
+    <div>
+      <div class="footer-links">
+        <a href="#">Sign In</a>
+        <a href="#">Visit our Help Center</a>
+        <a href="#">Accounts &amp; Subscription help</a>
+      </div>
+      <div class="footer-legal-row">
+        <a href="#">Privacy Policy</a>
+        <div class="footer-legal-div"></div>
+        <a href="#">Terms &amp; Conditions</a>
+      </div>
+      <p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p>
+    </div>
+    <div class="footer-brand">
+      <div class="footer-glyph">A</div>
+      <div class="footer-brand-name">The Atlantic</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 3 — PAYMENT
+════════════════════════════════════════════ -->
+<div class="page" id="page-3">
+  <div class="progress-wrap">
+    <div class="progress-inner">
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--done"></div>
+        <div class="prog-label">Account</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--active">2</div>
+        <div class="prog-label">Payment</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--inactive">3</div>
+        <div class="prog-label">Confirmation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main--wide">
+    <!-- LEFT COLUMN -->
+    <div>
+      <h1 class="h1 h1--left">Add Payment Information</h1>
+
+      <div class="signed-in">
+        <span class="signed-in-check">✓</span>
+        You're signed in as <strong id="signed-in-email">jsmith@email.com</strong>.
+        <a href="#" onclick="goTo(1);return false;">Not you?</a>
+      </div>
+
+      <h2 class="h2">Payment Information</h2>
+
+      <div class="payment-btns">
+        <button class="btn btn--paypal">
+          <span style="font-style:italic;font-weight:700;letter-spacing:-0.5px;">PayPal</span>
+        </button>
+        <button class="btn btn--applepay">
+          &#xF8FF; Pay
+        </button>
+      </div>
+
+      <div class="or-bar">
+        <div class="or-line"></div>
+        <span class="or-text">OR</span>
+        <div class="or-line"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Credit Card</label>
+        <div class="cc-row">
+          <div class="form-field">
+            <input class="form-input" type="text" id="cc-number"
+                   placeholder="Card Number" maxlength="19"
+                   oninput="formatCard(this); checkPayForm()">
+          </div>
+          <div class="form-field">
+            <input class="form-input" type="text" id="cc-expiry"
+                   placeholder="MM/YY" maxlength="5"
+                   oninput="formatExpiry(this); checkPayForm()">
+          </div>
+          <div class="form-field">
+            <input class="form-input" type="text" id="cc-cvc"
+                   placeholder="CVC" maxlength="4"
+                   oninput="checkPayForm()">
+          </div>
+        </div>
+      </div>
+
+      <div class="section-gap">
+        <h2 class="h2">Billing Address</h2>
+
+        <div class="form-group">
+          <label class="form-label">Address 1</label>
+          <div class="form-field">
+            <input class="form-input" type="text" placeholder="1234 Street Dr">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Address 2 (optional)</label>
+          <div class="form-field">
+            <input class="form-input" type="text" placeholder="ex: Apt/Suite/Floor">
+          </div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Country</label>
+            <select class="form-select">
+              <option>United States</option>
+              <option>Canada</option>
+              <option>United Kingdom</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">City</label>
+            <div class="form-field">
+              <input class="form-input" type="text" placeholder="Anytown">
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">State</label>
+            <select class="form-select">
+              <option value="">— Select —</option>
+              <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+              <option>California</option><option>Colorado</option><option>Connecticut</option>
+              <option>Florida</option><option>Georgia</option><option>Illinois</option>
+              <option>Massachusetts</option><option>Michigan</option><option>New York</option>
+              <option>North Carolina</option><option>Ohio</option><option>Pennsylvania</option>
+              <option>Texas</option><option>Virginia</option><option>Washington</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Zip/Postal Code</label>
+            <div class="form-field">
+              <input class="form-input" type="text" placeholder="00000" maxlength="10">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="renewal-box">
+        <strong>Automatic Renewal</strong>
+        By proceeding, you agree that your subscription will renew on an annual basis until you cancel.
+        Before each renewal, you will receive a notification of your term and rate then in effect.
+        Visit your <a href="#">account page</a>, <a href="#">email</a>, or call (855) 940-0585 to cancel.
+        Cancellations take effect at the end of your current billing period.
+        Please read our full terms <a href="#">here</a>.
+      </div>
+
+      <button class="btn btn--active" id="subscribe-btn"
+              onclick="goToConfirmation()">Start My Subscription</button>
+    </div>
+
+    <!-- RIGHT COLUMN / SIDEBAR -->
+    <div>
+      <div class="sidebar-card">
+        <div class="plan-name">Digital Subscription</div>
+        <ul class="feature-list">
+          <li>Unlimited access on any device</li>
+          <li>12 magazine issues in PDF</li>
+          <li>The Atlantic app for iOS and Android</li>
+          <li>Narrated articles and podcasts</li>
+          <li>Our digital archive, from 1857 to today</li>
+          <li>Gift articles to share with other readers</li>
+          <li>Screenings, Q&amp;As, and more subscriber events</li>
+        </ul>
+
+        <div class="order-summary-title">Order Summary</div>
+        <div class="order-rule"></div>
+        <div class="order-row"><span>Subtotal</span><span>$79.99</span></div>
+        <div class="order-row"><span>Estimated Tax</span><span>--</span></div>
+        <div class="order-rule"></div>
+        <div class="order-total"><span>Due today</span><span>$79.99</span></div>
+        <p class="order-note">Tax is based on your billing address and, if applicable, will be applied when you purchase.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div>
+      <div class="footer-links">
+        <a href="#">Sign In</a>
+        <a href="#">Visit our Help Center</a>
+        <a href="#">Accounts &amp; Subscription help</a>
+      </div>
+      <div class="footer-legal-row">
+        <a href="#">Privacy Policy</a>
+        <div class="footer-legal-div"></div>
+        <a href="#">Terms &amp; Conditions</a>
+      </div>
+      <p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p>
+    </div>
+    <div class="footer-brand">
+      <div class="footer-glyph">A</div>
+      <div class="footer-brand-name">The Atlantic</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 4 — CONFIRMATION
+════════════════════════════════════════════ -->
+<div class="page" id="page-4">
+  <div class="progress-wrap">
+    <div class="progress-inner">
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--done"></div>
+        <div class="prog-label">Account</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--done"></div>
+        <div class="prog-label">Payment</div>
+      </div>
+      <div class="prog-line"></div>
+      <div class="prog-step">
+        <div class="prog-dot prog-dot--active">3</div>
+        <div class="prog-label">Confirmation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-wrap">
+    <h1 class="confirm-h1">You are now a subscriber.</h1>
+    <p class="confirm-sub">
+      A confirmation email is on the way. Thank you for joining The Atlantic and supporting our journalism.
+    </p>
+
+    <div class="confirm-rule"></div>
+
+    <div class="confirm-section-title">Order Summary</div>
+
+    <div class="confirm-grid">
+      <div>
+        <div class="confirm-label">Subscription Plan</div>
+        <div class="confirm-value">Digital</div>
+      </div>
+      <div>
+        <div class="confirm-label">Email</div>
+        <div class="confirm-value" id="confirm-email">jsmith@email.com</div>
+      </div>
+      <div>
+        <div class="confirm-label">Next Billing Date</div>
+        <div class="confirm-value" id="confirm-billing-date"></div>
+      </div>
+      <div>
+        <div class="confirm-label">Card Info</div>
+        <div class="confirm-value">
+          <span class="visa-badge">VISA</span>
+          <span id="confirm-card">Ending in 4242</span>
+        </div>
+      </div>
+      <div>
+        <div class="confirm-label">You Paid</div>
+        <div class="confirm-value">$79.99</div>
+      </div>
+    </div>
+
+    <div class="confirm-rule"></div>
+
+    <p class="confirm-feedback">
+      Do you have suggestions for how we can improve the checkout experience?
+      Let us know at <a href="mailto:checkoutfeedback@theatlantic.com">checkoutfeedback@theatlantic.com</a>.
+    </p>
+  </div>
+
+  <!-- Sticky bottom bar -->
+  <div class="sticky-bar">
+    <div>
+      <div class="sticky-bar-text">Get the most out of your subscription.</div>
+      <div class="sticky-bar-sub">We'll help you get started with your new benefits.</div>
+    </div>
+    <div class="sticky-bar-actions">
+      <button class="sticky-bar-btn">Continue</button>
+      <span class="sticky-bar-link">Return to Article</span>
+    </div>
+  </div>
+
+  <footer class="footer" style="padding-bottom:140px;">
+    <div>
+      <div class="footer-links">
+        <a href="#">Sign In</a>
+        <a href="#">Visit our Help Center</a>
+        <a href="#">Accounts &amp; Subscription help</a>
+      </div>
+      <div class="footer-legal-row">
+        <a href="#">Privacy Policy</a>
+        <div class="footer-legal-div"></div>
+        <a href="#">Terms &amp; Conditions</a>
+      </div>
+      <p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p>
+    </div>
+    <div class="footer-brand">
+      <div class="footer-glyph">A</div>
+      <div class="footer-brand-name">The Atlantic</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STEP SWITCHER
+════════════════════════════════════════════ -->
+<div class="switcher" id="switcher">
+  <button class="active" onclick="goTo(1)">1 · Enter Email</button>
+  <div class="switcher-div"></div>
+  <button onclick="goTo(2)">2 · Create Account</button>
+  <div class="switcher-div"></div>
+  <button onclick="goTo(3)">3 · Payment</button>
+  <div class="switcher-div"></div>
+  <button onclick="goTo(4)">4 · Confirmation</button>
+  <div class="switcher-arrows">
+    <div class="switcher-div"></div>
+    <button onclick="goTo(Math.max(1,currentPage-1))">←</button>
+    <button onclick="goTo(Math.min(4,currentPage+1))">→</button>
+  </div>
+</div>
+
+<script>
+let currentPage = 1;
+
+/* ── NAVIGATION ── */
+function goTo(n) {
+  if (n < 1 || n > 4) return;
+  document.getElementById('page-' + currentPage).classList.remove('active');
+  currentPage = n;
+  document.getElementById('page-' + currentPage).classList.add('active');
+  updateSwitcher();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateSwitcher() {
+  const btns = document.querySelectorAll('#switcher > button:not(.switcher-arrows button)');
+  btns.forEach((b, i) => b.classList.toggle('active', i + 1 === currentPage));
+}
+
+/* ── PAGE 1: EMAIL INPUT ── */
+function onEmailInput(el) {
+  const btn = document.getElementById('continue-btn');
+  const hasVal = el.value.trim().length > 0;
+  setBtn(btn, hasVal);
+}
+
+function goToCreateAccount() {
+  const email = document.getElementById('email-input').value.trim();
+  if (!email) return;
+  document.getElementById('email-locked').value = email;
+  document.getElementById('signed-in-email').textContent = email;
+  document.getElementById('confirm-email').textContent = email;
+  goTo(2);
+}
+
+/* ── PAGE 2: CREATE ACCOUNT ── */
+function checkCreateForm() {
+  const first = document.getElementById('first-name').value.trim();
+  const last  = document.getElementById('last-name').value.trim();
+  const pw    = document.getElementById('password').value;
+  setBtn(document.getElementById('create-btn'), first && last && pw.length >= 1);
+}
+
+function goToPayment() {
+  const first = document.getElementById('first-name').value.trim();
+  const last  = document.getElementById('last-name').value.trim();
+  const pw    = document.getElementById('password').value;
+  if (!first || !last || !pw) return;
+  goTo(3);
+}
+
+function togglePw() {
+  const f = document.getElementById('password');
+  const b = f.nextElementSibling;
+  if (f.type === 'password') { f.type = 'text'; b.textContent = 'Hide'; }
+  else { f.type = 'password'; b.textContent = 'Show'; }
+}
+
+/* ── PAGE 3: PAYMENT ── */
+function checkPayForm() {
+  const num = document.getElementById('cc-number').value.replace(/\s/g,'');
+  const exp = document.getElementById('cc-expiry').value;
+  const cvc = document.getElementById('cc-cvc').value;
+  setBtn(document.getElementById('subscribe-btn'), num.length >= 15 && exp.length === 5 && cvc.length >= 3);
+}
+
+function formatCard(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.replace(/(.{4})/g,'$1 ').trim();
+}
+
+function formatExpiry(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,4);
+  if (v.length >= 3) v = v.substring(0,2) + '/' + v.substring(2);
+  el.value = v;
+}
+
+function goToConfirmation() {
+  const num = document.getElementById('cc-number').value.replace(/\s/g,'');
+  const last4 = num.length >= 4 ? num.slice(-4) : '4242';
+  document.getElementById('confirm-card').textContent = 'Ending in ' + last4;
+  // Next billing date = 1 year from today
+  const d = new Date(); d.setFullYear(d.getFullYear() + 1);
+  document.getElementById('confirm-billing-date').textContent =
+    d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  goTo(4);
+}
+
+/* ── UTILITY ── */
+function setBtn(btn, active) {
+  if (active) {
+    btn.classList.replace('btn--inactive','btn--active');
+    btn.disabled = false;
+  } else {
+    btn.classList.replace('btn--active','btn--inactive');
+    btn.disabled = true;
+  }
+}
+
+/* ── KEYBOARD NAV ── */
+document.addEventListener('keydown', e => {
+  if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); goTo(Math.min(4, currentPage + 1)); }
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(Math.max(1, currentPage - 1)); }
+  if (e.key >= '1' && e.key <= '4') goTo(+e.key);
+});
+
+// Init button states
+document.getElementById('continue-btn').disabled = true;
+document.getElementById('create-btn').disabled = true;
+// subscribe-btn is always active
+</script>
+</body>
+</html>
