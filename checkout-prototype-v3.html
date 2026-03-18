@@ -81,9 +81,27 @@ body {
    PAGE LAYOUT
 ═══════════════════════════════════ */
 .page-layout {
-  max-width: 640px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 40px 24px 120px;
+  padding: 40px 48px 120px;
+  display: flex;
+  align-items: flex-start;
+}
+.checkout-main {
+  flex: 1;
+  min-width: 0;
+}
+.sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  margin-left: 56px;
+  position: sticky; top: 100px;
+}
+.sidebar-card {
+  background: var(--white);
+  border: 1px solid var(--card-outline);
+  border-radius: 4px;
+  padding: 24px;
 }
 
 
@@ -580,12 +598,16 @@ body {
 /* ══════════════════════════════════
    MOBILE RESPONSIVE
 ═══════════════════════════════════ */
+@media (max-width: 768px) {
+  .page-layout { display: block; padding: 24px 24px 120px; max-width: 640px; }
+  .sidebar { display: none; }
+}
+
 @media (max-width: 600px) {
+  .page-layout { padding: 24px 16px 100px; }
   .nav-row { padding: 14px 16px; }
   .nav-wordmark { font-size: 22px; }
   .nav-link { font-size: 12px; }
-
-  .page-layout { padding: 24px 16px 100px; }
 
   .checkout-heading { font-size: 28px; margin-bottom: 8px; }
 
@@ -852,7 +874,20 @@ body {
 
   </div><!-- /.checkout-main -->
 
-
+  <aside class="sidebar">
+    <div class="sidebar-card">
+      <div class="plan-name">Digital Subscription</div>
+      <ul class="feature-list">
+        <li>Unlimited access on any device</li>
+        <li>12 magazine issues in PDF</li>
+        <li>The Atlantic app for iOS and Android</li>
+        <li>Narrated articles and podcasts</li>
+        <li>Our digital archive, from 1857 to today</li>
+        <li>Gift articles to share with other readers</li>
+        <li>Screenings, Q&amp;As, and more subscriber events</li>
+      </ul>
+    </div>
+  </aside>
 
 </div><!-- /.page-layout -->
 

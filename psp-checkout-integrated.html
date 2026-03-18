@@ -68,15 +68,15 @@ a { color:inherit; text-decoration:none; }
 .hero { position:relative; background:linear-gradient(180deg,#302b27,#2c2825); color:var(--white); overflow:hidden; }
 .hero::before { content:""; position:absolute; right:-80px; top:-16px; width:260px; height:260px; border-radius:32px; background:linear-gradient(135deg,rgba(231,19,26,0.9),rgba(231,19,26,0.3)); transform:rotate(8deg); opacity:0.1; pointer-events:none; }
 .hero-inner { position:relative; max-width:1180px; margin:0 auto; padding:32px 24px 76px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; z-index:1; }
-.hero h1 { font-family:var(--font-serif); font-size:45px; line-height:0.96; font-weight:400; letter-spacing:-0.03em; font-style:italic; white-space:nowrap; }
-.hero p { font-family:var(--font-serif); font-size:16px; line-height:1.35; color:rgba(255,255,255,0.65); white-space:nowrap; }
+.hero h1 { font-family:var(--font-display); font-size:42px; line-height:1.05; font-weight:400; letter-spacing:0.02em; text-transform:uppercase; white-space:nowrap; }
+.hero p { font-family:var(--font-serif); font-size:18px; line-height:1.4; color:rgba(255,255,255,0.7); white-space:nowrap; }
 
 /* ═══ PSP: DECISION MODULE ═══ */
 .decision-wrap { max-width:1120px; position:relative; z-index:2; margin:-38px auto 0; padding:0 16px 32px; }
 .decision-module { background:rgba(255,255,255,0.98); border:1px solid rgba(231,227,219,0.72); box-shadow:var(--shadow); overflow:hidden; }
 .decision-grid { display:grid; grid-template-columns:minmax(0,440px) minmax(0,1fr); align-items:stretch; }
 .decision-main { padding:24px 24px 24px; border-right:1px solid rgba(231,227,219,0.7); }
-.module-title { font-family:var(--font-serif); font-size:28px; line-height:1.05; font-weight:400; letter-spacing:-0.02em; margin-bottom:16px; }
+.module-title { font-family:var(--font-serif); font-size:28px; line-height:1.1; font-weight:400; letter-spacing:-0.3px; margin-bottom:20px; }
 
 /* Plans */
 .plans { display:flex; flex-direction:column; }
@@ -93,9 +93,9 @@ a { color:inherit; text-decoration:none; }
 .plan.is-selected .radio::before { transform:scale(1); background:var(--white); }
 
 .plan-head { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px; margin-bottom:2px; }
-.psp-plan-name { font-family:var(--font-serif); font-size:18px; line-height:1; font-weight:600; color:var(--atlantic-black); }
-.plan-price-line { font-size:14px; line-height:1.2; color:var(--atlantic-black); }
-.plan-detail { max-width:330px; color:rgba(111,108,105,0.9); font-size:13px; line-height:1.4; }
+.psp-plan-name { font-family:var(--font-serif); font-size:20px; line-height:1.1; font-weight:400; color:var(--atlantic-black); }
+.plan-price-line { font-family:var(--font-sans); font-size:15px; line-height:1.2; font-weight:600; color:var(--atlantic-black); }
+.plan-detail { max-width:330px; color:rgba(111,108,105,0.9); font-family:var(--font-serif); font-size:14px; line-height:1.45; }
 .plan-meta { display:flex; align-items:center; gap:10px; margin-top:7px; }
 .plan-chip { display:inline-flex; align-items:center; gap:6px; padding:5px 8px; border-radius:4px; background:#f5f1ea; color:rgba(44,40,37,0.88); font-size:11px; line-height:1; font-weight:600; }
 
@@ -108,8 +108,8 @@ a { color:inherit; text-decoration:none; }
 .risk-reversal { text-align:center; color:rgba(44,40,37,0.7); font-size:12px; font-weight:500; margin-top:2px; }
 
 /* PSP Visual panel */
-.decision-visual { position:relative; background:var(--page-bg); overflow:hidden; box-shadow:inset 1px 0 0 var(--card-outline); }
-.visual-stage { position:relative; min-height:440px; height:100%; }
+.decision-visual { position:relative; background:var(--page-bg); overflow:hidden; box-shadow:inset 1px 0 0 var(--card-outline); min-height:440px; align-self:stretch; }
+.visual-stage { position:absolute; inset:0; }
 .scene { position:absolute; inset:0; opacity:0; transition:opacity 0.4s ease; pointer-events:none; }
 .scene.is-active { opacity:1; }
 .scene img { width:100%; height:100%; object-fit:cover; object-position:center; display:block; }
@@ -122,7 +122,20 @@ a { color:inherit; text-decoration:none; }
 .pay-icon { height:24px; width:auto; opacity:0.55; }
 
 /* ═══ CHECKOUT ═══ */
-.checkout-layout { max-width:640px; margin:0 auto; padding:40px 24px 120px; }
+.checkout-layout { max-width:1100px; margin:0 auto; padding:40px 48px 120px; display:flex; align-items:flex-start; }
+.checkout-main { flex:1; min-width:0; }
+.sidebar { width:340px; flex-shrink:0; margin-left:56px; position:sticky; top:100px; }
+.sidebar-card { background:var(--white); border:1px solid var(--card-outline); border-radius:4px; padding:24px; }
+.sidebar .sidebar-plan-name { font-family:var(--font-serif); font-size:20px; color:var(--atlantic-black); margin-bottom:16px; letter-spacing:-0.2px; }
+.sidebar .feature-list { list-style:none; margin-bottom:24px; }
+.sidebar .feature-list li { display:flex; gap:10px; align-items:flex-start; font-size:13px; line-height:1.5; margin-bottom:6px; }
+.sidebar .feature-list li::before { content:'✓'; color:var(--atlantic-black); font-weight:600; flex-shrink:0; margin-top:1px; }
+.sidebar .order-summary-title { font-family:var(--font-sans); font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:16px; color:var(--atlantic-black); }
+.sidebar .order-rule { height:1px; background:var(--card-outline); margin:12px 0; }
+.sidebar .order-row { display:flex; justify-content:space-between; font-size:14px; margin-bottom:8px; }
+.sidebar .order-row .label { color:var(--field-placeholder); }
+.sidebar .order-total { display:flex; justify-content:space-between; font-size:16px; font-weight:600; margin-top:12px; }
+.sidebar .order-note { font-size:12px; color:var(--field-placeholder); margin-top:8px; line-height:1.5; }
 .checkout-heading { font-family:var(--font-serif); font-size:36px; font-weight:400; color:var(--atlantic-black); line-height:1.1; letter-spacing:-0.4px; margin-bottom:12px; }
 
 /* Accordion steps */
@@ -262,7 +275,11 @@ a { color:inherit; text-decoration:none; }
   .nav-links { gap:22px; }
   .decision-grid { grid-template-columns:1fr; }
   .decision-main { border-right:0; border-bottom:1px solid rgba(231,227,219,0.7); }
-  .visual-stage { min-height:320px; }
+  .decision-visual { min-height:320px; }
+}
+@media (max-width:768px) {
+  .checkout-layout { display:block; padding:24px 24px 120px; max-width:640px; }
+  .sidebar { display:none; }
 }
 @media (max-width:760px) {
   .nav-inner { flex-wrap:wrap; justify-content:center; padding:10px 14px 8px; }
@@ -276,8 +293,8 @@ a { color:inherit; text-decoration:none; }
   .plan.best-value { margin-inline:-14px; padding-inline:14px; }
   .module-title { font-size:26px; }
   .plan-head { flex-direction:column; align-items:flex-start; gap:3px; }
-  .visual-stage { min-height:280px; }
-  .scene { padding:16px; }
+  .decision-visual { min-height:280px; }
+
   .checkout-layout { padding:24px 16px 100px; }
   .checkout-heading { font-size:28px; }
   .form-row { grid-template-columns:1fr; }
@@ -324,7 +341,7 @@ a { color:inherit; text-decoration:none; }
   <div class="hero">
     <div class="hero-inner">
       <h1>Journalism that explains America and the world</h1>
-      <p>Start your year of unlimited articles, audio, and more. Starting at less than $2 a week.</p>
+      <p>Start your year of unlimited articles, audio, and more. For less than $2 a week.</p>
     </div>
   </div>
 
@@ -359,16 +376,16 @@ a { color:inherit; text-decoration:none; }
                 <div class="plan-detail">All the benefits of a digital subscription, along with 12 issues of the print magazine and a free tote.</div>
               </div>
             </article>
-            <article class="plan" data-plan="premium" data-name="Premium Plus" data-price="$200/year" data-amount="200.00"
-              data-features="All Print &amp; Digital benefits|Shared access for up to 4 readers|Ad-free reading experience|Exclusive Atlantic events|Free Atlantic tote bag|Digital archive from 1857"
+            <article class="plan" data-plan="premium" data-name="Premium Plus" data-price="$199.99/year" data-amount="199.99"
+              data-features="Print &amp; digital access|3 digital subscriptions to share|Ad-free reading experience|The Atlantic scrapbook|Special Atlantic tote bag|Exclusive events"
               tabindex="0" role="button" aria-pressed="false">
               <div class="radio" aria-hidden="true"></div>
               <div>
                 <div class="plan-head">
                   <div class="psp-plan-name">Premium Plus</div>
-                  <div class="plan-price-line">$200/year</div>
+                  <div class="plan-price-line">$199.99/year</div>
                 </div>
-                <div class="plan-detail">Everything in Print &amp; Digital, shared with up to four readers in your household, plus ad-free reading and exclusive events.</div>
+                <div class="plan-detail">Print &amp; digital access plus 3 digital subscriptions to share, ad-free reading, The Atlantic scrapbook, and a special tote.</div>
                 <div class="plan-meta"><div class="plan-chip"><span aria-hidden="true">+</span><span>Up to 4 readers</span></div></div>
               </div>
             </article>
@@ -444,6 +461,7 @@ a { color:inherit; text-decoration:none; }
               </div>
             </div></div>
             <label class="payment-option" for="pm-paypal"><input type="radio" id="pm-paypal" name="payment-method" value="paypal" onchange="selectPayment('paypal')"><span class="payment-option-label"><span style="font-style:italic;font-weight:700;letter-spacing:-0.5px;color:#003087">Pay</span><span style="font-style:italic;font-weight:700;letter-spacing:-0.5px;color:#009cde">Pal</span></span></label>
+            <label class="payment-option" for="pm-applepay"><input type="radio" id="pm-applepay" name="payment-method" value="applepay" onchange="selectPayment('applepay')"><span class="payment-option-label" style="font-size:16px;letter-spacing:-0.3px"><svg width="16" height="16" viewBox="0 0 24 24" fill="#2c2825" style="vertical-align:middle;margin-right:4px"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.52-3.23 0-1.44.65-2.2.46-3.06-.4C3.79 16.17 4.36 9.43 8.7 9.18c1.23.07 2.09.7 2.81.75.99-.2 1.94-.78 3-.73 1.27.06 2.23.53 2.86 1.44-2.63 1.57-2.01 5.03.36 5.99-.47 1.24-.81 1.86-1.68 2.65zM12.04 9.12c-.12-2.27 1.75-4.19 3.88-4.39.3 2.54-2.3 4.48-3.88 4.39z"/></svg> Apple Pay</span></label>
           </div>
           <button class="btn btn--active" id="btn-payment" onclick="completePayment()">Continue</button>
           <div class="btn-note"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1" stroke="#6F6C69" stroke-width="1.2"/><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#6F6C69" stroke-width="1.2"/></svg> Secure form</div>
@@ -475,6 +493,26 @@ a { color:inherit; text-decoration:none; }
         </div></div>
       </div>
     </div>
+
+    <aside class="sidebar" id="checkout-sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-plan-name" id="sidebar-plan-name">Print &amp; Digital</div>
+        <ul class="feature-list" id="sidebar-features">
+          <li>All Digital benefits</li>
+          <li>12 issues of the print magazine</li>
+          <li>Free Atlantic tote bag</li>
+          <li>Narrated articles and podcasts</li>
+          <li>Games and puzzles</li>
+          <li>Digital archive from 1857</li>
+        </ul>
+        <div class="order-summary-title">Order Summary</div>
+        <div class="order-row"><span class="label">Subtotal</span><span id="sidebar-subtotal">$89.99</span></div>
+        <div class="order-row"><span class="label">Estimated Tax</span><span>—</span></div>
+        <div class="order-rule"></div>
+        <div class="order-total"><span>Due today</span><span id="sidebar-total">$89.99</span></div>
+        <div class="order-note">Cancel anytime. Renews annually.</div>
+      </div>
+    </aside>
   </div>
   <footer class="footer" id="checkout-footer"><div><div class="footer-links"><a href="#">Sign In</a><a href="#">Visit our Help Center</a><a href="#">Accounts &amp; Subscription help</a></div><div class="footer-legal-row"><a href="#">Privacy Policy</a><div class="footer-legal-div"></div><a href="#">Terms &amp; Conditions</a></div><p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p></div><div class="footer-brand"><div class="footer-glyph">A</div><div class="footer-brand-name">The Atlantic</div></div></footer>
 </section>
@@ -617,6 +655,11 @@ function populateReview() {
   fl.innerHTML = selectedPlan.features.map(f => '<li>' + f + '</li>').join('');
   document.getElementById('review-subtotal').textContent = '$' + selectedPlan.amount;
   document.getElementById('review-total').textContent = '$' + selectedPlan.amount;
+  // Sidebar
+  document.getElementById('sidebar-plan-name').textContent = selectedPlan.name;
+  document.getElementById('sidebar-features').innerHTML = selectedPlan.features.map(f => '<li>' + f + '</li>').join('');
+  document.getElementById('sidebar-subtotal').textContent = '$' + selectedPlan.amount;
+  document.getElementById('sidebar-total').textContent = '$' + selectedPlan.amount;
   // Confirmation
   document.getElementById('confirm-plan').textContent = selectedPlan.name;
   document.getElementById('confirm-amount').textContent = '$' + selectedPlan.amount;
@@ -690,6 +733,7 @@ function selectPayment(method) {
   if (method === 'card') cardForm.classList.add('card-form--open');
   else cardForm.classList.remove('card-form--open');
   if (method === 'paypal') subscribeBtn.innerHTML = '<span style="font-style:italic;font-weight:700">Pay with PayPal</span>';
+  else if (method === 'applepay') subscribeBtn.textContent = '\uF8FF Pay';
   else subscribeBtn.textContent = 'Start My Subscription';
 }
 
