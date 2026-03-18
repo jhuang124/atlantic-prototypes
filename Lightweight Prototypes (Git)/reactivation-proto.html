@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>The Atlantic — Welcome Back</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Bebas+Neue&display=swap');
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root {
+  --black:#000000;
+  --atlantic-black:#2c2825;
+  --page-bg:#f8f7f4;
+  --white:#ffffff;
+  --card-outline:#e7e3db;
+  --warm-gray:#e7e3db;
+  --muted:#6f6c69;
+  --muted-light:#a09c98;
+  --red:#E7131A;
+  --red-hover:#b80f15;
+  --paypal:#0070e0;
+  --link-blue:#166999;
+  --field-border:#2c2825;
+  --field-placeholder:#6f6c69;
+  --teal:#1D9E75;
+  --teal-bg:#E8F5EF;
+  --focus-ring:rgba(44,40,37,0.10);
+  --shadow:0 18px 40px rgba(44,40,37,0.06);
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --font-serif:"Adobe Garamond Pro","EB Garamond",Georgia,"Times New Roman",serif;
+  --font-sans:"Graphik",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --font-mono:"Logic Monospace","Courier New",monospace;
+  --font-display:"Atlantic Condensed","Bebas Neue",Impact,sans-serif;
+  --font-arial:Arial,Helvetica,sans-serif;
+}
+
+html { scroll-behavior:smooth; }
+body { min-height:100vh; background:var(--page-bg); color:var(--atlantic-black); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; }
+a { color:inherit; text-decoration:none; }
+
+/* ═══ NAV ═══ */
+.nav { position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.98); backdrop-filter:blur(10px); border-bottom:1px solid var(--card-outline); }
+.nav-stripe { height:4px; background:var(--black); }
+.nav-inner { max-width:1440px; margin:0 auto; padding:10px 24px 9px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.wordmark { font-family:var(--font-serif); font-size:28px; font-style:italic; line-height:0.9; white-space:nowrap; color:var(--black); }
+.nav-right { display:flex; align-items:center; gap:20px; }
+.nav-link { font-size:13px; color:var(--muted); cursor:pointer; }
+.nav-link:hover { text-decoration:underline; }
+
+/* ═══ HERO ═══ */
+.hero { text-align:center; padding:56px 24px 8px; max-width:480px; margin:0 auto; }
+.hero-glyph { font-family:Georgia,serif; font-size:72px; line-height:0.85; color:var(--atlantic-black); margin-bottom:28px; opacity:0.12; }
+.hero h1 { font-family:var(--font-serif); font-size:34px; font-weight:400; line-height:1.2; letter-spacing:-0.4px; color:var(--atlantic-black); margin-bottom:12px; }
+.hero-sub { font-family:var(--font-serif); font-style:italic; font-size:17px; line-height:1.55; color:var(--muted); max-width:380px; margin:0 auto; }
+.hero-context { font-family:var(--font-sans); font-size:11px; color:var(--muted-light); margin-top:16px; letter-spacing:0.3px; }
+
+/* ═══ MAIN CARD ═══ */
+.main-wrap { max-width:480px; margin:28px auto 0; padding:0 16px 64px; }
+.main-card { background:var(--white); border:1px solid var(--card-outline); border-radius:6px; box-shadow:var(--shadow); }
+
+/* ═══ PLAN ROW ═══ */
+.plan-row { padding:24px 28px; display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(231,227,219,0.5); }
+.plan-row-left { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.plan-name { font-family:var(--font-serif); font-size:19px; font-weight:400; color:var(--atlantic-black); letter-spacing:-0.2px; }
+.plan-price { font-family:var(--font-sans); font-size:14px; font-weight:600; color:var(--atlantic-black); }
+.plan-dot { color:var(--muted-light); font-size:14px; }
+.change-link { font-size:13px; color:var(--link-blue); text-decoration:underline; cursor:pointer; flex-shrink:0; }
+.change-link:hover { color:var(--atlantic-black); }
+
+/* Plan picker (collapsed) */
+.plan-picker { max-height:0; overflow:hidden; transition:max-height 0.45s var(--ease); border-bottom:1px solid rgba(231,227,219,0); }
+.plan-picker.open { max-height:500px; border-color:rgba(231,227,219,0.5); }
+.plan-picker-inner { padding:4px 28px 20px; }
+.plan-option { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border:1px solid var(--card-outline); border-radius:4px; cursor:pointer; margin-bottom:8px; transition:background 0.15s, border-color 0.15s; }
+.plan-option:last-child { margin-bottom:0; }
+.plan-option:hover { background:rgba(246,243,238,0.58); }
+.plan-option.is-selected { border-color:var(--atlantic-black); background:rgba(44,40,37,0.02); }
+.plan-option input[type="radio"] { width:18px; height:18px; accent-color:var(--atlantic-black); flex-shrink:0; margin-top:2px; cursor:pointer; }
+.plan-option-info { flex:1; }
+.plan-option-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.plan-option-name { font-family:var(--font-serif); font-size:17px; color:var(--atlantic-black); }
+.plan-option-price { font-family:var(--font-sans); font-size:13px; font-weight:600; color:var(--atlantic-black); }
+.plan-option-detail { font-family:var(--font-serif); font-size:13px; color:var(--muted); line-height:1.4; margin-top:3px; }
+.plan-option-tag { font-family:var(--font-mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--red); font-weight:600; margin-bottom:2px; }
+.plan-previous-tag { display:inline-block; font-family:var(--font-sans); font-size:10px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted-light); background:rgba(44,40,37,0.05); padding:2px 7px; border-radius:3px; margin-left:8px; vertical-align:2px; }
+
+/* ═══ DETAILS ROWS ═══ */
+.detail-row { padding:16px 28px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(231,227,219,0.5); }
+.detail-row:last-of-type { border-bottom:1px solid rgba(231,227,219,0.5); }
+.detail-left { display:flex; align-items:center; gap:12px; min-width:0; }
+.detail-num { font-family:var(--font-sans); font-size:14px; font-weight:500; color:var(--muted-light); flex-shrink:0; }
+.detail-content { font-size:14px; color:var(--atlantic-black); display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+.detail-edit { font-size:13px; color:var(--link-blue); text-decoration:underline; cursor:pointer; flex-shrink:0; }
+.detail-edit:hover { color:var(--atlantic-black); }
+
+/* Payment badges */
+.pay-badge { display:inline-flex; align-items:center; justify-content:center; border-radius:3px; padding:2px 6px; font-size:9px; font-weight:700; letter-spacing:0.5px; line-height:1.4; }
+.pay-badge--visa { background:#1A1F71; color:var(--white); }
+.pay-badge--paypal { background:#0070e0; color:var(--white); }
+.pay-badge--apple { background:var(--black); color:var(--white); font-size:11px; }
+
+/* Edit forms (inline expand) */
+.edit-form { max-height:0; overflow:hidden; transition:max-height 0.35s var(--ease); }
+.edit-form.open { max-height:500px; }
+.edit-form-inner { padding:0 28px 20px; }
+.form-group { margin-bottom:10px; }
+.form-label { display:block; font-size:12px; color:var(--atlantic-black); padding-left:2px; margin-bottom:5px; }
+.form-field { display:flex; align-items:center; background:var(--white); border:1px solid var(--field-border); border-radius:4px; padding:12px 14px; min-height:46px; transition:box-shadow 0.2s,border-color 0.2s; }
+.form-field:focus-within { border-color:var(--atlantic-black); box-shadow:0 0 0 3px var(--focus-ring); }
+.form-input { flex:1; border:none; outline:none; font-family:var(--font-arial); font-size:16px; color:var(--atlantic-black); background:transparent; line-height:1.3; }
+.form-input::placeholder { color:var(--field-placeholder); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.form-select { width:100%; height:46px; border:1px solid var(--field-border); border-radius:4px; padding:0 14px; font-family:var(--font-arial); font-size:16px; color:var(--atlantic-black); background:var(--white); appearance:none; background-image:url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%232C2825' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; outline:none; }
+.edit-save-row { display:flex; justify-content:flex-end; gap:12px; margin-top:6px; }
+.edit-cancel { font-size:13px; color:var(--muted); cursor:pointer; padding:8px 0; }
+.edit-cancel:hover { color:var(--atlantic-black); }
+.edit-save { display:inline-flex; align-items:center; justify-content:center; padding:8px 20px; border:none; border-radius:4px; background:var(--atlantic-black); color:var(--white); font-family:var(--font-sans); font-size:13px; font-weight:500; cursor:pointer; }
+.edit-save:hover { opacity:0.9; }
+
+/* Payment method picker in edit */
+.payment-methods { border:1px solid var(--card-outline); border-radius:4px; overflow:hidden; margin-bottom:4px; }
+.payment-option { display:flex; align-items:center; gap:12px; padding:13px 14px; cursor:pointer; background:var(--white); border-bottom:1px solid var(--card-outline); transition:background 0.12s; }
+.payment-option:last-child { border-bottom:none; }
+.payment-option:hover { background:#FAF8F5; }
+.payment-option input[type="radio"] { width:18px; height:18px; accent-color:var(--atlantic-black); flex-shrink:0; cursor:pointer; }
+.payment-option-label { font-size:14px; font-weight:500; color:var(--atlantic-black); cursor:pointer; display:flex; align-items:center; gap:8px; }
+.cc-fields { max-height:0; overflow:hidden; transition:max-height 0.35s var(--ease); }
+.cc-fields.open { max-height:300px; }
+.cc-fields-inner { padding:14px 14px 4px; background:#FAF8F5; border-top:1px solid var(--card-outline); }
+.cc-row { display:grid; grid-template-columns:1fr 90px 70px; gap:0; }
+.cc-row .form-field { border-radius:0; border-right:none; min-height:42px; padding:10px 12px; }
+.cc-row .form-field:first-child { border-radius:4px 0 0 4px; }
+.cc-row .form-field:last-child { border-radius:0 4px 4px 0; border-right:1px solid var(--field-border); }
+
+/* ═══ CTA SECTION ═══ */
+.cta-section { padding:28px; }
+.btn-restart { display:flex; align-items:center; justify-content:center; width:100%; height:52px; border-radius:4px; border:none; background:var(--atlantic-black); color:var(--white); font-family:var(--font-mono); font-size:15px; font-weight:500; letter-spacing:0.02em; cursor:pointer; line-height:1.1; transition:opacity 0.18s, transform 0.15s; }
+.btn-restart:hover { opacity:0.9; transform:translateY(-1px); box-shadow:0 4px 12px rgba(44,40,37,0.15); }
+.cta-meta { text-align:center; font-size:12px; color:var(--muted-light); margin-top:12px; display:flex; align-items:center; justify-content:center; gap:5px; }
+.cta-legal { font-size:11px; line-height:1.55; color:var(--muted-light); margin-top:14px; text-align:center; }
+.cta-legal a { color:var(--link-blue); text-decoration:underline; }
+
+/* ═══ CONFIRMATION ═══ */
+.confirmation { display:none; }
+.confirmation.show { display:block; animation:fadeSlideIn 0.5s var(--ease); }
+@keyframes fadeSlideIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.confirm-wrap { max-width:480px; margin:48px auto 0; padding:0 16px 64px; }
+.confirm-card { background:var(--white); border:1px solid var(--card-outline); border-radius:6px; box-shadow:var(--shadow); padding:40px 32px 36px; text-align:center; }
+.confirm-glyph { font-family:Georgia,serif; font-size:56px; line-height:0.85; color:var(--atlantic-black); margin-bottom:24px; opacity:0.12; }
+.confirm-h1 { font-family:var(--font-serif); font-size:30px; font-weight:400; color:var(--atlantic-black); margin-bottom:8px; letter-spacing:-0.3px; }
+.confirm-sub { font-family:var(--font-serif); font-style:italic; font-size:16px; line-height:1.55; color:var(--muted); margin-bottom:32px; max-width:340px; margin-left:auto; margin-right:auto; }
+.confirm-rule { height:1px; background:var(--card-outline); margin:0 0 24px; }
+.confirm-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 28px; text-align:left; margin-bottom:28px; }
+.confirm-label { font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--muted-light); margin-bottom:4px; }
+.confirm-value { font-size:14px; color:var(--atlantic-black); line-height:1.4; }
+.confirm-rule-2 { height:1px; background:var(--card-outline); margin:0 0 24px; }
+.confirm-cta { display:flex; align-items:center; justify-content:center; width:100%; height:48px; border-radius:4px; border:none; background:var(--atlantic-black); color:var(--white); font-family:var(--font-mono); font-size:15px; font-weight:500; cursor:pointer; transition:opacity 0.15s; }
+.confirm-cta:hover { opacity:0.9; }
+.confirm-note { font-family:var(--font-serif); font-style:italic; font-size:14px; color:var(--muted); margin-top:14px; }
+
+/* ═══ FOOTER ═══ */
+.footer { border-top:1px solid var(--card-outline); padding:40px 80px 36px; display:flex; justify-content:space-between; align-items:flex-start; max-width:1440px; margin:0 auto; background:var(--page-bg); }
+.footer-links { display:flex; flex-wrap:wrap; gap:12px 32px; margin-bottom:20px; }
+.footer-links a { font-size:13px; color:var(--atlantic-black); }
+.footer-links a:hover { text-decoration:underline; }
+.footer-legal-row { display:flex; align-items:center; gap:12px; font-size:12px; margin-bottom:6px; }
+.footer-legal-row a { color:var(--atlantic-black); }
+.footer-legal-div { width:1px; height:12px; background:var(--atlantic-black); }
+.footer-fine { font-size:11px; line-height:1.6; color:var(--field-placeholder); }
+.footer-brand { display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
+.footer-glyph { font-family:Georgia,serif; font-size:64px; line-height:0.85; color:var(--atlantic-black); }
+.footer-brand-name { font-family:Georgia,serif; font-size:16px; font-style:italic; color:var(--atlantic-black); }
+
+/* ═══ SWITCHER ═══ */
+.switcher { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--atlantic-black); border-radius:48px; padding:6px; display:flex; align-items:center; gap:2px; z-index:200; box-shadow:0 4px 24px rgba(0,0,0,0.3); font-family:var(--font-sans); }
+.switcher button { background:none; border:none; color:var(--white); font-family:var(--font-sans); font-size:12px; cursor:pointer; padding:7px 13px; border-radius:32px; white-space:nowrap; transition:background 0.2s; }
+.switcher button:hover { background:rgba(255,255,255,0.15); }
+.switcher button.sw-active { background:var(--link-blue); font-weight:600; }
+.switcher-div { width:1px; height:18px; background:rgba(255,255,255,0.2); }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width:600px) {
+  .hero { padding:40px 16px 8px; }
+  .hero h1 { font-size:28px; }
+  .hero-sub { font-size:15px; }
+  .hero-glyph { font-size:56px; margin-bottom:20px; }
+  .main-wrap { padding:0 10px 48px; margin-top:20px; }
+  .plan-row { padding:20px 18px; }
+  .detail-row { padding:14px 18px; }
+  .edit-form-inner { padding:0 18px 16px; }
+  .cta-section { padding:24px 18px; }
+  .plan-picker-inner { padding:4px 18px 16px; }
+  .plan-row-left { flex-direction:column; gap:3px; }
+  .form-row { grid-template-columns:1fr; }
+  .cc-row { grid-template-columns:1fr; }
+  .cc-row .form-field { border-radius:4px; border-right:1px solid var(--field-border); margin-bottom:-1px; }
+  .cc-row .form-field:first-child { border-radius:4px; }
+  .cc-row .form-field:last-child { border-radius:4px; margin-bottom:0; }
+  .confirm-card { padding:32px 20px 28px; }
+  .confirm-grid { grid-template-columns:1fr; gap:14px; }
+  .footer { padding:32px 16px; flex-direction:column-reverse; gap:32px; align-items:flex-start; }
+  .switcher { bottom:12px; padding:4px; }
+  .switcher button { font-size:11px; padding:6px 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="nav-stripe"></div>
+  <div class="nav-inner">
+    <a class="wordmark" href="#">The Atlantic</a>
+    <div class="nav-right">
+      <a class="nav-link" href="#">Help</a>
+      <a class="nav-link" href="#">Sign out</a>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ MAIN FLOW ═══ -->
+<section id="reactivation-page">
+  <div class="hero">
+    <div class="hero-glyph">A</div>
+    <h1>We kept your seat, Jane.</h1>
+    <p class="hero-sub">Your subscription is ready to resume — same plan, same payment, nothing to re-enter.</p>
+    <p class="hero-context">Subscriber since 2021 · Last active November 2025</p>
+  </div>
+
+  <div class="main-wrap">
+    <div class="main-card">
+
+      <!-- Plan row — simple, NYT-style -->
+      <div class="plan-row">
+        <div class="plan-row-left">
+          <span class="plan-name" id="display-plan-name">Print & Digital</span>
+          <span class="plan-dot">·</span>
+          <span class="plan-price" id="display-plan-price">$89.99/year</span>
+          <span class="plan-previous-tag" id="display-plan-badge">Previous plan</span>
+        </div>
+        <a class="change-link" id="change-plan-toggle" onclick="togglePlanPicker()">Change</a>
+      </div>
+
+      <!-- Plan picker (collapsed) -->
+      <div class="plan-picker" id="plan-picker">
+        <div class="plan-picker-inner">
+          <div class="plan-option" data-plan="digital" onclick="selectPlan(this)">
+            <input type="radio" name="plan" value="digital">
+            <div class="plan-option-info">
+              <div class="plan-option-head">
+                <div class="plan-option-name">Digital</div>
+                <div class="plan-option-price">$79.99/year</div>
+              </div>
+              <div class="plan-option-detail">Unlimited access on any device, the app, narrated articles, games, and more.</div>
+            </div>
+          </div>
+          <div class="plan-option is-selected" data-plan="print-digital" onclick="selectPlan(this)">
+            <input type="radio" name="plan" value="print-digital" checked>
+            <div class="plan-option-info">
+              <div class="plan-option-tag">Best value</div>
+              <div class="plan-option-head">
+                <div class="plan-option-name">Print & Digital</div>
+                <div class="plan-option-price">$89.99/year</div>
+              </div>
+              <div class="plan-option-detail">Everything in Digital, plus 12 print issues and a free tote.</div>
+            </div>
+          </div>
+          <div class="plan-option" data-plan="premium" onclick="selectPlan(this)">
+            <input type="radio" name="plan" value="premium">
+            <div class="plan-option-info">
+              <div class="plan-option-head">
+                <div class="plan-option-name">Premium Plus</div>
+                <div class="plan-option-price">$199.99/year</div>
+              </div>
+              <div class="plan-option-detail">Print & digital plus 3 gift subscriptions, ad-free reading, and exclusive events.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="detail-row">
+        <div class="detail-left">
+          <span class="detail-num">1.</span>
+          <span class="detail-content">Account</span>
+        </div>
+        <span class="detail-content" style="color:var(--muted);" id="display-email">jane.morrison@gmail.com</span>
+      </div>
+
+      <!-- Payment -->
+      <div class="detail-row">
+        <div class="detail-left">
+          <span class="detail-num">2.</span>
+          <span class="detail-content" id="display-payment"><span class="pay-badge pay-badge--visa">VISA</span> •••• 4242</span>
+        </div>
+        <a class="detail-edit" onclick="toggleEdit('payment')">Edit</a>
+      </div>
+      <div class="edit-form" id="edit-payment">
+        <div class="edit-form-inner">
+          <div class="payment-methods">
+            <label class="payment-option">
+              <input type="radio" name="pay-method" value="card" checked onchange="switchPayMethod('card')">
+              <span class="payment-option-label"><span class="pay-badge pay-badge--visa">VISA</span> •••• 4242</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="pay-method" value="paypal" onchange="switchPayMethod('paypal')">
+              <span class="payment-option-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:2px;"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944 3.72a.773.773 0 01.762-.65h6.15c2.04 0 3.483.394 4.287 1.172.75.727 1.017 1.794.816 3.263l-.02.124v.36l.282.16c.37.19.667.414.893.674.306.354.504.79.588 1.293.088.516.059 1.13-.084 1.824-.164.796-.43 1.49-.79 2.062a4.09 4.09 0 01-1.235 1.293c-.478.32-1.04.56-1.672.713-.615.148-1.314.223-2.076.223h-.494a1.49 1.49 0 00-1.472 1.26l-.037.2-.63 3.99-.027.14a.109.109 0 01-.108.092H7.076z" fill="#003087"/><path d="M19.532 8.093c-.009.06-.02.12-.032.183-.993 5.1-4.39 6.86-8.725 6.86H8.57a1.07 1.07 0 00-1.059.908l-.84 5.328-.238 1.51a.563.563 0 00.556.651h3.904c.464 0 .858-.338.931-.796l.038-.2.738-4.678.047-.258a.94.94 0 01.929-.795h.585c3.788 0 6.754-1.539 7.622-5.99.362-1.86.175-3.414-.784-4.506a3.73 3.73 0 00-1.066-.873l-.15.656z" fill="#0070E0"/></svg> PayPal</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="pay-method" value="apple" onchange="switchPayMethod('apple')">
+              <span class="payment-option-label"><span class="pay-badge pay-badge--apple">&#63743;</span> Apple Pay</span>
+            </label>
+          </div>
+          <div class="cc-fields" id="cc-fields">
+            <div class="cc-fields-inner">
+              <div class="form-group">
+                <div class="cc-row">
+                  <div class="form-field"><input class="form-input" type="text" placeholder="Card number" value="•••• •••• •••• 4242" readonly></div>
+                  <div class="form-field"><input class="form-input" type="text" placeholder="MM/YY" value="09/27"></div>
+                  <div class="form-field"><input class="form-input" type="text" placeholder="CVC"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="edit-save-row">
+            <a class="edit-cancel" onclick="toggleEdit('payment')">Cancel</a>
+            <button class="edit-save" onclick="savePayment()">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing Address -->
+      <div class="detail-row">
+        <div class="detail-left">
+          <span class="detail-num">3.</span>
+          <span class="detail-content" id="display-address">123 Atlantic Ave, Brooklyn, NY 11201</span>
+        </div>
+        <a class="detail-edit" onclick="toggleEdit('address')">Edit</a>
+      </div>
+      <div class="edit-form" id="edit-address">
+        <div class="edit-form-inner">
+          <div class="form-group">
+            <div class="form-field"><input class="form-input" type="text" placeholder="Street address" value="123 Atlantic Ave"></div>
+          </div>
+          <div class="form-group">
+            <div class="form-field"><input class="form-input" type="text" placeholder="Apt, suite, etc. (optional)"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-field"><input class="form-input" type="text" placeholder="City" value="Brooklyn"></div>
+            </div>
+            <div class="form-row" style="gap:10px;">
+              <div class="form-group">
+                <select class="form-select"><option>NY</option></select>
+              </div>
+              <div class="form-group">
+                <div class="form-field"><input class="form-input" type="text" placeholder="ZIP" value="11201"></div>
+              </div>
+            </div>
+          </div>
+          <div class="edit-save-row">
+            <a class="edit-cancel" onclick="toggleEdit('address')">Cancel</a>
+            <button class="edit-save" onclick="toggleEdit('address')">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-section">
+        <button class="btn-restart" id="btn-restart" onclick="completeRestart()">
+          Resume subscription — $89.99/year
+        </button>
+        <div class="cta-meta">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Secure checkout · Cancel anytime
+        </div>
+        <p class="cta-legal">Renews annually at the then-current rate. <a href="#">Terms of Sale</a> · <a href="#">Terms of Service</a></p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONFIRMATION ═══ -->
+<div class="confirmation" id="confirmation-page">
+  <header class="nav">
+    <div class="nav-stripe"></div>
+    <div class="nav-inner">
+      <a class="wordmark" href="#">The Atlantic</a>
+      <div class="nav-right"><a class="nav-link" href="#">My Account</a></div>
+    </div>
+  </header>
+  <div class="confirm-wrap">
+    <div class="confirm-card">
+      <div class="confirm-glyph">A</div>
+      <h1 class="confirm-h1">You're back.</h1>
+      <p class="confirm-sub">Your subscription is active and your full access has been restored.</p>
+      <div class="confirm-rule"></div>
+      <div class="confirm-grid">
+        <div><div class="confirm-label">Plan</div><div class="confirm-value" id="confirm-plan">Print & Digital</div></div>
+        <div><div class="confirm-label">Payment</div><div class="confirm-value" id="confirm-payment"><span class="pay-badge pay-badge--visa">VISA</span> •••• 4242</div></div>
+        <div><div class="confirm-label">Charged</div><div class="confirm-value" id="confirm-amount">$89.99</div></div>
+        <div><div class="confirm-label">Next renewal</div><div class="confirm-value" id="confirm-billing">March 18, 2027</div></div>
+      </div>
+      <div class="confirm-rule-2"></div>
+      <button class="confirm-cta" onclick="window.location.href='#'">Go to The Atlantic →</button>
+      <p class="confirm-note">Confirmation sent to jane.morrison@gmail.com</p>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer" id="main-footer">
+  <div>
+    <div class="footer-links">
+      <a href="#">Help Center</a>
+      <a href="#">Subscription help</a>
+    </div>
+    <div class="footer-legal-row">
+      <a href="#">Privacy Policy</a>
+      <div class="footer-legal-div"></div>
+      <a href="#">Terms & Conditions</a>
+    </div>
+    <p class="footer-fine">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.</p>
+  </div>
+  <div class="footer-brand">
+    <div class="footer-glyph">A</div>
+    <div class="footer-brand-name">The Atlantic</div>
+  </div>
+</footer>
+
+<!-- SWITCHER -->
+<div class="switcher">
+  <button class="sw-active" onclick="swTo('main')">Default</button>
+  <div class="switcher-div"></div>
+  <button onclick="swTo('edit-pay')">Edit Payment</button>
+  <div class="switcher-div"></div>
+  <button onclick="swTo('change')">Change Plan</button>
+  <div class="switcher-div"></div>
+  <button onclick="swTo('confirm')">Confirmation</button>
+</div>
+
+<script>
+// ═══ PLANS DATA ═══
+const plans = {
+  'digital': { name:'Digital', price:'$79.99/year', amount:'79.99', badge:'' },
+  'print-digital': { name:'Print & Digital', price:'$89.99/year', amount:'89.99', badge:'Previous plan' },
+  'premium': { name:'Premium Plus', price:'$199.99/year', amount:'199.99', badge:'' }
+};
+let currentPlan = 'print-digital';
+let currentPayMethod = 'card';
+
+// ═══ PLAN SELECTION ═══
+function togglePlanPicker() {
+  const picker = document.getElementById('plan-picker');
+  const link = document.getElementById('change-plan-toggle');
+  const isOpen = picker.classList.contains('open');
+  picker.classList.toggle('open');
+  link.textContent = isOpen ? 'Change' : 'Keep current';
+}
+
+function selectPlan(el) {
+  const planId = el.dataset.plan;
+  const plan = plans[planId];
+  if (!plan) return;
+  currentPlan = planId;
+
+  document.querySelectorAll('.plan-option').forEach(o => {
+    const isSel = o.dataset.plan === planId;
+    o.classList.toggle('is-selected', isSel);
+    o.querySelector('input[type="radio"]').checked = isSel;
+  });
+
+  document.getElementById('display-plan-name').textContent = plan.name;
+  document.getElementById('display-plan-price').textContent = plan.price;
+  const badge = document.getElementById('display-plan-badge');
+  badge.textContent = plan.badge || '';
+  badge.style.display = plan.badge ? '' : 'none';
+
+  document.getElementById('btn-restart').textContent = 'Resume subscription — ' + plan.price;
+
+  document.getElementById('plan-picker').classList.remove('open');
+  document.getElementById('change-plan-toggle').textContent = 'Change';
+}
+
+// ═══ EDIT TOGGLES ═══
+function toggleEdit(section) {
+  const el = document.getElementById('edit-' + section);
+  el.classList.toggle('open');
+}
+
+function switchPayMethod(method) {
+  currentPayMethod = method;
+  const ccFields = document.getElementById('cc-fields');
+  ccFields.classList.toggle('open', method === 'card');
+}
+
+function savePayment() {
+  const display = document.getElementById('display-payment');
+  if (currentPayMethod === 'paypal') {
+    display.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:2px;"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944 3.72a.773.773 0 01.762-.65h6.15c2.04 0 3.483.394 4.287 1.172.75.727 1.017 1.794.816 3.263l-.02.124v.36l.282.16c.37.19.667.414.893.674.306.354.504.79.588 1.293.088.516.059 1.13-.084 1.824-.164.796-.43 1.49-.79 2.062a4.09 4.09 0 01-1.235 1.293c-.478.32-1.04.56-1.672.713-.615.148-1.314.223-2.076.223h-.494a1.49 1.49 0 00-1.472 1.26l-.037.2-.63 3.99-.027.14a.109.109 0 01-.108.092H7.076z" fill="#003087"/><path d="M19.532 8.093c-.009.06-.02.12-.032.183-.993 5.1-4.39 6.86-8.725 6.86H8.57a1.07 1.07 0 00-1.059.908l-.84 5.328-.238 1.51a.563.563 0 00.556.651h3.904c.464 0 .858-.338.931-.796l.038-.2.738-4.678.047-.258a.94.94 0 01.929-.795h.585c3.788 0 6.754-1.539 7.622-5.99.362-1.86.175-3.414-.784-4.506a3.73 3.73 0 00-1.066-.873l-.15.656z" fill="#0070E0"/></svg> PayPal';
+  } else if (currentPayMethod === 'apple') {
+    display.innerHTML = '<span class="pay-badge pay-badge--apple">&#63743;</span> Apple Pay';
+  } else {
+    display.innerHTML = '<span class="pay-badge pay-badge--visa">VISA</span> •••• 4242';
+  }
+  toggleEdit('payment');
+}
+
+// ═══ COMPLETE RESTART ═══
+function completeRestart() {
+  const plan = plans[currentPlan];
+  document.getElementById('confirm-plan').textContent = plan.name;
+  document.getElementById('confirm-amount').textContent = '$' + plan.amount;
+
+  if (currentPayMethod === 'paypal') {
+    document.getElementById('confirm-payment').innerHTML = 'PayPal';
+  } else if (currentPayMethod === 'apple') {
+    document.getElementById('confirm-payment').innerHTML = 'Apple Pay';
+  } else {
+    document.getElementById('confirm-payment').innerHTML = '<span class="pay-badge pay-badge--visa">VISA</span> •••• 4242';
+  }
+
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  document.getElementById('confirm-billing').textContent = d.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+  document.getElementById('reactivation-page').style.display = 'none';
+  document.getElementById('main-footer').style.display = 'none';
+  document.getElementById('confirmation-page').classList.add('show');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══ SWITCHER ═══
+function swTo(state) {
+  document.getElementById('reactivation-page').style.display = '';
+  document.getElementById('main-footer').style.display = '';
+  document.getElementById('confirmation-page').classList.remove('show');
+  document.querySelectorAll('.edit-form').forEach(e => e.classList.remove('open'));
+  document.getElementById('plan-picker').classList.remove('open');
+  document.getElementById('change-plan-toggle').textContent = 'Change';
+
+  if (state === 'edit-pay') {
+    document.getElementById('edit-payment').classList.add('open');
+    setTimeout(() => document.getElementById('edit-payment').scrollIntoView({ behavior:'smooth', block:'center' }), 100);
+  } else if (state === 'change') {
+    document.getElementById('plan-picker').classList.add('open');
+    document.getElementById('change-plan-toggle').textContent = 'Keep current';
+    setTimeout(() => document.getElementById('plan-picker').scrollIntoView({ behavior:'smooth', block:'center' }), 100);
+  } else if (state === 'confirm') {
+    completeRestart();
+  } else {
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+
+  document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('sw-active'));
+  event.target.classList.add('sw-active');
+}
+
+// Init
+document.getElementById('cc-fields').classList.add('open');
+
+document.addEventListener('keydown', e => {
+  const btns = Array.from(document.querySelectorAll('.switcher button'));
+  const idx = btns.findIndex(b => b.classList.contains('sw-active'));
+  if (e.key === 'ArrowRight' && idx < btns.length - 1) btns[idx+1].click();
+  if (e.key === 'ArrowLeft' && idx > 0) btns[idx-1].click();
+});
+</script>
+
+</body>
+</html>
