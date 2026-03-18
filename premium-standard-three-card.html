@@ -1,0 +1,2117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Atlantic - Standard Premium Subscription Prototype</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --black: #000000;
+      --atlantic-black: #2c2825;
+      --page-bg: #f8f7f4;
+      --white: #ffffff;
+      --card-outline: #e7e3db;
+      --muted: #6f6c69;
+      --muted-light: #959595;
+      --red: #b80f15;
+      --red-soft: #d9342b;
+      --link: #166999;
+      --shadow: 0 18px 40px rgba(44, 40, 37, 0.08);
+      --font-serif: "Adobe Garamond Pro", "EB Garamond", Georgia, "Times New Roman", serif;
+      --font-sans: "Graphik", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --font-mono: "Logic Monospace", "Courier New", monospace;
+      --font-atlantic: "Atlantic Condensed", "Bebas Neue", Impact, sans-serif;
+      --max-content: 1088px;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--white);
+      color: var(--atlantic-black);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      overflow-x: hidden;
+    }
+
+    .top-progress {
+      position: fixed;
+      inset: 0 auto auto 0;
+      width: 0;
+      height: 3px;
+      background: var(--atlantic-black);
+      z-index: 120;
+      transition: width 0.2s linear;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--card-outline);
+    }
+
+    .nav-stripe {
+      height: 4px;
+      background: var(--black);
+    }
+
+    .nav-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 15px 32px 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .wordmark {
+      font-family: var(--font-serif);
+      font-size: 31px;
+      font-style: italic;
+      line-height: 0.9;
+      text-decoration: none;
+      color: var(--black);
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      flex: 1;
+      justify-content: center;
+      padding: 0 24px;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      line-height: 1;
+      text-decoration: none;
+      color: var(--black);
+    }
+
+    .nav-links a:hover,
+    .footer-links a:hover,
+    .footer-meta a:hover,
+    .faq-trigger:hover {
+      text-decoration: underline;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 12px 24px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--red);
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 16px;
+      line-height: 1.1;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    .cta:hover {
+      background: var(--red-soft);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 18px rgba(184, 15, 21, 0.18);
+    }
+
+    .hero-shell {
+      background: var(--page-bg);
+      padding-bottom: 72px;
+    }
+
+    .hero {
+      background: var(--atlantic-black);
+      color: var(--white);
+    }
+
+    .hero-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      min-height: 244px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      align-items: stretch;
+    }
+
+    .hero-copy {
+      padding: 36px 32px 32px 176px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-family: var(--font-atlantic);
+      font-size: 45px;
+      line-height: 1.2;
+      font-weight: 400;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      max-width: 700px;
+    }
+
+    .hero p {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 22px;
+      line-height: 1.5;
+      max-width: 640px;
+    }
+
+    .hero-art {
+      position: relative;
+      min-height: 244px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 24px 16px;
+    }
+
+    .asset-slot {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.03)),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(255,255,255,0.08),
+          rgba(255,255,255,0.08) 10px,
+          rgba(255,255,255,0.02) 10px,
+          rgba(255,255,255,0.02) 20px
+        );
+      border: 1px dashed rgba(255,255,255,0.35);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      color: rgba(255,255,255,0.88);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .asset-slot::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+    }
+
+    .asset-slot__label {
+      position: relative;
+      z-index: 1;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.4;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      max-width: 80%;
+    }
+
+    .asset-slot__note {
+      position: relative;
+      z-index: 1;
+      font-size: 13px;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.7);
+      max-width: 78%;
+    }
+
+    .asset-slot--filled {
+      border-style: solid;
+      border-color: rgba(44,40,37,0.12);
+      background: #f4f1eb;
+      color: var(--atlantic-black);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .asset-slot--filled::before {
+      inset: 10px;
+      border-color: rgba(44,40,37,0.05);
+      border-radius: 6px;
+    }
+
+    .standin-tag {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.78);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .standin-tag--dark {
+      background: rgba(44,40,37,0.78);
+      color: rgba(255,255,255,0.88);
+    }
+
+    .hero-slot {
+      width: 260px;
+      height: 192px;
+      transform: rotate(6deg);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+      background:
+        radial-gradient(circle at 65% 24%, rgba(255,255,255,0.2), transparent 30%),
+        linear-gradient(180deg, #3a3532, #24201e);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .hero-slot::before {
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    .hero-tote {
+      position: absolute;
+      right: 24px;
+      bottom: 16px;
+      width: 108px;
+      height: 132px;
+      border-radius: 8px 8px 16px 16px;
+      background: linear-gradient(180deg, #f2eee7 0%, #dad2c4 100%);
+      box-shadow: 0 18px 24px rgba(0,0,0,0.22);
+    }
+
+    .hero-tote::before,
+    .hero-tote::after {
+      content: "";
+      position: absolute;
+      top: -36px;
+      width: 30px;
+      height: 52px;
+      border: 4px solid #d8d0c3;
+      border-bottom: 0;
+      border-radius: 20px 20px 0 0;
+    }
+
+    .hero-tote::before { left: 18px; }
+    .hero-tote::after { right: 18px; }
+
+    .hero-tote-mark {
+      position: absolute;
+      inset: 34px 20px auto;
+      font-family: var(--font-serif);
+      font-size: 24px;
+      line-height: 1;
+      font-style: italic;
+      color: var(--atlantic-black);
+      text-align: center;
+    }
+
+    .hero-cover {
+      position: absolute;
+      left: 28px;
+      bottom: 34px;
+      width: 82px;
+      height: 114px;
+      background: linear-gradient(180deg, #d8d5ce, #bfb8ac);
+      box-shadow: 0 12px 22px rgba(0,0,0,0.24);
+      transform: rotate(-8deg);
+      overflow: hidden;
+    }
+
+    .hero-cover::before {
+      content: "The Atlantic";
+      position: absolute;
+      top: 10px;
+      left: 9px;
+      right: 9px;
+      font-family: var(--font-serif);
+      font-size: 12px;
+      font-style: italic;
+      line-height: 1;
+      color: var(--black);
+      text-align: center;
+    }
+
+    .hero-cover::after {
+      content: "";
+      position: absolute;
+      inset: 28px 8px 10px;
+      background:
+        linear-gradient(180deg, #c2171d 0 48%, #141414 48% 100%);
+    }
+
+    .hero-device {
+      position: absolute;
+      left: 84px;
+      top: 30px;
+      width: 118px;
+      height: 72px;
+      border-radius: 8px;
+      background: linear-gradient(180deg, #efede8, #d7d0c5);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.22);
+      transform: rotate(-3deg);
+    }
+
+    .hero-device::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      background:
+        linear-gradient(180deg, #ffffff 0 22%, #e5dfd4 22% 100%);
+      border-radius: 4px;
+    }
+
+    .plans-wrap {
+      margin: -72px auto 0;
+      padding: 0 16px;
+      max-width: calc(var(--max-content) + 32px);
+    }
+
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+
+    .plan-card {
+      position: relative;
+      background: var(--white);
+      border: 1px solid var(--card-outline);
+      min-width: 0;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.02);
+      transition: transform 0.24s var(--ease), box-shadow 0.24s var(--ease);
+    }
+
+    .plan-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+    }
+
+    .plan-card.featured {
+      border: 2px solid #e4b3a0;
+      box-shadow: 0 16px 28px rgba(44, 40, 37, 0.08);
+    }
+
+    .plan-badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--red);
+      color: var(--white);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .plan-body {
+      min-height: 544px;
+      padding: 40px 40px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .plan-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 26px;
+      text-align: center;
+    }
+
+    .plan-slot {
+      width: 200px;
+      height: 134px;
+      color: rgba(44, 40, 37, 0.9);
+      background:
+        linear-gradient(180deg, #faf9f7, #f2efea),
+        repeating-linear-gradient(-45deg, rgba(44,40,37,0.06), rgba(44,40,37,0.06) 10px, rgba(44,40,37,0.01) 10px, rgba(44,40,37,0.01) 20px);
+      border: 1px dashed rgba(44,40,37,0.24);
+    }
+
+    .plan-slot::before { border-color: rgba(44,40,37,0.08); }
+    .plan-slot .asset-slot__note { color: rgba(44,40,37,0.56); }
+
+    .device-mock {
+      position: absolute;
+      border-radius: 10px;
+      background: #1c1a18;
+      box-shadow: 0 18px 26px rgba(0,0,0,0.12);
+    }
+
+    .device-mock--laptop {
+      width: 122px;
+      height: 78px;
+      left: 20px;
+      top: 28px;
+    }
+
+    .device-mock--tablet {
+      width: 84px;
+      height: 108px;
+      right: 20px;
+      top: 14px;
+      border-radius: 12px;
+    }
+
+    .device-screen {
+      position: absolute;
+      inset: 6px;
+      border-radius: inherit;
+      background:
+        linear-gradient(180deg, #ffffff 0 20%, #efebe3 20% 100%);
+      overflow: hidden;
+    }
+
+    .device-screen::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 24px;
+      height: 8px;
+      background: #dad2c4;
+      box-shadow: 0 14px 0 #e6dfd4, 0 28px 0 #e6dfd4;
+    }
+
+    .device-screen::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      width: 28px;
+      height: 6px;
+      background: #c2141a;
+    }
+
+    .laptop-base {
+      position: absolute;
+      left: 11px;
+      bottom: 20px;
+      width: 140px;
+      height: 10px;
+      border-radius: 0 0 10px 10px;
+      background: linear-gradient(180deg, #bbb2a6, #ece8e1);
+    }
+
+    .magazine-mini {
+      position: absolute;
+      width: 58px;
+      height: 88px;
+      right: 16px;
+      bottom: 16px;
+      background: linear-gradient(180deg, #111, #242424);
+      box-shadow: 0 12px 16px rgba(44,40,37,0.14);
+      transform: rotate(7deg);
+      overflow: hidden;
+    }
+
+    .magazine-mini::before {
+      content: "The Atlantic";
+      position: absolute;
+      top: 8px;
+      left: 6px;
+      right: 6px;
+      font-family: var(--font-serif);
+      font-size: 10px;
+      font-style: italic;
+      line-height: 1;
+      color: white;
+      text-align: center;
+    }
+
+    .magazine-mini::after {
+      content: "";
+      position: absolute;
+      inset: 24px 6px 6px;
+      background: linear-gradient(180deg, #c2141a 0 55%, #d8d3ca 55% 100%);
+    }
+
+    .gift-stack {
+      position: absolute;
+      inset: 28px 18px 18px;
+    }
+
+    .gift-card {
+      position: absolute;
+      width: 98px;
+      height: 64px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #fff, #f1ede5);
+      border: 1px solid rgba(44,40,37,0.08);
+      box-shadow: 0 14px 18px rgba(44,40,37,0.1);
+    }
+
+    .gift-card::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      background: linear-gradient(180deg, #c2141a 0 8px, #f7f3eb 8px 100%);
+      border-radius: 5px;
+    }
+
+    .gift-card--back {
+      left: 6px;
+      top: 14px;
+      transform: rotate(-9deg);
+    }
+
+    .gift-card--front {
+      right: 8px;
+      bottom: 6px;
+      transform: rotate(6deg);
+    }
+
+    .gift-ribbon {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, #fff 0 18%, transparent 19%),
+        conic-gradient(from 0deg, #c2141a 0 25%, #e8d5ce 25% 50%, #c2141a 50% 75%, #e8d5ce 75% 100%);
+      box-shadow: 0 8px 16px rgba(44,40,37,0.08);
+    }
+
+    .tote-standin {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 118px;
+      height: 148px;
+      transform: translate(-50%, -46%);
+      border-radius: 10px 10px 20px 20px;
+      background: linear-gradient(180deg, #f5f1ea, #d7d0c3);
+      box-shadow: 0 22px 26px rgba(44,40,37,0.12);
+    }
+
+    .tote-standin::before,
+    .tote-standin::after {
+      content: "";
+      position: absolute;
+      top: -42px;
+      width: 34px;
+      height: 58px;
+      border: 4px solid #d4cab8;
+      border-bottom: 0;
+      border-radius: 24px 24px 0 0;
+    }
+
+    .tote-standin::before { left: 18px; }
+    .tote-standin::after { right: 18px; }
+
+    .tote-standin span {
+      position: absolute;
+      inset: 42px 22px auto;
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-style: italic;
+      line-height: 1;
+      text-align: center;
+    }
+
+    .plan-copy h2 {
+      margin: 0 0 10px;
+      font-family: var(--font-serif);
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 1;
+      color: var(--atlantic-black);
+    }
+
+    .plan-price {
+      margin: 0 0 14px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--atlantic-black);
+    }
+
+    .plan-desc {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.45;
+      color: var(--atlantic-black);
+    }
+
+    .plan-action {
+      display: flex;
+      justify-content: center;
+    }
+
+    .plan-button {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 176px;
+      min-height: 40px;
+      padding: 12px 24px;
+      border-radius: 0;
+      background: var(--atlantic-black);
+      color: var(--white);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1;
+      text-decoration: none;
+      text-transform: lowercase;
+      transition: opacity 0.18s ease;
+    }
+
+    .plan-button:hover { opacity: 0.88; }
+
+    .plans-meta {
+      max-width: var(--max-content);
+      margin: 16px auto 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      font-size: 10px;
+      line-height: 1.5;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .plans-meta .payments {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pay-pill {
+      padding: 3px 8px;
+      border: 1px solid var(--card-outline);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.72);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .section {
+      padding: 64px 16px;
+    }
+
+    .section--tinted {
+      background: var(--page-bg);
+    }
+
+    .section-inner {
+      max-width: var(--max-content);
+      margin: 0 auto;
+    }
+
+    .section-head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-family: var(--font-atlantic);
+      font-size: 40px;
+      line-height: 1.1;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--atlantic-black);
+    }
+
+    .section-rule {
+      width: 130px;
+      height: 1px;
+      background: var(--atlantic-black);
+    }
+
+    .section-intro {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.4;
+      color: var(--atlantic-black);
+      max-width: 560px;
+    }
+
+    .segmented {
+      margin: 0 auto 34px;
+      width: min(420px, 100%);
+      background: #fffdf8;
+      border: 1px solid #b8aa97;
+      border-radius: 999px;
+      padding: 4px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .segmented span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 32px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .segmented .is-active {
+      background: var(--atlantic-black);
+      color: var(--white);
+    }
+
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .feature-row {
+      width: 100%;
+      max-width: 760px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 204px;
+      align-items: center;
+      gap: 26px;
+      padding: 10px 0;
+    }
+
+    .feature-copy h3 {
+      margin: 0 0 8px;
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 400;
+      line-height: 1.15;
+    }
+
+    .feature-copy p {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 21px;
+      line-height: 1.45;
+      color: var(--atlantic-black);
+    }
+
+    .feature-media {
+      width: 204px;
+      height: 204px;
+      color: rgba(44,40,37,0.92);
+      background:
+        linear-gradient(180deg, #faf9f7, #f2efea),
+        repeating-linear-gradient(-45deg, rgba(44,40,37,0.06), rgba(44,40,37,0.06) 10px, rgba(44,40,37,0.01) 10px, rgba(44,40,37,0.01) 20px);
+      border: 1px dashed rgba(44,40,37,0.24);
+    }
+
+    .feature-media.tall {
+      height: 255px;
+    }
+
+    .feature-media.wide {
+      height: 160px;
+      width: 240px;
+      justify-self: center;
+    }
+
+    .feature-media::before { border-color: rgba(44,40,37,0.08); }
+    .feature-media .asset-slot__note { color: rgba(44,40,37,0.56); }
+
+    .feature-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .feature-cta small {
+      display: block;
+      max-width: 540px;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.5;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .other-plans {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+
+    .other-card {
+      background: #fbfaf7;
+      border: 1px solid var(--card-outline);
+      min-height: 164px;
+      padding: 28px 26px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .other-card--offset {
+      transform: translateY(28px);
+    }
+
+    .other-card h3 {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 1.1;
+    }
+
+    .other-card p {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .other-card a {
+      margin-top: 8px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--link);
+      text-decoration: none;
+    }
+
+    .media-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .media-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .media-group p {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      line-height: 1.45;
+      max-width: 560px;
+    }
+
+    .media-row {
+      width: 100%;
+      display: grid;
+      gap: 16px;
+    }
+
+    .media-row--five {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .media-tile {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      text-align: center;
+    }
+
+    .media-frame {
+      width: 100%;
+      aspect-ratio: 204 / 255;
+      color: rgba(44,40,37,0.92);
+      background:
+        linear-gradient(180deg, #f1f0ed, #e8e4de),
+        repeating-linear-gradient(-45deg, rgba(44,40,37,0.06), rgba(44,40,37,0.06) 10px, rgba(44,40,37,0.01) 10px, rgba(44,40,37,0.01) 20px);
+      border: 1px dashed rgba(44,40,37,0.24);
+      border-radius: 0;
+    }
+
+    .media-frame::before { border-color: rgba(44,40,37,0.08); }
+    .media-frame .asset-slot__note { color: rgba(44,40,37,0.56); }
+
+    .media-frame--wide {
+      aspect-ratio: 204 / 204;
+    }
+
+    .media-frame--newsletter {
+      aspect-ratio: 204 / 320;
+    }
+
+    .cover-standin {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(17,17,17,0.88) 0 24%, transparent 24%),
+        linear-gradient(135deg, rgba(255,255,255,0.14), transparent 65%);
+      display: flex;
+      align-items: flex-end;
+      justify-content: stretch;
+      padding: 10px;
+    }
+
+    .cover-standin::before {
+      content: "The Atlantic";
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-style: italic;
+      line-height: 1;
+      color: white;
+      text-align: center;
+    }
+
+    .cover-standin::after {
+      content: "";
+      position: absolute;
+      inset: 38px 10px 10px;
+      background: var(--cover-bg, linear-gradient(135deg, #d8d2c5, #a9a092));
+    }
+
+    .cover-standin--red { --cover-bg: linear-gradient(135deg, #d61d24, #ff7b72); }
+    .cover-standin--bw { --cover-bg: linear-gradient(135deg, #e7e3dc, #2d2a27); }
+    .cover-standin--sepia { --cover-bg: linear-gradient(135deg, #b8aa94, #5a5149); }
+    .cover-standin--ink { --cover-bg: linear-gradient(135deg, #101010, #5c5a57); }
+    .cover-standin--ivory { --cover-bg: linear-gradient(135deg, #faf6ef, #cbc2b2); }
+
+    .portrait-standin {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 38%, var(--portrait-accent, #d5d0c7) 0 22%, transparent 22.5%),
+        linear-gradient(180deg, rgba(255,255,255,0.2), rgba(0,0,0,0.06));
+    }
+
+    .portrait-standin::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: 16px;
+      width: 58%;
+      height: 44%;
+      transform: translateX(-50%);
+      border-radius: 46% 46% 12% 12%;
+      background: rgba(44,40,37,0.8);
+    }
+
+    .portrait-standin::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 26%;
+      width: 34%;
+      height: 34%;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: rgba(44,40,37,0.9);
+      box-shadow: 0 0 0 10px rgba(255,255,255,0.08);
+    }
+
+    .portrait-standin--light { --portrait-accent: #ece7de; }
+    .portrait-standin--stone { --portrait-accent: #c9c1b4; }
+    .portrait-standin--red { --portrait-accent: #f07f73; }
+    .portrait-standin--dark { --portrait-accent: #67615c; }
+
+    .format-card {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.52), rgba(0,0,0,0.04));
+    }
+
+    .format-card__eyebrow {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .format-card__title {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      line-height: 1.05;
+      color: var(--atlantic-black);
+      max-width: 90%;
+    }
+
+    .format-card__bars {
+      display: grid;
+      gap: 7px;
+    }
+
+    .format-card__bars span {
+      height: 6px;
+      background: rgba(44,40,37,0.14);
+    }
+
+    .format-card--podcast {
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.5), transparent 60%),
+        linear-gradient(135deg, #191919, #3a3633);
+      color: white;
+    }
+
+    .format-card--podcast .format-card__eyebrow,
+    .format-card--podcast .format-card__title { color: white; }
+    .format-card--podcast .format-card__bars span { background: rgba(255,255,255,0.22); }
+
+    .format-card--essay {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.72)),
+        linear-gradient(135deg, #f8f4ed, #e4ddd2);
+    }
+
+    .format-card--issue {
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.14), rgba(0,0,0,0.14)),
+        linear-gradient(135deg, #bf171d, #ee4f45);
+    }
+
+    .format-card--issue .format-card__eyebrow,
+    .format-card--issue .format-card__title { color: white; }
+    .format-card--issue .format-card__bars span { background: rgba(255,255,255,0.24); }
+
+    .format-card--narrated {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.72)),
+        linear-gradient(135deg, #ded7cb, #b9afa2);
+    }
+
+    .newsletter-standin {
+      position: absolute;
+      inset: 0;
+      padding: 12px;
+      background: linear-gradient(180deg, #f3f0e9, #e8e1d6);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .newsletter-standin__date {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      line-height: 1;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .newsletter-standin__masthead {
+      border-top: 1px solid rgba(44,40,37,0.22);
+      border-bottom: 1px solid rgba(44,40,37,0.22);
+      padding: 12px 0;
+      text-align: center;
+      font-family: var(--font-serif);
+      font-size: 22px;
+      line-height: 1.05;
+    }
+
+    .newsletter-standin__sub {
+      display: block;
+      margin-top: 4px;
+      font-size: 15px;
+      font-style: italic;
+    }
+
+    .newsletter-standin__image {
+      height: 112px;
+      background:
+        linear-gradient(135deg, #efe7db, #d6cbba),
+        repeating-linear-gradient(-45deg, rgba(44,40,37,0.05), rgba(44,40,37,0.05) 10px, rgba(44,40,37,0.01) 10px, rgba(44,40,37,0.01) 20px);
+      border: 1px solid rgba(44,40,37,0.08);
+    }
+
+    .newsletter-standin__lines {
+      display: grid;
+      gap: 6px;
+    }
+
+    .newsletter-standin__lines span {
+      height: 6px;
+      background: rgba(44,40,37,0.14);
+    }
+
+    .media-caption {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      line-height: 1.4;
+      color: var(--atlantic-black);
+    }
+
+    .why-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 32px;
+      text-align: center;
+    }
+
+    .why-card h3 {
+      margin: 0 0 16px;
+      font-family: var(--font-serif);
+      font-size: 24px;
+      line-height: 1.15;
+      font-weight: 600;
+    }
+
+    .why-card p {
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 22px;
+      line-height: 1.5;
+    }
+
+    .faq {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--card-outline);
+    }
+
+    .faq-trigger {
+      width: 100%;
+      padding: 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: transparent;
+      border: 0;
+      cursor: pointer;
+      text-align: left;
+      color: var(--atlantic-black);
+    }
+
+    .faq-trigger span:first-child {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      line-height: 1.5;
+    }
+
+    .faq-icon {
+      width: 16px;
+      height: 16px;
+      position: relative;
+      flex-shrink: 0;
+      transition: transform 0.24s ease;
+    }
+
+    .faq-icon::before,
+    .faq-icon::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 12px;
+      height: 1.5px;
+      background: var(--atlantic-black);
+      transform-origin: center;
+      transition: transform 0.24s ease;
+    }
+
+    .faq-icon::before { transform: translate(-50%, -50%) rotate(45deg); }
+    .faq-icon::after { transform: translate(-50%, -50%) rotate(-45deg); }
+
+    .faq-item[open] .faq-icon { transform: rotate(180deg); }
+    .faq-item[open] .faq-icon::before { transform: translate(-50%, -50%) rotate(0deg); }
+    .faq-item[open] .faq-icon::after { transform: translate(-50%, -50%) rotate(180deg); }
+
+    .faq-panel {
+      padding: 0 0 24px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+      max-width: 560px;
+    }
+
+    .footer {
+      border-top: 1px solid var(--card-outline);
+      background: var(--white);
+      position: relative;
+    }
+
+    .footer-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 48px 80px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 80px;
+      align-items: end;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      align-self: start;
+    }
+
+    .footer-glyph {
+      font-family: var(--font-serif);
+      font-size: 64px;
+      line-height: 0.8;
+    }
+
+    .footer-name {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      line-height: 0.95;
+      font-style: italic;
+    }
+
+    .footer-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px 32px;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .footer-links a,
+    .footer-meta a {
+      text-decoration: none;
+      color: var(--black);
+    }
+
+    .footer-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      line-height: 1.75;
+      color: var(--black);
+    }
+
+    .footer-meta__row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-meta__divider {
+      width: 1px;
+      height: 12px;
+      background: var(--black);
+    }
+
+    .help-pill {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      min-height: 48px;
+      padding: 12px 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      background: var(--black);
+      color: var(--white);
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.14);
+    }
+
+    .help-pill__icon {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .sticky-cta {
+      position: fixed;
+      right: 20px;
+      bottom: 84px;
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(18px);
+      pointer-events: none;
+      transition: opacity 0.24s ease, transform 0.24s ease;
+    }
+
+    .sticky-cta.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .sticky-cta .cta {
+      min-width: 196px;
+      box-shadow: 0 14px 24px rgba(184, 15, 21, 0.26);
+    }
+
+    @media (max-width: 1180px) {
+      .nav-links { gap: 24px; }
+      .hero-copy { padding-left: 48px; }
+      .plans-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .plans-grid .plan-card:last-child {
+        grid-column: 1 / -1;
+        max-width: 528px;
+        justify-self: center;
+      }
+      .other-plans,
+      .why-grid {
+        grid-template-columns: 1fr;
+      }
+      .other-card--offset { transform: none; }
+      .media-row--five { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .footer-inner {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .footer-brand {
+        align-items: flex-start;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .nav-inner {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 14px 16px 12px;
+      }
+
+      .nav-links {
+        order: 3;
+        width: 100%;
+        padding: 0;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 16px 22px;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy {
+        padding: 36px 20px 22px;
+        text-align: center;
+        align-items: center;
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .hero p {
+        font-size: 20px;
+      }
+
+      .hero-art {
+        min-height: 180px;
+        padding-top: 0;
+      }
+
+      .plans-wrap {
+        margin-top: -52px;
+      }
+
+      .plans-grid,
+      .media-row--five {
+        grid-template-columns: 1fr;
+      }
+
+      .plans-grid .plan-card:last-child {
+        grid-column: auto;
+        max-width: none;
+      }
+
+      .plan-body {
+        min-height: auto;
+        padding: 32px 24px;
+      }
+
+      .plans-meta {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .section {
+        padding: 56px 16px;
+      }
+
+      .section-head h2 {
+        font-size: 34px;
+      }
+
+      .feature-row {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        text-align: center;
+      }
+
+      .feature-copy h3 {
+        font-size: 26px;
+      }
+
+      .feature-copy p,
+      .why-card p,
+      .faq-trigger span:first-child {
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wordmark {
+        font-size: 25px;
+      }
+
+      .cta {
+        min-height: 44px;
+        padding-inline: 18px;
+        font-size: 14px;
+      }
+
+      .hero h1 {
+        font-size: 31px;
+      }
+
+      .hero p {
+        font-size: 18px;
+      }
+
+      .plan-copy h2 {
+        font-size: 28px;
+      }
+
+      .plan-desc,
+      .media-caption,
+      .other-card p,
+      .section-intro {
+        font-size: 17px;
+      }
+
+      .feature-copy h3,
+      .why-card h3 {
+        font-size: 22px;
+      }
+
+      .feature-copy p,
+      .why-card p,
+      .faq-trigger span:first-child {
+        font-size: 18px;
+      }
+
+      .segmented {
+        width: 100%;
+      }
+
+      .feature-media,
+      .feature-media.tall {
+        width: 100%;
+        max-width: 204px;
+        height: 204px;
+      }
+
+      .feature-media.wide {
+        width: 100%;
+        max-width: 240px;
+      }
+
+      .footer-inner {
+        padding: 32px 16px 84px;
+      }
+
+      .help-pill {
+        right: 14px;
+        bottom: 14px;
+      }
+
+      .sticky-cta {
+        right: 14px;
+        left: 14px;
+        bottom: 76px;
+      }
+
+      .sticky-cta .cta {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-progress" id="top-progress"></div>
+
+  <div class="page">
+    <header class="nav">
+      <div class="nav-stripe"></div>
+      <div class="nav-inner">
+        <a class="wordmark" href="#top">The Atlantic</a>
+
+        <nav class="nav-links" aria-label="Section navigation">
+          <a href="#other-plans">Other Plans</a>
+          <a href="#subscriptions">Subscriptions</a>
+          <a href="#what-you-get">What You Get</a>
+          <a href="#why-atlantic">Why The Atlantic</a>
+          <a href="#faq">Help</a>
+        </nav>
+
+        <a class="cta" href="#subscriptions">Start Checkout</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero-shell" id="subscriptions">
+        <div class="hero">
+          <div class="hero-inner">
+            <div class="hero-copy">
+              <h1>Journalism that explains America and the world</h1>
+              <p>Start your year of unlimited articles, audio, and more. Starting at less than $2 a week.</p>
+            </div>
+
+            <div class="hero-art">
+              <div class="asset-slot hero-slot" aria-label="Hero product stand-in">
+                <span class="standin-tag standin-tag--dark">stand-in art</span>
+                <div class="hero-device" aria-hidden="true"></div>
+                <div class="hero-cover" aria-hidden="true"></div>
+                <div class="hero-tote" aria-hidden="true">
+                  <div class="hero-tote-mark">The Atlantic</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="plans-wrap">
+          <div class="plans-grid">
+            <article class="plan-card">
+              <div class="plan-body">
+                <div class="plan-top">
+                  <div class="asset-slot asset-slot--filled plan-slot" aria-label="Digital plan image stand-in">
+                    <span class="standin-tag">digital</span>
+                    <div class="device-mock device-mock--laptop" aria-hidden="true">
+                      <div class="device-screen"></div>
+                    </div>
+                    <div class="laptop-base" aria-hidden="true"></div>
+                    <div class="magazine-mini" aria-hidden="true"></div>
+                  </div>
+
+                  <div class="plan-copy">
+                    <h2>Digital</h2>
+                    <p class="plan-price">$79/year</p>
+                    <p class="plan-desc">Unlimited access to our website, app, and daily journalism.</p>
+                  </div>
+                </div>
+
+                <div class="plan-action">
+                  <a class="plan-button" href="#faq">select</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="plan-card featured">
+              <div class="plan-badge">Most popular</div>
+              <div class="plan-body">
+                <div class="plan-top">
+                  <div class="asset-slot asset-slot--filled plan-slot" aria-label="Print and digital plan image stand-in">
+                    <span class="standin-tag">print + digital</span>
+                    <div class="device-mock device-mock--tablet" aria-hidden="true">
+                      <div class="device-screen"></div>
+                    </div>
+                    <div class="magazine-mini" style="left: 26px; right: auto; bottom: 18px; transform: rotate(-7deg);" aria-hidden="true"></div>
+                  </div>
+
+                  <div class="plan-copy">
+                    <h2>Print &amp; Digital</h2>
+                    <p class="plan-price">$89/year</p>
+                    <p class="plan-desc">All the benefits of Digital, with twelve print issues delivered to your door.</p>
+                  </div>
+                </div>
+
+                <div class="plan-action">
+                  <a class="plan-button" href="#faq">select</a>
+                </div>
+              </div>
+            </article>
+
+            <article class="plan-card">
+              <div class="plan-body">
+                <div class="plan-top">
+                  <div class="asset-slot asset-slot--filled plan-slot" aria-label="Premium plan image stand-in">
+                    <span class="standin-tag">premium</span>
+                    <div class="gift-stack" aria-hidden="true">
+                      <div class="gift-card gift-card--back"></div>
+                      <div class="gift-card gift-card--front"></div>
+                      <div class="gift-ribbon"></div>
+                    </div>
+                  </div>
+
+                  <div class="plan-copy">
+                    <h2>Premium</h2>
+                    <p class="plan-price">$129/year</p>
+                    <p class="plan-desc">All of Print &amp; Digital, plus an annual gift subscription, tote bag, and more.</p>
+                  </div>
+                </div>
+
+                <div class="plan-action">
+                  <a class="plan-button" href="#faq">select</a>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="plans-meta">
+            <div>Subscriptions renew automatically. Cancel anytime. Prices shown are billed annually.</div>
+            <div class="payments" aria-label="Accepted payment types">
+              <span class="pay-pill">visa</span>
+              <span class="pay-pill">mc</span>
+              <span class="pay-pill">amex</span>
+              <span class="pay-pill">apple pay</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="whats-included">
+        <div class="section-inner">
+          <div class="section-head">
+            <h2>What's Included?</h2>
+            <p class="section-intro">Store the plan you want with editorial extras in a tidy, scrollable product story.</p>
+          </div>
+
+          <div class="segmented" aria-hidden="true">
+            <span>Digital</span>
+            <span class="is-active">Premium</span>
+          </div>
+
+          <div class="feature-list">
+            <div class="feature-row">
+              <div class="feature-copy">
+                <h3>Ad-free access</h3>
+                <p>Read The Atlantic on your browser, in our app, or listen while ads stay away.</p>
+              </div>
+              <div class="asset-slot asset-slot--filled feature-media wide" aria-label="Ad-free access stand-in">
+                <span class="standin-tag">browser preview</span>
+                <div class="device-mock device-mock--laptop" style="width: 176px; height: 106px; left: 28px; top: 24px;">
+                  <div class="device-screen"></div>
+                </div>
+                <div class="laptop-base" style="width: 192px; left: 20px; bottom: 18px;"></div>
+              </div>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-copy">
+                <h3>Free digital gift subscriptions</h3>
+                <p>Share 30 days of Atlantic access with family members, friends, or anyone in need of a good read.</p>
+              </div>
+              <div class="asset-slot asset-slot--filled feature-media" aria-label="Gift subscription stand-in">
+                <span class="standin-tag">giftable</span>
+                <div class="gift-stack" aria-hidden="true">
+                  <div class="gift-card gift-card--back"></div>
+                  <div class="gift-card gift-card--front"></div>
+                  <div class="gift-ribbon"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="feature-row">
+              <div class="feature-copy">
+                <h3>A way to show your support</h3>
+                <p>Get easy to carry, Atlantic-branded merchandise that acts as a conversation starter and a small badge of belief in ideas.</p>
+              </div>
+              <div class="asset-slot asset-slot--filled feature-media tall" aria-label="Merchandise stand-in">
+                <span class="standin-tag">merch</span>
+                <div class="tote-standin" aria-hidden="true"><span>The Atlantic</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-cta">
+            <a class="plan-button" href="#subscriptions">Start Free Trial</a>
+            <small>Free trial offer shown for prototype only. Replace with live offer language and legal copy when assets and pricing are finalized.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tinted" id="other-plans">
+        <div class="section-inner">
+          <div class="section-head">
+            <h2>Other Plans</h2>
+            <div class="section-rule"></div>
+          </div>
+
+          <div class="other-plans">
+            <article class="other-card">
+              <h3>Gift Subscriptions</h3>
+              <p>Share Atlantic access with friends and family who appreciate good journalism.</p>
+              <a href="#subscriptions">View the options</a>
+            </article>
+
+            <article class="other-card">
+              <h3>Academic Subscriptions</h3>
+              <p>Discounted annual plans for students and educators who learn from strong ideas.</p>
+              <a href="#subscriptions">Learn more</a>
+            </article>
+
+            <article class="other-card other-card--offset">
+              <h3>Group Subscriptions</h3>
+              <p>License team access for classrooms, companies, and shared reading communities.</p>
+              <a href="#subscriptions">See plans</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="what-you-get">
+        <div class="section-inner">
+          <div class="section-head">
+            <h2>What You Get</h2>
+            <p class="section-intro">Unlimited access to every Atlantic story.</p>
+          </div>
+
+          <div class="media-stack">
+            <div class="media-group">
+              <div class="media-row media-row--five">
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame" aria-label="Magazine cover stand-in 1">
+                    <div class="cover-standin cover-standin--ink"></div>
+                  </div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame" aria-label="Magazine cover stand-in 2">
+                    <div class="cover-standin cover-standin--red"></div>
+                  </div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame" aria-label="Magazine cover stand-in 3">
+                    <div class="cover-standin cover-standin--bw"></div>
+                  </div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame" aria-label="Magazine cover stand-in 4">
+                    <div class="cover-standin cover-standin--sepia"></div>
+                  </div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame" aria-label="Magazine cover stand-in 5">
+                    <div class="cover-standin cover-standin--ivory"></div>
+                  </div>
+                </div>
+              </div>
+              <p>From the writers and thinkers who shape American history.</p>
+            </div>
+
+            <div class="media-group">
+              <div class="media-row media-row--five">
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Writer portrait stand-in 1">
+                    <div class="portrait-standin portrait-standin--stone"></div>
+                  </div>
+                  <div class="media-caption">Booker T. Washington</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Writer portrait stand-in 2">
+                    <div class="portrait-standin portrait-standin--light"></div>
+                  </div>
+                  <div class="media-caption">Sylvia Plath</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Writer portrait stand-in 3">
+                    <div class="portrait-standin portrait-standin--dark"></div>
+                  </div>
+                  <div class="media-caption">Frederick Douglass</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Writer portrait stand-in 4">
+                    <div class="portrait-standin portrait-standin--red"></div>
+                  </div>
+                  <div class="media-caption">Mya Frazier</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Writer portrait stand-in 5">
+                    <div class="portrait-standin portrait-standin--stone"></div>
+                  </div>
+                  <div class="media-caption">Eleanor Roosevelt</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="media-group">
+              <p>In your favorite format.</p>
+              <div class="media-row media-row--five">
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Podcast format stand-in">
+                    <div class="format-card format-card--podcast">
+                      <div class="format-card__eyebrow">audio</div>
+                      <div class="format-card__title">Good Evening</div>
+                      <div class="format-card__bars"><span></span><span></span><span style="width:72%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="media-caption">Podcasts</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Article format stand-in">
+                    <div class="format-card format-card--essay">
+                      <div class="format-card__eyebrow">feature</div>
+                      <div class="format-card__title">First person</div>
+                      <div class="format-card__bars"><span></span><span></span><span style="width:68%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="media-caption">Q&amp;A and thought essays</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Print issue format stand-in">
+                    <div class="format-card format-card--issue">
+                      <div class="format-card__eyebrow">print</div>
+                      <div class="format-card__title">The Atlantic</div>
+                      <div class="format-card__bars"><span></span><span></span><span style="width:52%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="media-caption">Print issues</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--wide" aria-label="Narrated story format stand-in">
+                    <div class="format-card format-card--narrated">
+                      <div class="format-card__eyebrow">listen</div>
+                      <div class="format-card__title">Narrated stories</div>
+                      <div class="format-card__bars"><span></span><span></span><span style="width:60%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="media-caption">Narrated stories</div>
+                </div>
+                <div class="media-tile">
+                  <div class="asset-slot asset-slot--filled media-frame media-frame--newsletter" aria-label="Newsletter format stand-in">
+                    <div class="newsletter-standin">
+                      <div class="newsletter-standin__date">Wednesday, January 15</div>
+                      <div class="newsletter-standin__masthead">Brooklyn, Everywhere<span class="newsletter-standin__sub">by Xochitl Gonzalez</span></div>
+                      <div class="newsletter-standin__image"></div>
+                      <div class="newsletter-standin__lines"><span></span><span></span><span style="width:84%;"></span><span style="width:72%;"></span></div>
+                    </div>
+                  </div>
+                  <div class="media-caption">Weekly newsletters</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="why-atlantic">
+        <div class="section-inner">
+          <div class="section-head">
+            <h2>Why The Atlantic?</h2>
+            <div class="section-rule"></div>
+          </div>
+
+          <div class="why-grid">
+            <article class="why-card">
+              <h3>Independent since 1857</h3>
+              <p>For more than 160 years, The Atlantic has been committed to our founding credo: to be “of no party or clique.”</p>
+            </article>
+
+            <article class="why-card">
+              <h3>A home for today’s best writers</h3>
+              <p>One subscription gives you access to the work of dozens of the most interesting voices in America.</p>
+            </article>
+
+            <article class="why-card">
+              <h3>The magazine for curious minds</h3>
+              <p>Become a subscriber and enjoy a year’s worth of ideas that will enrich your intellectual life.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section--tinted" id="faq">
+        <div class="section-inner">
+          <div class="section-head">
+            <h2>How Can We Help?</h2>
+            <div class="section-rule"></div>
+          </div>
+
+          <div class="faq">
+            <details class="faq-item">
+              <summary class="faq-trigger">
+                <span>Purchase a subscription</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="faq-panel">
+                Choose the plan that fits best, start checkout, and finalize the flow with billing and account details. This prototype keeps the interaction lightweight while matching the marketing page structure.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-trigger">
+                <span>Difference between magazine and online pieces</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="faq-panel">
+                Print issues preserve the monthly magazine experience, while your subscription also unlocks daily reporting, essays, and features on the site and in the app.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-trigger">
+                <span>See all devices supported by The Atlantic</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="faq-panel">
+                The prototype assumes browser access across desktop and mobile, plus support for current iOS and Android app experiences. Device-specific marketing copy can be swapped in later if needed.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-trigger">
+                <span>Know when to expect your first issue</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="faq-panel">
+                Print timing depends on the active production cycle. This section is set up to accept the exact subscription operations copy once it is available.
+              </div>
+            </details>
+
+            <details class="faq-item">
+              <summary class="faq-trigger">
+                <span>Frequently asked questions about our new subscription service</span>
+                <span class="faq-icon" aria-hidden="true"></span>
+              </summary>
+              <div class="faq-panel">
+                The current accordion is intentionally ready for fuller help content, policy language, and links into the Help Center without needing layout changes.
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-brand" aria-label="The Atlantic footer branding">
+          <div class="footer-glyph">A</div>
+          <div class="footer-name">The Atlantic</div>
+        </div>
+
+        <div class="footer-copy">
+          <div class="footer-links">
+            <a href="#faq">Visit our Help Center</a>
+            <a href="#faq">Accounts &amp; Subscription help</a>
+          </div>
+
+          <div class="footer-meta">
+            <div class="footer-meta__row">
+              <a href="#faq">Privacy Policy</a>
+              <span class="footer-meta__divider" aria-hidden="true"></span>
+              <a href="#faq">Terms &amp; Conditions</a>
+            </div>
+            <div>This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</div>
+          </div>
+        </div>
+      </div>
+
+      <a class="help-pill" href="#faq">
+        <span class="help-pill__icon">?</span>
+        <span>Help</span>
+      </a>
+    </footer>
+  </div>
+
+  <div class="sticky-cta" id="sticky-cta">
+    <a class="cta" href="#subscriptions">Start Checkout</a>
+  </div>
+
+  <script>
+    const progress = document.getElementById("top-progress");
+    const stickyCta = document.getElementById("sticky-cta");
+
+    function updateUiOnScroll() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+
+      progress.style.width = `${ratio * 100}%`;
+
+      if (scrollTop > 420) {
+        stickyCta.classList.add("is-visible");
+      } else {
+        stickyCta.classList.remove("is-visible");
+      }
+    }
+
+    window.addEventListener("scroll", updateUiOnScroll, { passive: true });
+    updateUiOnScroll();
+
+    document.querySelectorAll(".faq-item").forEach((item) => {
+      item.addEventListener("toggle", () => {
+        if (!item.open) return;
+        document.querySelectorAll(".faq-item").forEach((other) => {
+          if (other !== item) other.open = false;
+        });
+      });
+    });
+  </script>
+</body>
+</html>

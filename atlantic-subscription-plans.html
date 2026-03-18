@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atlantic Subscription Plans</title>
+  <style>
+    :root {
+      --page-bg: #f8f7f4;
+      --panel-bg: #ffffff;
+      --text: #000000;
+      --muted: #6f6c69;
+      --border: #e7e3db;
+      --hero: #2c2825;
+      --button: #20272c;
+      --accent: #b80f15;
+      --radius: 4px;
+      --container: 1088px;
+      --shadow-soft: 0 14px 32px rgba(0, 0, 0, 0.08);
+      --font-display: "Atlantic Condensed", "Arial Narrow", Arial, sans-serif;
+      --font-serif: "Adobe Garamond Pro", Garamond, Georgia, serif;
+      --font-sans: Graphik, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-mono: "Logic Monospace", "SFMono-Regular", Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page-bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    .page {
+      min-height: 100vh;
+    }
+
+    .hero {
+      background: var(--hero);
+      color: #fff;
+    }
+
+    .hero__inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      align-items: center;
+    }
+
+    .hero__copy {
+      min-height: 244px;
+      padding: 32px 48px 32px 176px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .hero__title {
+      margin: 0;
+      font: 400 45px/54px var(--font-display);
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+      max-width: 760px;
+    }
+
+    .hero__subtitle {
+      margin: 0;
+      font: 400 22px/33px var(--font-serif);
+      max-width: 720px;
+    }
+
+    .hero__art {
+      position: relative;
+      height: 244px;
+      overflow: hidden;
+      background: var(--hero);
+    }
+
+    .hero__art-stack {
+      position: absolute;
+      width: 315px;
+      height: 335px;
+      left: 60px;
+      top: -44px;
+    }
+
+    .hero__art-main {
+      position: absolute;
+      width: 235px;
+      height: 333px;
+      left: 98px;
+      top: 0;
+      transform: rotate(7deg);
+      border-radius: 2px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
+    }
+
+    .hero__art-side {
+      position: absolute;
+      width: 117px;
+      height: 161px;
+      left: 9px;
+      top: 110px;
+      transform: rotate(-6deg);
+      border-radius: 2px;
+      box-shadow: 7px 9px 18px rgba(0, 0, 0, 0.5), inset 0 0 1px rgba(255, 255, 255, 0.15);
+    }
+
+    .content {
+      padding: 0 16px;
+    }
+
+    .plans {
+      max-width: var(--container);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(244px, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .plan {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .plan--featured {
+      border-color: var(--accent);
+    }
+
+    .plan__badge {
+      min-height: 32px;
+      display: grid;
+      place-items: center;
+      padding: 7px 10px 9px;
+      background: var(--accent);
+      color: #fff;
+      font: 500 16px/16px var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .plan__body {
+      flex: 1;
+      min-height: 544px;
+      padding: 40px 40px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 36px;
+    }
+
+    .plan__top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .plan__visual {
+      width: 200px;
+      height: 134px;
+      position: relative;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .device-laptop,
+    .device-tablet,
+    .device-phone,
+    .device-magazine,
+    .device-gift {
+      position: absolute;
+      background-size: cover;
+      background-position: center;
+      border-radius: 1px;
+    }
+
+    .device-laptop {
+      left: 4px;
+      top: 52px;
+      width: 104px;
+      height: 57px;
+      background-image: url("https://placehold.co/104x57");
+    }
+
+    .device-laptop::before {
+      content: "";
+      position: absolute;
+      left: 16px;
+      top: 2px;
+      width: 73px;
+      height: 48px;
+      background: url("https://placehold.co/73x48") center/cover no-repeat;
+      border-radius: 1px;
+    }
+
+    .device-tablet {
+      left: 76px;
+      top: 23px;
+      width: 63px;
+      height: 83px;
+      background-image: url("https://placehold.co/63x83");
+      box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.2), inset 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+
+    .device-phone {
+      left: 80px;
+      top: 68px;
+      width: 22px;
+      height: 43px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, #494e52 0%, #242a2f 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+    }
+
+    .device-phone::before {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 11px;
+      width: 11px;
+      height: 17px;
+      background: #fff;
+    }
+
+    .device-phone::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      bottom: 12px;
+      width: 8px;
+      height: 1px;
+      background: #fff;
+    }
+
+    .device-magazine {
+      left: 126px;
+      top: -15px;
+      width: 83px;
+      height: 121px;
+      background-image: url("https://placehold.co/83x121");
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    .device-gift {
+      left: 171px;
+      top: 3px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--hero);
+      background: #fff;
+    }
+
+    .device-gift::before,
+    .device-gift::after {
+      content: "";
+      position: absolute;
+      background: #000;
+    }
+
+    .device-gift::before {
+      width: 13px;
+      height: 2px;
+      left: 10px;
+      top: 16px;
+    }
+
+    .device-gift::after {
+      width: 2px;
+      height: 13px;
+      left: 16px;
+      top: 10px;
+    }
+
+    .plan__visual--digital .digital-shell {
+      position: absolute;
+      left: 12px;
+      top: 22px;
+      width: 187px;
+      height: 103px;
+      background: url("https://placehold.co/187x103") center/cover no-repeat;
+    }
+
+    .plan__visual--digital .digital-screen {
+      position: absolute;
+      left: 28px;
+      top: 24px;
+      width: 132px;
+      height: 86px;
+      background: url("https://placehold.co/132x86") center/cover no-repeat;
+      border-radius: 1px;
+    }
+
+    .plan__visual--digital .digital-toolbar {
+      position: absolute;
+      left: 65px;
+      top: 24px;
+      width: 59px;
+      height: 4px;
+      background: #f7f8f4;
+    }
+
+    .plan__visual--digital .device-phone {
+      left: 150px;
+      top: 57px;
+      width: 32px;
+      height: 66px;
+      border-radius: 5px;
+    }
+
+    .plan__visual--digital .digital-phone-overlay {
+      position: absolute;
+      left: 147px;
+      top: 56px;
+      width: 38px;
+      height: 70px;
+      background: url("https://placehold.co/38x70") center/cover no-repeat;
+    }
+
+    .plan__visual--digital .digital-stand {
+      position: absolute;
+      left: 165px;
+      top: 116px;
+      width: 35px;
+      height: 19px;
+      background: url("https://placehold.co/33x16") center/contain no-repeat;
+    }
+
+    .plan__details {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .plan__name {
+      margin: 0;
+      font: 400 32px/38px var(--font-serif);
+    }
+
+    .plan__price {
+      margin: 0;
+      font: 400 24px/28.8px var(--font-serif);
+    }
+
+    .plan__desc {
+      margin: 0;
+      font: 400 20px/28px var(--font-serif);
+    }
+
+    .plan__desc em {
+      font-style: italic;
+    }
+
+    .plan__button {
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: var(--radius);
+      background: var(--button);
+      color: #fff;
+      font: 500 16px/16px var(--font-mono);
+      cursor: pointer;
+    }
+
+    .plan__button:hover {
+      filter: brightness(1.05);
+    }
+
+    .meta {
+      max-width: var(--container);
+      margin: 0 auto;
+      padding: 20px 0 32px;
+      display: grid;
+      grid-template-columns: minmax(288px, 1fr) 288px;
+      gap: 24px;
+    }
+
+    .footnote {
+      padding-right: 16px;
+      border-right: 1px solid var(--border);
+      color: var(--muted);
+      font: 400 10px/12px var(--font-sans);
+    }
+
+    .payments {
+      color: var(--muted);
+      font: 400 10px/12px var(--font-sans);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .payment-logos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .logo {
+      height: 28px;
+      position: relative;
+      color: var(--muted);
+    }
+
+    .logo--visa {
+      width: 27px;
+    }
+
+    .logo--visa::before {
+      content: "";
+      position: absolute;
+      inset: 6px 1px 6px 1px;
+      background: currentColor;
+    }
+
+    .logo--amex {
+      width: 31px;
+    }
+
+    .logo--amex::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 1px;
+      top: 9px;
+      bottom: 9px;
+      background: currentColor;
+    }
+
+    .logo--blank {
+      width: 28px;
+    }
+
+    .logo--paypal {
+      width: 46px;
+    }
+
+    .logo--paypal::before {
+      content: "Pay";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      font: 700 12px/12px var(--font-sans);
+      color: currentColor;
+    }
+
+    .logo--paypal::after {
+      content: "Pal";
+      position: absolute;
+      right: 0;
+      top: 8px;
+      font: 700 12px/12px var(--font-sans);
+      color: currentColor;
+    }
+
+    .logo--mastercard,
+    .logo--discover {
+      width: 37px;
+    }
+
+    .logo--mastercard::before,
+    .logo--discover::before {
+      content: "";
+      position: absolute;
+      left: 1px;
+      right: 1px;
+      top: 10px;
+      bottom: 6px;
+      background: currentColor;
+    }
+
+    @media (max-width: 1180px) {
+      .hero__inner {
+        grid-template-columns: 1fr 280px;
+      }
+
+      .hero__copy {
+        padding-left: 72px;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .hero__inner {
+        grid-template-columns: 1fr;
+      }
+
+      .hero__copy {
+        min-height: unset;
+        padding: 40px 24px 24px;
+      }
+
+      .hero__title {
+        font-size: 36px;
+        line-height: 42px;
+      }
+
+      .hero__subtitle {
+        font-size: 20px;
+        line-height: 30px;
+      }
+
+      .hero__art {
+        height: 220px;
+      }
+
+      .hero__art-stack {
+        left: 50%;
+        transform: translateX(-40%);
+      }
+
+      .plans {
+        grid-template-columns: repeat(2, minmax(244px, 1fr));
+      }
+
+      .meta {
+        grid-template-columns: 1fr;
+      }
+
+      .footnote {
+        padding-right: 0;
+        border-right: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .content {
+        padding: 0 12px;
+      }
+
+      .hero__copy {
+        padding: 32px 16px 16px;
+      }
+
+      .hero__title {
+        font-size: 30px;
+        line-height: 34px;
+      }
+
+      .hero__subtitle {
+        font-size: 18px;
+        line-height: 28px;
+      }
+
+      .hero__art {
+        height: 180px;
+      }
+
+      .hero__art-stack {
+        transform: translateX(-48%) scale(0.82);
+        transform-origin: top left;
+      }
+
+      .plans {
+        grid-template-columns: 1fr;
+      }
+
+      .plan__body {
+        min-height: unset;
+        padding: 32px 24px 32px;
+      }
+
+      .plan__name {
+        font-size: 28px;
+        line-height: 34px;
+      }
+
+      .plan__price {
+        font-size: 22px;
+        line-height: 26px;
+      }
+
+      .plan__desc {
+        font-size: 18px;
+        line-height: 26px;
+      }
+
+      .meta {
+        padding-top: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero__inner">
+        <div class="hero__copy">
+          <h1 class="hero__title">Journalism that explains America and the world</h1>
+          <p class="hero__subtitle">Start your year of unlimited articles, audio, and more. Starting at less than $2 a week.</p>
+        </div>
+        <div class="hero__art" aria-hidden="true">
+          <div class="hero__art-stack">
+            <img class="hero__art-main" src="https://placehold.co/235x333" alt="" />
+            <img class="hero__art-side" src="https://placehold.co/117x161" alt="" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="content">
+      <section class="plans" aria-label="Subscription plans">
+        <article class="plan">
+          <div class="plan__body">
+            <div class="plan__top">
+              <div class="plan__visual plan__visual--digital" aria-hidden="true">
+                <div class="digital-shell"></div>
+                <div class="digital-screen"></div>
+                <div class="digital-toolbar"></div>
+                <div class="device-phone"></div>
+                <div class="digital-phone-overlay"></div>
+                <div class="digital-stand"></div>
+              </div>
+              <div class="plan__details">
+                <h2 class="plan__name">Digital</h2>
+                <p class="plan__price">$79.99/year</p>
+                <p class="plan__desc">Unlimited access on any device, <em>The Atlantic</em> app, narrated articles, games, and more</p>
+              </div>
+            </div>
+            <button class="plan__button" type="button">Select</button>
+          </div>
+        </article>
+
+        <article class="plan plan--featured">
+          <div class="plan__badge">Best Value</div>
+          <div class="plan__body">
+            <div class="plan__top">
+              <div class="plan__visual" aria-hidden="true">
+                <div class="device-magazine"></div>
+                <div class="device-tablet"></div>
+                <div class="device-laptop"></div>
+                <div class="device-phone"></div>
+                <div style="position:absolute; left:95px; top:105px; width:24px; height:13px; background:url('https://placehold.co/22x11') center/contain no-repeat;"></div>
+              </div>
+              <div class="plan__details">
+                <h2 class="plan__name">Print &amp; Digital</h2>
+                <p class="plan__price">$89.99/year</p>
+                <p class="plan__desc">All the benefits of a digital subscription, along with 12 issues of the print magazine and a free tote</p>
+              </div>
+            </div>
+            <button class="plan__button" type="button">Select</button>
+          </div>
+        </article>
+
+        <article class="plan">
+          <div class="plan__body">
+            <div class="plan__top">
+              <div class="plan__visual" aria-hidden="true">
+                <div class="device-magazine"></div>
+                <div class="device-tablet"></div>
+                <div class="device-laptop"></div>
+                <div class="device-phone"></div>
+                <div class="device-gift"></div>
+                <div style="position:absolute; left:95px; top:105px; width:24px; height:13px; background:url('https://placehold.co/22x11') center/contain no-repeat;"></div>
+              </div>
+              <div class="plan__details">
+                <h2 class="plan__name">Premium</h2>
+                <p class="plan__price">$120/year</p>
+                <p class="plan__desc">A Print &amp; Digital subscription, along with ad-free reading and a free digital gift subscription to share</p>
+              </div>
+            </div>
+            <button class="plan__button" type="button">Select</button>
+          </div>
+        </article>
+      </section>
+
+      <section class="meta" aria-label="Pricing notes and payment methods">
+        <div class="footnote">
+          *Tote bags only available for new Print &amp; Digital, Premium, and Premium Plus subscribers on a first-come, first-served basis while supplies last. Color may vary. Limit one per customer. Tote will arrive separately from magazine issue. Import fees, declaration fees, import duties, and/or taxes may be imposed on free gifts shipped outside the U.S. All such fees are the customer's responsibility. All prices are in U.S. dollars. Taxes are included in displayed price in AUS, EU, and NZ.
+        </div>
+
+        <div class="payments">
+          <div>Pay with any of the following:</div>
+          <div class="payment-logos" aria-hidden="true">
+            <div class="logo logo--visa"></div>
+            <div class="logo logo--amex"></div>
+            <div class="logo logo--blank"></div>
+            <div class="logo logo--paypal"></div>
+            <div class="logo logo--mastercard"></div>
+            <div class="logo logo--discover"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
