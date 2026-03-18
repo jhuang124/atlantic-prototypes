@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Atlantic — Prototypes</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #F7F6F3;
+      color: #1B1B1B;
+      font-family: 'EB Garamond', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    header {
+      border-bottom: 1px solid #E8E6E2;
+      padding: 28px 40px 24px;
+      display: flex;
+      align-items: baseline;
+      gap: 20px;
+    }
+
+    .wordmark {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-style: italic;
+      font-size: 26px;
+      color: #1B1B1B;
+      text-decoration: none;
+    }
+
+    .header-label {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999999;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 52px 40px 80px;
+    }
+
+    h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 36px;
+      font-weight: 500;
+      line-height: 1.15;
+      color: #1B1B1B;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #999999;
+      margin-bottom: 40px;
+    }
+
+    .proto-list {
+      list-style: none;
+      border-top: 1px solid #E8E6E2;
+    }
+
+    .proto-list li {
+      border-bottom: 1px solid #E8E6E2;
+    }
+
+    .proto-list a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 0;
+      text-decoration: none;
+      color: #1B1B1B;
+      transition: color 0.15s;
+    }
+
+    .proto-list a:hover {
+      color: #E7131A;
+    }
+
+    .proto-list a:hover .arrow {
+      transform: translateX(4px);
+      color: #E7131A;
+    }
+
+    .proto-name {
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .proto-file {
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      color: #999999;
+      margin-top: 3px;
+    }
+
+    .arrow {
+      font-size: 18px;
+      color: #5F5E5A;
+      transition: transform 0.15s, color 0.15s;
+      flex-shrink: 0;
+      margin-left: 16px;
+    }
+
+    footer {
+      border-top: 1px solid #E8E6E2;
+      padding: 20px 40px;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #999999;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="wordmark">The Atlantic</span>
+    <span class="header-label">Design Prototypes</span>
+  </header>
+
+  <main>
+    <h1>Prototype Index</h1>
+    <p class="subtitle">Monetization &amp; Growth — MG Team</p>
+
+    <ul class="proto-list">
+
+      <li>
+        <a href="Lightweight%20Prototypes%20(Git)/Atlantic%20Intro%20Proto.html">
+          <div>
+            <div class="proto-name">Atlantic Introduction</div>
+            <div class="proto-file">Atlantic Intro Proto.html</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="Lightweight%20Prototypes%20(Git)/Card%20Expiration%20Proto.html">
+          <div>
+            <div class="proto-name">Card Expiration Modal</div>
+            <div class="proto-file">Card Expiration Proto.html</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="Lightweight%20Prototypes%20(Git)/PSP-Checkout%20Proto.html">
+          <div>
+            <div class="proto-name">PSP Checkout</div>
+            <div class="proto-file">PSP-Checkout Proto.html</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="Lightweight%20Prototypes%20(Git)/checkout-prototype-v3.html">
+          <div>
+            <div class="proto-name">Checkout — V3</div>
+            <div class="proto-file">checkout-prototype-v3.html</div>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+      </li>
+
+    </ul>
+  </main>
+
+  <footer>
+    <em style="font-style: italic; font-family: 'EB Garamond', Georgia, serif; font-size: 13px; text-transform: none; letter-spacing: 0;">The Atlantic</em>
+    &nbsp;·&nbsp; MG Prototypes &nbsp;·&nbsp; Internal Use
+  </footer>
+
+</body>
+</html>
