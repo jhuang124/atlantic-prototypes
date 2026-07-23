@@ -714,18 +714,18 @@ a { color:inherit; text-decoration:none; }
       <!-- Automatic renewal enrollment (AutomaticRenewalNotice pattern) -->
       <div class="renewal-note">
         <div class="renewal-title">Automatic renewal</div>
-        <p class="renewal-body">Restarting enrolls you in automatic renewal. You&rsquo;ll get uninterrupted access to <em>The Atlantic</em> and play a vital role in supporting independent journalism. If you change your mind, cancel within two days for a full refund.</p>
+        <p class="renewal-body">Restarting enrolls you in automatic renewal, so your access to <em>The Atlantic</em> never lapses — and you help sustain independent journalism.</p>
       </div>
 
       <!-- CTA -->
       <div class="cta-section">
-        <p class="charge-line" id="charge-line">Your Visa ending in 4242 will be charged <b>$89.99</b> today.</p>
+        <p class="charge-line" id="charge-line">Your Visa ending in 4242 will be charged today, then <b>$89.99/year</b> on <b>July 23, 2027</b> and each year after, unless you cancel.</p>
         <button class="btn-restart" id="btn-resume" onclick="completeResume()">
           Restart subscription — $89.99/year
         </button>
         <div class="cta-meta">
           <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true"><rect x="1" y="5" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" stroke-width="1.2"/></svg>
-          Secure checkout · Cancel anytime
+          Secure checkout
         </div>
         <p class="cta-legal">By selecting &ldquo;Restart subscription,&rdquo; you agree that your subscription will renew annually at the then-current rate until you cancel. Before each renewal, you&rsquo;ll receive a notification of your term and rate. For a full refund, cancel within two days; after that, cancellations take effect at the end of your billing period. <a>Terms of Sale</a> · <a>Terms of Service</a> · <a>Privacy Policy</a></p>
       </div>
@@ -903,7 +903,7 @@ function updateCtaLabel() {
     let src = 'Your Visa ending in 4242';
     if (state.payMethod === 'paypal')     src = 'Your PayPal account';
     else if (state.payMethod === 'apple') src = 'Apple Pay';
-    charge.innerHTML = src + ' will be charged <b>$' + p.amount + '</b> today.';
+    charge.innerHTML = src + ' will be charged today, then <b>$' + p.amount + '/year</b> on <b>July 23, 2027</b> and each year after, unless you cancel.';
     charge.style.display = '';
   }
 }
