@@ -150,7 +150,7 @@ a { color:inherit; text-decoration:none; }
 .modal-overlay { position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,0.45); backdrop-filter:blur(3px); }
 .modal-overlay.open { display:flex; animation:fadeBg var(--dur-base) var(--ease); }
 .modal-card { position:relative; width:100%; max-width:440px; background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); padding:42px 38px 30px; text-align:center; }
-.modal-overlay.open .modal-card { animation:riseIn 0.42s var(--ease); }
+.modal-overlay.open .modal-card { animation:riseIn 0.46s var(--ease) 0.08s both; }
 .modal-close { position:absolute; top:12px; right:12px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none; color:var(--muted); border-radius:50%; cursor:pointer; transition:background var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
 .modal-close:hover { color:var(--atlantic-black); background:rgba(0,0,0,0.05); }
 .modal-mark { display:inline-flex; color:var(--atlantic-black); margin-bottom:22px; }
@@ -264,18 +264,36 @@ a { color:inherit; text-decoration:none; }
 .pay-notice { display:flex; gap:10px; align-items:flex-start; font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--warm-gray-dark); background:var(--amber-bg); border:1px solid var(--amber-border); border-radius:var(--radius); padding:11px 13px; margin-bottom:16px; }
 .pay-notice svg { flex-shrink:0; color:var(--amber-ink); margin-top:1px; }
 
-/* Real payment-method picker (PaymentMethodRadioGroup) */
+/* Real payment-method picker — Stripe PaymentElement tab row */
 .pm-group { margin-bottom:2px; }
-.pm-row { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:15px 16px; border:1px solid var(--card-outline); border-radius:var(--radius); background:var(--white); cursor:pointer; margin-bottom:6px; transition:border-color var(--dur-base) var(--ease),background var(--dur-base) var(--ease); }
-.pm-row:hover { background:var(--blue-bg); }
-.pm-row.is-selected { border-color:var(--blue); background:var(--white); }
-.pm-row input[type="radio"] { width:20px; height:20px; accent-color:var(--blue); flex-shrink:0; cursor:pointer; }
-.pm-name { font-family:var(--font-sans); font-size:16px; font-weight:600; color:var(--atlantic-black); }
-.pm-icons { margin-left:auto; display:flex; align-items:center; gap:9px; }
-.pm-icons .pmi-visa svg { height:13px; }
-.pm-icons .pmi-mc svg { height:20px; }
-.pm-icons .pmi-amex svg { height:20px; }
-.pm-icons .pmi-disc svg { height:11px; }
+.pm-tabs { display:flex; gap:8px; margin-bottom:16px; }
+.pm-tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:7px; padding:12px 6px; min-height:62px; border:1px solid var(--card-outline); border-radius:var(--radius); background:var(--white); color:var(--atlantic-black); cursor:pointer; transition:border-color var(--dur-base) var(--ease),background var(--dur-base) var(--ease); }
+.pm-tab:hover { background:var(--blue-bg); }
+.pm-tab.is-selected { border-color:var(--blue); background:var(--blue-bg); }
+.pm-tab-icon { display:flex; align-items:center; justify-content:center; height:20px; }
+.pm-tab-icon svg { display:block; width:auto; }
+.pm-tab-label { font-family:var(--font-sans); font-size:12px; font-weight:600; color:var(--atlantic-black); line-height:1; }
+
+/* Method panels (Card fields / wallet buttons) — collapse like the real Element */
+.pm-panel { max-height:0; overflow:hidden; transition:max-height 0.4s var(--ease); }
+.pm-panel.open { max-height:360px; }
+.pm-wallet { padding:6px 2px 8px; text-align:center; }
+.pm-wallet-note { font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--muted); margin-bottom:12px; }
+.wallet-btn { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; min-height:48px; border:none; border-radius:var(--radius); font-family:var(--font-sans); font-size:16px; font-weight:600; cursor:pointer; transition:filter var(--dur-base) var(--ease); }
+.wallet-btn:hover { filter:brightness(0.94); }
+.wallet-apple { background:var(--black); color:var(--white); }
+.wallet-apple svg { height:18px; width:auto; }
+.wallet-paypal { background:#ffc439; color:#003087; }
+.wallet-paypal svg { height:16px; width:auto; }
+
+/* Accepted-brand marks inside the card-number field (Stripe anatomy) */
+.sinput-wrap { position:relative; }
+.sinput-wrap .sinput { padding-right:98px; }
+.pm-cardicons { position:absolute; right:12px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:7px; pointer-events:none; }
+.pm-cardicons .pmi-visa svg { height:12px; }
+.pm-cardicons .pmi-mc svg { height:17px; }
+.pm-cardicons .pmi-amex svg { height:17px; }
+.pm-cardicons .pmi-disc svg { height:10px; }
 
 /* Dummy Stripe Payment Element (StripeInput anatomy) */
 .cc-fields { max-height:0; overflow:hidden; transition:max-height 0.4s var(--ease); }
@@ -317,6 +335,17 @@ a { color:inherit; text-decoration:none; }
 .cta-legal a { color:var(--blue); text-decoration:underline; text-underline-offset:2px; }
 .cta-legal a:hover { color:var(--blue-hover); text-decoration:none; }
 
+/* Processing state on the Restart CTA + bank-verification (3DS) theater */
+.btn-spinner { display:inline-block; width:15px; height:15px; margin-right:9px; vertical-align:-2px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin 0.7s linear infinite; }
+.btn-restart.is-working { opacity:0.72; cursor:progress; }
+.verify-overlay { position:fixed; inset:0; z-index:150; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,0.32); backdrop-filter:blur(2px); }
+.verify-overlay.open { display:flex; animation:fadeBg var(--dur-base) var(--ease); }
+.verify-card { width:100%; max-width:300px; background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); padding:28px 30px; text-align:center; }
+.verify-spinner { display:inline-block; width:26px; height:26px; margin-bottom:15px; border:2.5px solid var(--card-outline); border-top-color:var(--blue); border-radius:50%; animation:spin 0.7s linear infinite; }
+.verify-title { font-family:var(--font-sans); font-size:15px; font-weight:600; color:var(--atlantic-black); margin-bottom:5px; }
+.verify-sub { font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--muted); }
+@keyframes spin { to { transform:rotate(360deg); } }
+
 /* ═══════════════════════════════════════════════════════════════
    SCENE 4 — CONFIRMATION (evolved from v1)
    ═══════════════════════════════════════════════════════════════ */
@@ -339,6 +368,36 @@ a { color:inherit; text-decoration:none; }
 /* ═══ STAGED REVEAL (reduced-motion safe) ═══ */
 .reveal { opacity:0; transform:translateY(12px); animation:revealIn 0.6s var(--ease) forwards; }
 @keyframes revealIn { to { opacity:1; transform:translateY(0); } }
+
+/* ═══ QOL / MICRO-INTERACTIONS (v2 polish pass) ═══ */
+
+/* Button press — tactile depress with an eased release (GPU transform only) */
+.enav-subscribe { transition:background var(--dur-base) var(--ease),transform var(--dur-fast) var(--ease); }
+.btn-sm { transition:background var(--dur-base) var(--ease),transform var(--dur-fast) var(--ease); }
+.btn-restart { transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease),transform var(--dur-fast) var(--ease); }
+.confirm-cta { transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease),transform var(--dur-fast) var(--ease); }
+.switcher button { transition:background var(--dur-base) var(--ease),transform var(--dur-fast) var(--ease); }
+.enav-subscribe:active,
+.btn-sm:active,
+.switcher button:active,
+.confirm-cta:active,
+.btn-restart:active:not(:disabled):not(.is-disabled) { transform:translateY(1px); }
+
+/* Scene entry — a gentle fade so state swaps don't tear (opacity only: keeps sticky nav intact) */
+#scene-article, #scene-checkout, #scene-confirmation { animation:sceneFade 0.3s var(--ease); }
+@keyframes sceneFade { from { opacity:0; } to { opacity:1; } }
+
+/* Checkout — acknowledge an expired-card repair with a decaying blue wash */
+.detail-row.row-repaired { animation:rowRepaired 1.2s var(--ease); }
+@keyframes rowRepaired { from { background:var(--blue-bg); } to { background:transparent; } }
+
+/* Confirmation — the payoff. Ring settles, check draws itself, rule opens from center. */
+#scene-confirmation .confirm-check { animation:confRing 0.42s var(--ease) both; }
+@keyframes confRing { from { opacity:0; transform:scale(0.82); } to { opacity:1; transform:none; } }
+#scene-confirmation .confirm-check svg path { stroke-dasharray:30; stroke-dashoffset:30; animation:confDraw 0.42s var(--ease) 0.26s forwards; }
+@keyframes confDraw { to { stroke-dashoffset:0; } }
+#scene-confirmation .confirm-rule { transform-origin:center; animation:ruleDraw 0.55s var(--ease) 0.6s both; }
+@keyframes ruleDraw { from { transform:scaleX(0); opacity:0; } to { transform:scaleX(1); opacity:1; } }
 
 /* ═══ SWITCHER ═══ */
 .switcher { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--atlantic-black); border-radius:48px; padding:6px; display:flex; align-items:center; gap:2px; z-index:200; box-shadow:0 4px 24px rgba(0,0,0,0.28); font-family:var(--font-sans); }
@@ -365,7 +424,7 @@ a { color:inherit; text-decoration:none; }
   /* Modal becomes a bottom sheet */
   .modal-overlay { align-items:flex-end; padding:0; }
   .modal-card { max-width:none; border-radius:16px 16px 0 0; border-left:none; border-right:none; border-bottom:none; padding:34px 22px 28px; }
-  .modal-overlay.open .modal-card { animation:sheetUp 0.42s var(--ease); }
+  .modal-overlay.open .modal-card { animation:sheetUp 0.46s var(--ease) 0.08s both; }
 
   .nav-inner { padding:12px 16px 11px; }
   /* Condensed hero — get the card and CTA into view with minimal scroll */
@@ -386,7 +445,9 @@ a { color:inherit; text-decoration:none; }
   .access-headline { font-size:19px; }
   .plan-picker-inner { padding:6px 18px 18px; }
   .form-row, .srow { grid-template-columns:1fr; }
-  .pm-icons { display:none; }
+  .pm-cardicons { display:none; }
+  .sinput-wrap .sinput { padding-right:16px; }
+  .pm-tab-label { font-size:11px; }
   .confirm-card { padding:30px 20px 26px; }
   .confirm-grid { grid-template-columns:1fr; gap:16px; }
   .switcher { bottom:12px; padding:4px; max-width:calc(100vw - 12px); flex-wrap:wrap; justify-content:center; border-radius:24px; }
@@ -398,6 +459,18 @@ a { color:inherit; text-decoration:none; }
 @media (prefers-reduced-motion:reduce) {
   .reveal { opacity:1; transform:none; animation:none; }
   .modal-overlay.open, .modal-overlay.open .modal-card { animation:none; }
+  .btn-spinner, .verify-spinner { animation:none; }
+  .verify-overlay.open { animation:none; }
+  #scene-article, #scene-checkout, #scene-confirmation { animation:none; }
+  .detail-row.row-repaired { animation:none; }
+  #scene-confirmation .confirm-check,
+  #scene-confirmation .confirm-rule { animation:none; transform:none; }
+  #scene-confirmation .confirm-check svg path { stroke-dashoffset:0; animation:none; }
+  .enav-subscribe:active,
+  .btn-sm:active,
+  .switcher button:active,
+  .confirm-cta:active,
+  .btn-restart:active:not(:disabled):not(.is-disabled) { transform:none; }
   html { scroll-behavior:auto; }
 }
 </style>
@@ -547,7 +620,7 @@ a { color:inherit; text-decoration:none; }
       <svg viewBox="0 0 176 268" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Atlantic"><path d="M 96.613 0.389 C 92.12 4.874 85.754 8.985 81.26 10.481 C 79.763 10.854 79.388 11.228 79.013 12.722 L 25.464 237.726 C 21.345 255.667 16.102 259.031 1.872 260.152 C 0.749 260.152 0 260.899 0 262.02 L 0 266.132 C 0 267.253 0.749 268 1.872 268 L 53.174 268 C 54.298 268 55.048 267.253 55.048 266.132 L 55.048 262.02 C 55.048 260.899 54.298 260.152 53.174 260.152 C 34.077 260.152 32.204 254.545 35.949 238.848 L 44.936 200.349 C 45.311 199.229 46.06 198.481 47.183 198.481 L 100.732 198.481 C 101.856 198.481 102.603 199.229 102.979 200.349 L 113.091 246.696 C 115.338 256.788 111.591 259.031 98.86 260.152 C 97.737 260.152 96.988 260.899 96.988 262.02 L 96.988 266.132 C 96.988 267.253 97.737 268 98.86 268 L 174.128 268 C 175.253 268 176 267.253 176 266.132 L 176 262.02 C 176 260.899 175.253 260.152 174.128 260.152 C 162.521 259.031 157.652 257.161 155.405 246.696 L 98.86 1.136 C 98.486 0.015 97.362 -0.358 96.613 0.389 L 96.613 0.389 Z M 49.056 190.259 C 47.932 190.259 47.559 189.511 47.559 188.39 L 73.771 76.636 C 74.146 74.767 75.644 74.767 76.018 76.636 L 100.358 188.39 C 100.358 189.511 99.984 190.259 98.861 190.259 L 49.056 190.259 Z" fill="currentColor" fill-rule="evenodd"/></svg>
     </div>
     <h1 class="reveal" id="checkout-h1" tabindex="-1" style="animation-delay:0.08s">Welcome back, Jane.</h1>
-    <p class="hero-sub reveal" style="animation-delay:0.16s">Confirm the details below and you're in — everything is as you left it.</p>
+    <p class="hero-sub reveal" style="animation-delay:0.16s">Confirm the details below — everything is as you left it.</p>
     <p class="hero-context reveal" style="animation-delay:0.24s">Subscriber since 2021 · Last active November 2025</p>
   </div>
 
@@ -579,7 +652,7 @@ a { color:inherit; text-decoration:none; }
                 <div class="plan-option-name">Digital</div>
                 <div class="plan-option-price">$79.99/year</div>
               </div>
-              <div class="plan-option-detail">Unlimited access on any device, the app, narrated articles, games, and more.</div>
+              <div class="plan-option-detail">Unlimited access on any device, plus the app, narrated articles, and games.</div>
             </div>
           </label>
           <label class="plan-option is-selected" data-plan="print-digital" onclick="selectPlan(this)">
@@ -600,7 +673,7 @@ a { color:inherit; text-decoration:none; }
                 <div class="plan-option-name">Premium Plus</div>
                 <div class="plan-option-price">$199.99/year</div>
               </div>
-              <div class="plan-option-detail">Print and digital, plus 3 gift subscriptions, ad-free reading, and exclusive events.</div>
+              <div class="plan-option-detail">Everything in Print &amp; Digital, plus 3 gift subscriptions, ad-free reading, and exclusive events.</div>
             </div>
           </label>
         </div>
@@ -631,21 +704,35 @@ a { color:inherit; text-decoration:none; }
           </div>
 
           <div class="pm-group">
-            <label class="pm-row is-selected" data-method="card">
-              <input type="radio" name="pm" value="card" checked onchange="selectMethod('card')">
-              <span class="pm-name">Credit or Debit card</span>
-              <span class="pm-icons" aria-hidden="true">
+            <div class="pm-tabs" role="tablist" aria-label="Payment method">
+              <button type="button" class="pm-tab is-selected" role="tab" aria-selected="true" data-method="card" onclick="selectMethod('card')">
+                <span class="pm-tab-icon"><svg width="26" height="17" viewBox="0 0 26 17" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0.6" y="0.6" width="24.8" height="15.8" rx="2.4" stroke="currentColor" stroke-width="1.2"/><rect x="0" y="3.6" width="26" height="3" fill="currentColor"/><rect x="3" y="10.5" width="8" height="2" rx="1" fill="currentColor"/></svg></span>
+                <span class="pm-tab-label">Card</span>
+              </button>
+              <button type="button" class="pm-tab" role="tab" aria-selected="false" data-method="apple" onclick="selectMethod('apple')">
+                <span class="pm-tab-icon"><svg viewBox="0 0 17 20" height="19" xmlns="http://www.w3.org/2000/svg"><path d="M13.6 10.5c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.68 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.77.72 1.06 1.58 2.25 2.72 2.2 1.09-.04 1.5-.7 2.83-.7 1.32 0 1.7.7 2.86.68 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5z" fill="currentColor"/><path d="M11.4 4.05c.6-.73 1-1.75.9-2.77-.87.04-1.92.58-2.54 1.3-.55.65-1.04 1.68-.91 2.68.97.07 1.96-.49 2.55-1.21z" fill="currentColor"/></svg></span>
+                <span class="pm-tab-label">Apple Pay</span>
+              </button>
+              <button type="button" class="pm-tab" role="tab" aria-selected="false" data-method="paypal" onclick="selectMethod('paypal')">
+                <span class="pm-tab-icon"><svg width="17" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944 3.72a.773.773 0 01.762-.65h6.15c2.04 0 3.483.394 4.287 1.172.75.727 1.017 1.794.816 3.263l-.02.124v.36l.282.16c.37.19.667.414.893.674.306.354.504.79.588 1.293.088.516.059 1.13-.084 1.824-.164.796-.43 1.49-.79 2.062a4.09 4.09 0 01-1.235 1.293c-.478.32-1.04.56-1.672.713-.615.148-1.314.223-2.076.223h-.494a1.49 1.49 0 00-1.472 1.26l-.037.2-.63 3.99-.027.14a.109.109 0 01-.108.092H7.076z" fill="#003087"/><path d="M19.532 8.093c-.009.06-.02.12-.032.183-.993 5.1-4.39 6.86-8.725 6.86H8.57a1.07 1.07 0 00-1.059.908l-.84 5.328-.238 1.51a.563.563 0 00.556.651h3.904c.464 0 .858-.338.931-.796l.038-.2.738-4.678.047-.258a.94.94 0 01.929-.795h.585c3.788 0 6.754-1.539 7.622-5.99.362-1.86.175-3.414-.784-4.506a3.73 3.73 0 00-1.066-.873l-.15.656z" fill="#0070E0"/></svg></span>
+                <span class="pm-tab-label">PayPal</span>
+              </button>
+            </div>
+
+            <!-- Card panel — Stripe-style fields, accepted-brand marks inside the number field -->
+            <div class="pm-panel cc-fields open" data-method="card" id="cc-fields" role="tabpanel" aria-label="Card details">
+              <div class="cc-fields-inner">
+                <div class="sgroup">
+                  <label class="slabel" for="s-cardnum">Card number</label>
+                  <div class="sinput-wrap">
+                    <input class="sinput" id="s-cardnum" type="text" value="•••• •••• •••• 4242" readonly>
+                    <span class="pm-cardicons" aria-hidden="true">
                 <span class="pmi pmi-visa"><svg viewBox="0 0 38 12" xmlns="http://www.w3.org/2000/svg"><path d="M14.3765 0.212885L9.5324 11.8193H6.372L3.98822 2.55684C3.84349 1.98633 3.71765 1.77733 3.27751 1.53697C2.55891 1.14547 1.37221 0.778167 0.328125 0.550196L0.399041 0.212885H5.48632C6.13478 0.212885 6.71772 0.646377 6.86495 1.39628L8.12391 8.11232L11.2354 0.212691H14.3765V0.212885ZM26.7595 8.03007C26.7722 4.96679 22.5415 4.79803 22.5706 3.42963C22.5797 3.01317 22.9745 2.57039 23.8388 2.45737C24.2672 2.40105 25.4475 2.35809 26.7863 2.97679L27.3114 0.515555C26.592 0.253331 25.6664 0.000976562 24.5148 0.000976562C21.5597 0.000976562 19.48 1.57858 19.4624 3.83758C19.4433 5.50846 20.9468 6.44086 22.0796 6.99607C23.2449 7.56465 23.6359 7.93002 23.6315 8.4386C23.6232 9.21714 22.702 9.56084 21.8412 9.57439C20.3385 9.59761 19.4665 9.16605 18.7714 8.84151L18.2295 11.3842C18.928 11.706 20.2174 11.9868 21.5543 12.001C24.6952 12.001 26.7498 10.4429 26.7595 8.03007ZM34.563 11.8195H37.3281L34.9145 0.212885H32.3622C31.7884 0.212885 31.3043 0.548454 31.09 1.06439L26.6036 11.8193H29.743L30.3662 10.0857H34.202L34.563 11.8193V11.8195ZM31.227 7.70708L32.8007 3.34932L33.7064 7.70708H31.227ZM18.6482 0.212885L16.176 11.8193H13.1863L15.6595 0.212885H18.6482Z" fill="#1434CB"/></svg></span>
                 <span class="pmi pmi-mc"><svg viewBox="0 0 31 18" xmlns="http://www.w3.org/2000/svg"><path d="M19.3859 1.9248H11.2734V16.0764H19.3859V1.9248Z" fill="#FF5F00"/><path d="M11.7879 9.00049C11.7866 7.63759 12.1048 6.29226 12.7183 5.06637C13.3318 3.84047 14.2246 2.76614 15.329 1.92469C13.9613 0.881101 12.3187 0.232108 10.589 0.0518898C8.85925 -0.128328 7.11218 0.167494 5.54746 0.905558C3.98274 1.64362 2.6635 2.79415 1.74054 4.22562C0.817573 5.65709 0.328125 7.31175 0.328125 9.00049C0.328125 10.6892 0.817573 12.3439 1.74054 13.7754C2.6635 15.2068 3.98274 16.3574 5.54746 17.0954C7.11218 17.8335 8.85925 18.1293 10.589 17.9491C12.3187 17.7689 13.9613 17.1199 15.329 16.0763C14.2246 15.2348 13.3318 14.1605 12.7183 12.9346C12.1048 11.7087 11.7866 10.3634 11.7879 9.00049Z" fill="#EB001B"/><path d="M30.3286 9.00049C30.3286 10.6892 29.8392 12.3439 28.9163 13.7753C27.9934 15.2068 26.6742 16.3573 25.1095 17.0954C23.5448 17.8335 21.7978 18.1293 20.0681 17.9491C18.3384 17.7689 16.6958 17.1199 15.3281 16.0763C16.4316 15.234 17.3237 14.1595 17.9371 12.9338C18.5505 11.7081 18.8692 10.3632 18.8692 9.00049C18.8692 7.6378 18.5505 6.2929 17.9371 5.0672C17.3237 3.8415 16.4316 2.76699 15.3281 1.92469C16.6958 0.881097 18.3384 0.232103 20.0681 0.0518874C21.7978 -0.128329 23.5448 0.167507 25.1095 0.905578C26.6742 1.64365 27.9934 2.79417 28.9163 4.22565C29.8392 5.65712 30.3286 7.31178 30.3286 9.00049Z" fill="#F79E1B"/></svg></span>
                 <span class="pmi pmi-amex"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.3281 23.5005V19.8559H20.5534L19.1246 18.2763L17.689 19.8559H8.54051V12.4936H5.58776L9.25029 4.20487H12.7826L14.0435 7.04445V4.20487H18.4158L19.1748 6.34479L19.9388 4.20487H23.3281V0.500488H0.328125V23.5005H23.3281ZM21.0208 18.9341H23.3281L20.276 15.6975L23.3281 12.4977H21.0576L19.1725 14.5576L17.3058 12.4977H14.998L18.0321 15.7159L14.998 18.9341H17.2419L19.1361 16.8558L21.0212 18.9341H21.0208ZM21.5603 15.7003L23.3277 17.5807V13.8354L21.5603 15.7003ZM11.2734 17.4446V16.4422H14.9055V14.9896H11.2734V13.9872H14.9975V12.4977H9.51709V18.9345H14.9975V17.445H11.2734V17.4446ZM21.5898 11.5635H23.3277V5.12671H20.6242L19.1803 9.13561L17.746 5.12671H14.9966V11.5635H16.7345V7.05779L18.3896 11.5635H19.9342L21.5893 7.04859V11.5635H21.5898ZM13.02 11.5635H14.9971L12.1556 5.12671H9.89336L7.05194 11.5635H8.98302L9.51663 10.2759H12.4776L13.02 11.5635ZM11.8704 8.83247H10.1234L10.9969 6.72659L11.8704 8.83247Z" fill="#006FCF"/></svg></span>
                 <span class="pmi pmi-disc"><svg viewBox="0 0 55 10" xmlns="http://www.w3.org/2000/svg"><circle cx="28.88" cy="4.95" r="4.55" fill="#F58220"/><path d="M4.77656 7.02022C4.24634 7.48138 3.55757 7.68258 2.46721 7.68258H2.01431V2.17225H2.46721C3.55757 2.17225 4.21923 2.36017 4.77656 2.84617C5.36017 3.34672 5.71128 4.12231 5.71128 4.92061C5.71128 5.72052 5.36017 6.51987 4.77656 7.02022ZM2.80524 0.760409H0.328125V9.09326H2.79217C4.10245 9.09326 5.04854 8.79552 5.87905 8.1313C6.86591 7.34464 7.44952 6.15898 7.44952 4.93261C7.44952 2.47349 5.54198 0.760409 2.80524 0.760409Z" fill="#201D1C"/><path d="M8.22656 9.09131H9.91408V0.758456H8.22656V9.09131Z" fill="#201D1C"/><path d="M14.0415 3.95871C13.0289 3.59779 12.7315 3.35974 12.7315 2.90952C12.7315 2.38474 13.2613 1.98591 13.9886 1.98591C14.4943 1.98591 14.9098 2.18595 15.3495 2.66078L16.2324 1.54713C15.5068 0.935827 14.6387 0.623281 13.6902 0.623281C12.1595 0.623281 10.9919 1.64716 10.9919 3.01096C10.9919 4.15899 11.5356 4.74675 13.1205 5.29616C13.7811 5.52058 14.1173 5.67012 14.287 5.77072C14.6242 5.98279 14.793 6.28298 14.793 6.63292C14.793 7.30811 14.2357 7.80834 13.4827 7.80834C12.6779 7.80834 12.0295 7.42062 11.641 6.69693L10.5508 7.70798C11.3283 8.80725 12.262 9.29443 13.546 9.29443C15.2998 9.29443 16.5299 8.17135 16.5299 6.55819C16.5299 5.23426 15.9612 4.63496 14.0415 3.95871Z" fill="#201D1C"/><path d="M17.0625 4.93024C17.0625 7.37957 19.0593 9.27881 21.629 9.27881C22.3554 9.27881 22.9775 9.14123 23.7447 8.79314V6.87982C23.0701 7.53019 22.4726 7.79248 21.7074 7.79248C20.0079 7.79248 18.8016 6.60565 18.8016 4.91824C18.8016 3.31835 20.046 2.05632 21.629 2.05632C22.4338 2.05632 23.0431 2.33297 23.7447 2.99393V1.08153C23.004 0.719566 22.3948 0.569665 21.6688 0.569665C19.1122 0.569665 17.0625 2.50734 17.0625 4.93024Z" fill="#201D1C"/><path d="M37.1271 6.35671L34.8201 0.759504H32.9766L36.6478 9.30615H37.5559L41.2935 0.759504H39.4642L37.1271 6.35671Z" fill="#201D1C"/><path d="M42.0547 9.09131H46.8404V7.68063H43.7408V5.43133H46.7261V4.01985H43.7408V2.1703H46.8404V0.758456H42.0547V9.09131Z" fill="#201D1C"/><path d="M50.1355 4.5948H49.6425V2.07098H50.1621C51.2131 2.07098 51.7844 2.49508 51.7844 3.30606C51.7844 4.14379 51.2131 4.5948 50.1355 4.5948ZM53.5211 3.21853C53.5211 1.65852 52.4054 0.758456 50.4593 0.758456H47.957V9.09131H49.6425V5.74388H49.8625L52.1984 9.09131H54.2737L51.5502 5.58079C52.8211 5.3319 53.5211 4.49444 53.5211 3.21853Z" fill="#201D1C"/></svg></span>
-              </span>
-            </label>
-            <div class="cc-fields open" id="cc-fields">
-              <div class="cc-fields-inner">
-                <div class="sgroup">
-                  <label class="slabel" for="s-cardnum">Card number</label>
-                  <input class="sinput" id="s-cardnum" type="text" value="•••• •••• •••• 4242" readonly>
+                    </span>
+                  </div>
                 </div>
                 <div class="srow">
                   <div class="sgroup">
@@ -662,15 +749,25 @@ a { color:inherit; text-decoration:none; }
               </div>
             </div>
 
-            <label class="pm-row" data-method="apple">
-              <input type="radio" name="pm" value="apple" onchange="selectMethod('apple')">
-              <span class="wm-applepay"><svg viewBox="0 0 17 20" xmlns="http://www.w3.org/2000/svg"><path d="M13.6 10.5c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.68 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.77.72 1.06 1.58 2.25 2.72 2.2 1.09-.04 1.5-.7 2.83-.7 1.32 0 1.7.7 2.86.68 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5z" fill="currentColor"/><path d="M11.4 4.05c.6-.73 1-1.75.9-2.77-.87.04-1.92.58-2.54 1.3-.55.65-1.04 1.68-.91 2.68.97.07 1.96-.49 2.55-1.21z" fill="currentColor"/></svg>Pay</span>
-            </label>
+            <!-- Apple Pay panel — wallet button mock (no real charge) -->
+            <div class="pm-panel" data-method="apple" role="tabpanel" aria-label="Apple Pay">
+              <div class="pm-wallet">
+                <p class="pm-wallet-note">You&rsquo;ll be prompted to confirm with Apple Pay.</p>
+                <button type="button" class="wallet-btn wallet-apple">
+                  <svg viewBox="0 0 17 20" xmlns="http://www.w3.org/2000/svg"><path d="M13.6 10.5c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.68 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.77.72 1.06 1.58 2.25 2.72 2.2 1.09-.04 1.5-.7 2.83-.7 1.32 0 1.7.7 2.86.68 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5z" fill="currentColor"/><path d="M11.4 4.05c.6-.73 1-1.75.9-2.77-.87.04-1.92.58-2.54 1.3-.55.65-1.04 1.68-.91 2.68.97.07 1.96-.49 2.55-1.21z" fill="currentColor"/></svg><span>Pay</span>
+                </button>
+              </div>
+            </div>
 
-            <label class="pm-row" data-method="paypal">
-              <input type="radio" name="pm" value="paypal" onchange="selectMethod('paypal')">
-              <span class="wm-paypal"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944 3.72a.773.773 0 01.762-.65h6.15c2.04 0 3.483.394 4.287 1.172.75.727 1.017 1.794.816 3.263l-.02.124v.36l.282.16c.37.19.667.414.893.674.306.354.504.79.588 1.293.088.516.059 1.13-.084 1.824-.164.796-.43 1.49-.79 2.062a4.09 4.09 0 01-1.235 1.293c-.478.32-1.04.56-1.672.713-.615.148-1.314.223-2.076.223h-.494a1.49 1.49 0 00-1.472 1.26l-.037.2-.63 3.99-.027.14a.109.109 0 01-.108.092H7.076z" fill="#003087"/><path d="M19.532 8.093c-.009.06-.02.12-.032.183-.993 5.1-4.39 6.86-8.725 6.86H8.57a1.07 1.07 0 00-1.059.908l-.84 5.328-.238 1.51a.563.563 0 00.556.651h3.904c.464 0 .858-.338.931-.796l.038-.2.738-4.678.047-.258a.94.94 0 01.929-.795h.585c3.788 0 6.754-1.539 7.622-5.99.362-1.86.175-3.414-.784-4.506a3.73 3.73 0 00-1.066-.873l-.15.656z" fill="#0070E0"/></svg>PayPal</span>
-            </label>
+            <!-- PayPal panel — wallet button mock (no real charge) -->
+            <div class="pm-panel" data-method="paypal" role="tabpanel" aria-label="PayPal">
+              <div class="pm-wallet">
+                <p class="pm-wallet-note">You&rsquo;ll be redirected to PayPal to approve.</p>
+                <button type="button" class="wallet-btn wallet-paypal">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944 3.72a.773.773 0 01.762-.65h6.15c2.04 0 3.483.394 4.287 1.172.75.727 1.017 1.794.816 3.263l-.02.124v.36l.282.16c.37.19.667.414.893.674.306.354.504.79.588 1.293.088.516.059 1.13-.084 1.824-.164.796-.43 1.49-.79 2.062a4.09 4.09 0 01-1.235 1.293c-.478.32-1.04.56-1.672.713-.615.148-1.314.223-2.076.223h-.494a1.49 1.49 0 00-1.472 1.26l-.037.2-.63 3.99-.027.14a.109.109 0 01-.108.092H7.076z" fill="#003087"/><path d="M19.532 8.093c-.009.06-.02.12-.032.183-.993 5.1-4.39 6.86-8.725 6.86H8.57a1.07 1.07 0 00-1.059.908l-.84 5.328-.238 1.51a.563.563 0 00.556.651h3.904c.464 0 .858-.338.931-.796l.038-.2.738-4.678.047-.258a.94.94 0 01.929-.795h.585c3.788 0 6.754-1.539 7.622-5.99.362-1.86.175-3.414-.784-4.506a3.73 3.73 0 00-1.066-.873l-.15.656z" fill="#0070E0"/></svg><span>PayPal</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="edit-save-row">
@@ -763,22 +860,31 @@ a { color:inherit; text-decoration:none; }
       <div class="confirm-check" aria-hidden="true">
         <svg width="22" height="18" viewBox="0 0 22 18" fill="none"><path d="M2 9.5L8 15.5L20 2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <h1 class="confirm-h1" id="confirm-h1" tabindex="-1">You're back.</h1>
-      <p class="confirm-sub">Your subscription is active and your full access has been restored.</p>
+      <h1 class="confirm-h1 reveal" id="confirm-h1" tabindex="-1" style="animation-delay:0.4s">You're back.</h1>
+      <p class="confirm-sub reveal" style="animation-delay:0.5s">Your subscription is active, and everything you had is back.</p>
       <div class="confirm-rule"></div>
-      <div class="confirm-grid">
+      <div class="confirm-grid reveal" style="animation-delay:0.68s">
         <div><div class="confirm-label">Plan</div><div class="confirm-value" id="confirm-plan">Print &amp; Digital</div></div>
         <div><div class="confirm-label">Payment</div><div class="confirm-value" id="confirm-payment"></div></div>
         <div><div class="confirm-label">Charged today</div><div class="confirm-value" id="confirm-amount">$89.99</div></div>
         <div><div class="confirm-label">Next renewal</div><div class="confirm-value" id="confirm-billing">July 23, 2027</div></div>
       </div>
-      <div class="confirm-rule-2"></div>
-      <button class="confirm-cta" onclick="continueReading()">Continue reading <span aria-hidden="true">→</span></button>
-      <a class="confirm-manage" role="button" tabindex="0">Manage subscription</a>
-      <p class="confirm-note">Confirmation sent to jane.morrison@gmail.com</p>
+      <div class="confirm-rule-2 reveal" style="animation-delay:0.78s"></div>
+      <button class="confirm-cta reveal" style="animation-delay:0.84s" onclick="continueReading()">Continue reading <span aria-hidden="true">→</span></button>
+      <a class="confirm-manage reveal" role="button" tabindex="0" style="animation-delay:0.92s">Manage subscription</a>
+      <p class="confirm-note reveal" style="animation-delay:0.98s">Confirmation sent to jane.morrison@gmail.com</p>
     </div>
   </div>
 </section>
+
+<!-- BANK-VERIFICATION (3DS) MINI-SHEET — plays between Checkout and Confirmation -->
+<div class="verify-overlay" id="verify-sheet" aria-hidden="true">
+  <div class="verify-card" role="status" aria-live="polite">
+    <span class="verify-spinner" aria-hidden="true"></span>
+    <p class="verify-title">Verifying with your bank&hellip;</p>
+    <p class="verify-sub">This takes just a moment. No action needed.</p>
+  </div>
+</div>
 
 <!-- SWITCHER -->
 <div class="switcher" role="tablist" aria-label="Prototype states">
@@ -849,6 +955,7 @@ function showScene(name) {
 }
 
 function swScene(name) {
+  cancelResume();   // jumping states aborts any in-flight restart/verification
   // The switcher always bypasses the modal gate.
   if (name === 'modal') {
     document.getElementById('reactivation-modal').classList.remove('open');
@@ -958,12 +1065,15 @@ function closeEditForms() {
 }
 
 function resetPmUI() {
-  document.querySelectorAll('.pm-row').forEach(r => {
-    const sel = r.dataset.method === 'card';
-    r.classList.toggle('is-selected', sel);
-    r.querySelector('input').checked = sel;
+  state.payMethod = 'card';
+  document.querySelectorAll('.pm-tab').forEach(t => {
+    const sel = t.dataset.method === 'card';
+    t.classList.toggle('is-selected', sel);
+    t.setAttribute('aria-selected', sel ? 'true' : 'false');
   });
-  document.getElementById('cc-fields').classList.add('open');
+  document.querySelectorAll('.pm-panel').forEach(pnl => {
+    pnl.classList.toggle('open', pnl.dataset.method === 'card');
+  });
   document.querySelectorAll('.sinput').forEach(i => { i.classList.remove('invalid'); i.removeAttribute('aria-invalid'); });
   document.querySelectorAll('.serror').forEach(e => e.classList.remove('show'));
   document.getElementById('s-cardnum').value = '•••• •••• •••• 4242';
@@ -974,8 +1084,14 @@ function resetPmUI() {
 
 function selectMethod(m) {
   state.payMethod = m;
-  document.querySelectorAll('.pm-row').forEach(r => r.classList.toggle('is-selected', r.dataset.method === m));
-  document.getElementById('cc-fields').classList.toggle('open', m === 'card');
+  document.querySelectorAll('.pm-tab').forEach(t => {
+    const sel = t.dataset.method === m;
+    t.classList.toggle('is-selected', sel);
+    t.setAttribute('aria-selected', sel ? 'true' : 'false');
+  });
+  document.querySelectorAll('.pm-panel').forEach(pnl => {
+    pnl.classList.toggle('open', pnl.dataset.method === m);
+  });
 }
 
 function clearInvalid(inputId, errId) {
@@ -1015,14 +1131,70 @@ function updateExpiredCard() {
   state.cardExp = exp.value.trim();   // show what the user actually entered
   document.getElementById('edit-payment').classList.remove('open');
   renderPaymentRow();   // valid display + enabled CTA
+
+  // Acknowledge the fix: a brief blue wash decays over the payment row.
+  const repairedRow = document.getElementById('display-payment').closest('.detail-row');
+  if (repairedRow) { repairedRow.classList.remove('row-repaired'); void repairedRow.offsetWidth; repairedRow.classList.add('row-repaired'); }
 }
 
-// ═══ RESUME → CONFIRMATION ═══
-function completeResume() {
-  if (document.getElementById('btn-resume').disabled) return;
+// ═══ RESUME → (processing + 3DS) → CONFIRMATION ═══
+let resumeInProgress = false;
+let resumeTimers = [];
+
+function showVerifySheet() {
+  const s = document.getElementById('verify-sheet');
+  if (s) { s.classList.add('open'); s.setAttribute('aria-hidden', 'false'); }
+}
+function hideVerifySheet() {
+  const s = document.getElementById('verify-sheet');
+  if (s) { s.classList.remove('open'); s.setAttribute('aria-hidden', 'true'); }
+}
+
+// Abort an in-flight restart (e.g. the user jumps scenes via the switcher).
+function cancelResume() {
+  resumeTimers.forEach(clearTimeout);
+  resumeTimers = [];
+  resumeInProgress = false;
+  hideVerifySheet();
+  const btn = document.getElementById('btn-resume');
+  if (btn) btn.classList.remove('is-working');   // label is re-synced by renderCheckout
+}
+
+function goToConfirmation() {
   showScene('confirmation');
   window.scrollTo(0, 0);
   setActiveSwitcher('confirmation');
+}
+
+function completeResume() {
+  const btn = document.getElementById('btn-resume');
+  if (btn.disabled || resumeInProgress) return;   // expired card keeps its blocked state
+
+  // Reduced motion: skip the theater, go straight through (seek-safe instant path).
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    goToConfirmation();
+    return;
+  }
+
+  // Working state — feels like the real 1–2s server charge.
+  resumeInProgress = true;
+  btn.dataset.restoreLabel = btn.textContent;
+  btn.disabled = true;
+  btn.classList.add('is-working');
+  btn.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span>Restarting&hellip;';
+
+  // 3DS / bank verification moment — auto-resolves, no user action required.
+  showVerifySheet();
+  resumeTimers.push(setTimeout(hideVerifySheet, 1000));
+  resumeTimers.push(setTimeout(() => {
+    resumeTimers = [];
+    resumeInProgress = false;
+    hideVerifySheet();
+    btn.classList.remove('is-working');
+    btn.disabled = false;
+    if (btn.dataset.restoreLabel) btn.textContent = btn.dataset.restoreLabel;
+    goToConfirmation();
+  }, 1200));
 }
 
 function renderConfirmation() {
