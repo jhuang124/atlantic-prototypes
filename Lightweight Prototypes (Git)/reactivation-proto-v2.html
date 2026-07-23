@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="data:,">
+<title>The Atlantic — Reactivation v2</title>
+<style>
+/* ─────────────────────────────────────────────────────────────
+   The Atlantic — Reactivation v2 (lapsed-subscriber win-back)
+   Staged on a real article page. Inherits the v1 Accounts design
+   system wholesale: system blue carries action, Atlantic red is
+   brand mark / rubric only, borders not shadows, 4px corners,
+   Graphik for UI, AGaramondPro editorial, LogicMonospace metadata.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Local Atlantic typefaces (copied verbatim from v1) ─────── */
+@font-face { font-family:'AGaramondPro'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/AGaramondPro-Regular.woff2') format('woff2'); }
+@font-face { font-family:'AGaramondPro'; font-style:italic; font-weight:400; font-display:swap;
+  src:url('fonts/AGaramondPro-Italic.woff2') format('woff2'); }
+@font-face { font-family:'AGaramondPro'; font-style:normal; font-weight:600; font-display:swap;
+  src:url('fonts/AGaramondPro-Semibold.woff2') format('woff2'); }
+@font-face { font-family:'Graphik'; font-style:normal; font-weight:400; font-display:swap;
+  src:url('fonts/Graphik-Regular.woff2') format('woff2'); }
+@font-face { font-family:'Graphik'; font-style:normal; font-weight:600; font-display:swap;
+  src:url('fonts/Graphik-Semibold.woff2') format('woff2'); }
+@font-face { font-family:'LogicMonospace'; font-style:normal; font-weight:500; font-display:swap;
+  src:url('fonts/LogicMonospace-Medium.woff2') format('woff2'); }
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+
+:root {
+  /* Brand + neutrals (Accounts tokens — verbatim from v1) */
+  --black:#000000;
+  --atlantic-black:#2c2825;
+  --warm-gray-dark:#45423f;
+  --page-bg:#f8f7f4;
+  --white:#ffffff;
+  --card-outline:#e7e3db;
+  --muted:#6f6c69;
+  --muted-light:#aba9a8;
+
+  /* Action — System blue (NOT red) */
+  --blue:#166999;
+  --blue-hover:#10537a;
+  --blue-bg:#f0f6ff;
+
+  /* Red is brand mark + rubric only */
+  --red:#DD1001;
+
+  /* Semantic */
+  --success:#307f3d;
+  --success-banner:#2a654f;
+  --success-banner-glow:rgba(42,101,79,0.3);
+
+  /* Fields */
+  --field-border:#6f6c69;
+  --field-border-active:#000000;
+  --field-error:#b1283c;
+
+  /* Amber — expired-card warning (muted, not red) */
+  --amber-ink:#8a6a1c;
+  --amber-bg:rgba(191,148,42,0.14);
+  --amber-border:rgba(191,148,42,0.42);
+
+  --radius:4px;
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --dur-fast:120ms;
+  --dur-base:200ms;
+
+  --font-serif:"AGaramondPro",Garamond,Georgia,"Times New Roman",serif;
+  --font-sans:"Graphik",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --font-mono:"LogicMonospace","Courier New",monospace;
+  --font-input:Arial,Helvetica,sans-serif;
+}
+
+html { scroll-behavior:smooth; }
+body { min-height:100vh; background:var(--page-bg); color:var(--atlantic-black); font-family:var(--font-sans); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+body.modal-open { position:fixed; width:100%; overflow:hidden; }
+a { color:inherit; text-decoration:none; }
+
+:focus-visible { outline:2px solid var(--blue); outline-offset:2px; border-radius:2px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCENE 1 — ARTICLE PAGE (editorial theatlantic.com)
+   ═══════════════════════════════════════════════════════════════ */
+.enav { position:sticky; top:0; z-index:40; background:rgba(255,255,255,0.98); backdrop-filter:blur(10px); border-bottom:1px solid var(--card-outline); }
+.enav-stripe { height:3px; background:var(--black); }
+.enav-inner { max-width:1120px; margin:0 auto; padding:13px 28px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:16px; }
+.enav-left { display:flex; align-items:center; gap:22px; }
+.enav-left a { font-family:var(--font-sans); font-size:13px; font-weight:600; color:var(--atlantic-black); cursor:pointer; }
+.enav-left a:hover { color:var(--blue); }
+.enav-wordmark { text-align:center; font-family:var(--font-serif); font-style:italic; font-weight:400; font-size:27px; line-height:1; color:var(--black); white-space:nowrap; }
+.enav-right { display:flex; align-items:center; justify-content:flex-end; gap:16px; }
+.enav-signin { font-family:var(--font-sans); font-size:13px; font-weight:600; color:var(--atlantic-black); cursor:pointer; }
+.enav-signin:hover { color:var(--blue); }
+.enav-subscribe { font-family:var(--font-sans); font-size:13px; font-weight:600; color:var(--white); background:var(--red); border:none; border-radius:var(--radius); padding:9px 18px; cursor:pointer; transition:background var(--dur-base) var(--ease); }
+.enav-subscribe:hover { background:#b30d01; }
+
+.article { max-width:680px; margin:0 auto; padding:46px 24px 0; }
+.rubric { font-family:var(--font-mono); font-size:12px; font-weight:500; letter-spacing:0.16em; text-transform:uppercase; color:var(--red); text-align:center; margin-bottom:20px; }
+.headline { font-family:var(--font-serif); font-size:44px; line-height:1.08; font-weight:600; letter-spacing:-0.5px; text-align:center; color:var(--black); margin-bottom:20px; }
+.dek { font-family:var(--font-serif); font-style:italic; font-size:22px; line-height:1.42; text-align:center; color:var(--warm-gray-dark); margin-bottom:28px; }
+.byline { text-align:center; font-family:var(--font-sans); font-size:14px; color:var(--atlantic-black); margin-bottom:10px; }
+.byline b { font-weight:600; }
+.artmeta { display:flex; align-items:center; justify-content:center; gap:16px; font-family:var(--font-sans); font-size:12px; letter-spacing:0.02em; color:var(--muted); margin-bottom:30px; }
+.artmeta .share { display:flex; align-items:center; gap:12px; }
+.artmeta .share a { display:inline-flex; color:var(--muted); cursor:pointer; }
+.artmeta .share a:hover { color:var(--blue); }
+
+.hero-img { position:relative; width:100%; aspect-ratio:3/2; border-radius:2px; overflow:hidden;
+  background:
+    radial-gradient(60% 50% at 34% 16%, rgba(255,214,168,0.95), transparent 60%),
+    radial-gradient(50% 60% at 68% 12%, rgba(255,168,120,0.55), transparent 62%),
+    radial-gradient(80% 90% at 78% 78%, rgba(221,16,1,0.5), transparent 65%),
+    linear-gradient(158deg,#2e0a0d 0%,#5c1216 38%,#a62f21 70%,#e39c66 100%); }
+.hero-img::after { content:''; position:absolute; inset:0; background:radial-gradient(70% 60% at 50% 40%, transparent 40%, rgba(20,4,4,0.42) 100%); }
+.hero-cap { display:flex; gap:8px; align-items:baseline; font-family:var(--font-sans); font-size:12px; line-height:1.5; color:var(--muted); margin-top:10px; margin-bottom:32px; }
+.hero-cap .credit { flex-shrink:0; font-family:var(--font-mono); font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted-light); }
+
+.listen { display:flex; align-items:center; gap:14px; border:1px solid var(--card-outline); border-radius:40px; padding:7px 18px 7px 7px; margin:0 auto 34px; max-width:320px; }
+.listen-play { width:36px; height:36px; border-radius:50%; background:var(--atlantic-black); color:var(--white); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.listen-mid { flex:1; display:flex; flex-direction:column; gap:6px; }
+.listen-label { font-family:var(--font-mono); font-size:10px; text-transform:uppercase; letter-spacing:0.12em; color:var(--muted); }
+.listen-track { height:3px; background:var(--card-outline); border-radius:2px; position:relative; }
+.listen-track::before { content:''; position:absolute; left:0; top:0; height:100%; width:20%; background:var(--atlantic-black); border-radius:2px; }
+.listen-time { font-family:var(--font-sans); font-size:13px; color:var(--muted); flex-shrink:0; }
+
+.body { max-width:680px; margin:0 auto; padding:0 24px; }
+.body p { font-family:var(--font-serif); font-size:20px; line-height:1.65; color:var(--atlantic-black); margin-bottom:24px; }
+.body p.first::first-letter { float:left; font-family:var(--font-serif); font-weight:600; font-size:74px; line-height:0.8; padding:8px 12px 0 0; color:var(--black); }
+
+.recommended { display:flex; gap:20px; align-items:center; border-top:1px solid var(--card-outline); border-bottom:1px solid var(--card-outline); padding:22px 0; margin:6px 0 32px; }
+.rec-thumb { width:104px; height:78px; flex-shrink:0; border-radius:2px; background:linear-gradient(135deg,#dbd4c8,#b3a898); }
+.rec-body .rlabel { font-family:var(--font-mono); font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+.rec-body .rtitle { font-family:var(--font-serif); font-size:21px; line-height:1.24; color:var(--black); }
+.rec-body .rtitle:hover { color:var(--blue); }
+
+.efooter { border-top:1px solid var(--card-outline); margin-top:52px; padding:40px 24px 48px; text-align:center; background:var(--page-bg); }
+.efooter .wm { font-family:var(--font-serif); font-style:italic; font-size:22px; color:var(--black); margin-bottom:14px; }
+.efooter-links { display:flex; flex-wrap:wrap; gap:8px 22px; justify-content:center; font-family:var(--font-sans); font-size:13px; color:var(--muted); }
+.efooter-links a { cursor:pointer; }
+.efooter-links a:hover { color:var(--blue); }
+.efooter small { display:block; margin-top:18px; color:var(--muted-light); font-family:var(--font-sans); font-size:12px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCENE 2 — REACTIVATION MODAL
+   ═══════════════════════════════════════════════════════════════ */
+.modal-overlay { position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(0,0,0,0.45); backdrop-filter:blur(3px); }
+.modal-overlay.open { display:flex; animation:fadeBg var(--dur-base) var(--ease); }
+.modal-card { position:relative; width:100%; max-width:440px; background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); padding:42px 38px 30px; text-align:center; }
+.modal-overlay.open .modal-card { animation:riseIn 0.42s var(--ease); }
+.modal-close { position:absolute; top:12px; right:12px; width:34px; height:34px; display:inline-flex; align-items:center; justify-content:center; border:none; background:none; color:var(--muted); border-radius:50%; cursor:pointer; transition:background var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
+.modal-close:hover { color:var(--atlantic-black); background:rgba(0,0,0,0.05); }
+.modal-mark { display:inline-flex; color:var(--atlantic-black); margin-bottom:22px; }
+.modal-mark svg { display:block; height:36px; width:auto; }
+.modal-h1 { font-family:var(--font-serif); font-size:29px; font-weight:400; line-height:1.12; letter-spacing:-0.3px; color:var(--black); margin-bottom:12px; }
+.modal-sub { font-family:var(--font-sans); font-size:15px; line-height:1.55; color:var(--muted); max-width:340px; margin:0 auto 18px; }
+.modal-context { font-family:var(--font-mono); font-size:11px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:24px; }
+.modal-notnow { display:inline-block; font-family:var(--font-sans); font-size:14px; color:var(--muted); cursor:pointer; margin-top:16px; padding:6px 4px; transition:color var(--dur-base) var(--ease); }
+.modal-notnow:hover { color:var(--atlantic-black); }
+.modal-legal { font-family:var(--font-sans); font-size:11px; line-height:1.6; color:var(--muted); margin-top:18px; }
+.modal-legal a { color:var(--blue); text-decoration:underline; text-underline-offset:2px; }
+.modal-account { font-family:var(--font-sans); font-size:13px; color:var(--muted); margin:-8px auto 18px; }
+.modal-account b { font-weight:600; color:var(--atlantic-black); }
+
+@keyframes fadeBg { from { opacity:0; } to { opacity:1; } }
+@keyframes riseIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+
+/* ═══════════════════════════════════════════════════════════════
+   ACCOUNTS NAV (checkout + confirmation) — verbatim from v1
+   ═══════════════════════════════════════════════════════════════ */
+.nav { position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.98); backdrop-filter:blur(10px); border-bottom:1px solid var(--card-outline); }
+.nav-stripe { height:4px; background:var(--black); }
+.nav-inner { max-width:1440px; margin:0 auto; padding:14px 32px 13px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.wordmark { font-family:var(--font-serif); font-size:24px; font-style:italic; font-weight:400; line-height:1; letter-spacing:0.2px; color:var(--black); white-space:nowrap; }
+.nav-right { display:flex; align-items:center; gap:24px; }
+.nav-link { font-size:14px; font-weight:600; color:var(--atlantic-black); cursor:pointer; }
+.nav-link:hover { color:var(--blue); }
+
+.back-wrap { max-width:480px; margin:18px auto 0; padding:0 16px; }
+.back-link { display:inline-flex; align-items:center; gap:6px; font-family:var(--font-sans); font-size:14px; color:var(--blue); cursor:pointer; }
+.back-link:hover { color:var(--blue-hover); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCENE 3 — CHECKOUT (v1 skeleton, verbatim tokens)
+   ═══════════════════════════════════════════════════════════════ */
+.hero { text-align:center; padding:40px 24px 8px; max-width:480px; margin:0 auto; }
+.hero-mark { display:inline-flex; color:var(--atlantic-black); margin-bottom:26px; }
+.hero-mark svg { display:block; height:44px; width:auto; }
+.hero h1 { font-family:var(--font-serif); font-size:40px; font-weight:400; line-height:1.08; letter-spacing:-0.4px; color:var(--black); margin-bottom:14px; }
+.hero-sub { font-family:var(--font-sans); font-size:17px; line-height:1.55; color:var(--muted); max-width:392px; margin:0 auto; }
+.hero-context { font-family:var(--font-mono); font-size:11px; font-weight:500; color:var(--muted); margin-top:20px; letter-spacing:0.08em; text-transform:uppercase; }
+
+.main-wrap { max-width:480px; margin:32px auto 0; padding:0 16px 72px; }
+.main-card { background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); }
+
+.plan-row { padding:24px 28px; display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-bottom:1px solid var(--card-outline); }
+.plan-row-left { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.plan-name { font-family:var(--font-serif); font-size:22px; font-weight:400; color:var(--black); letter-spacing:-0.2px; }
+.plan-price { font-family:var(--font-sans); font-size:14px; font-weight:600; color:var(--atlantic-black); }
+.plan-dot { color:var(--muted-light); font-size:14px; }
+.txt-link { font-family:var(--font-sans); font-size:14px; color:var(--blue); text-decoration:underline; text-underline-offset:2px; cursor:pointer; flex-shrink:0; transition:color var(--dur-base) var(--ease); }
+.txt-link:hover { color:var(--blue-hover); text-decoration:none; }
+.plan-previous-tag { display:inline-block; font-family:var(--font-sans); font-size:10px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted); background:rgba(44,40,37,0.05); padding:2px 7px; border-radius:2px; margin-left:8px; vertical-align:2px; }
+.plan-summary { display:contents; }
+.plan-edit-title { display:none; font-family:var(--font-sans); font-size:16px; font-weight:600; color:var(--atlantic-black); }
+.plan-row.editing .plan-summary { display:none; }
+.plan-row.editing .plan-edit-title { display:inline-block; }
+
+.plan-picker { max-height:0; overflow:hidden; transition:max-height 0.45s var(--ease); border-bottom:0 solid var(--card-outline); }
+.plan-picker.open { max-height:560px; border-bottom-width:1px; }
+.plan-picker-inner { padding:6px 28px 22px; }
+.plan-option { display:flex; align-items:flex-start; gap:12px; padding:16px; border:1px solid var(--card-outline); border-radius:var(--radius); cursor:pointer; margin-bottom:8px; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease); }
+.plan-option:last-child { margin-bottom:0; }
+.plan-option:hover { background:var(--blue-bg); }
+.plan-option.is-selected { border-color:var(--black); background:rgba(44,40,37,0.02); }
+.plan-option input[type="radio"] { width:20px; height:20px; accent-color:var(--blue); flex-shrink:0; margin-top:1px; cursor:pointer; }
+.plan-option-info { flex:1; }
+.plan-option-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+.plan-option-name { font-family:var(--font-serif); font-size:19px; color:var(--black); }
+.plan-option-price { font-family:var(--font-sans); font-size:13px; font-weight:600; color:var(--atlantic-black); }
+.plan-option-detail { font-family:var(--font-sans); font-size:13px; color:var(--muted); line-height:1.45; margin-top:4px; }
+.plan-option-tag { display:inline-block; font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); padding:2px 7px; border-radius:2px; margin-bottom:6px; }
+
+.detail-row { padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid var(--card-outline); }
+.detail-left { display:flex; align-items:center; gap:14px; min-width:0; }
+.detail-num { font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--muted-light); flex-shrink:0; width:14px; }
+.detail-content { font-size:14px; color:var(--atlantic-black); display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+.detail-content--muted { color:var(--muted); }
+
+/* Payment marks — brand marks keep brand color (the exception) */
+.pmi { display:inline-flex; align-items:center; }
+.pmi svg { display:block; width:auto; }
+.pmi-inline svg { height:14px; }
+.chip-amber { display:inline-block; font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--amber-ink); background:var(--amber-bg); padding:2px 7px; border-radius:2px; }
+.wm-paypal { display:inline-flex; align-items:center; gap:6px; font-family:var(--font-sans); font-weight:600; font-size:15px; color:var(--atlantic-black); }
+.wm-paypal svg { height:16px; width:auto; }
+.wm-applepay { display:inline-flex; align-items:center; gap:5px; font-family:var(--font-sans); font-weight:600; font-size:15px; color:var(--black); }
+.wm-applepay svg { height:15px; width:auto; }
+
+/* Inline edit forms */
+.edit-form { max-height:0; overflow:hidden; transition:max-height 0.4s var(--ease); }
+.edit-form.open { max-height:760px; }
+.edit-form-inner { padding:4px 28px 22px; }
+.form-group { margin-bottom:14px; }
+.form-label { display:block; font-family:var(--font-sans); font-size:12px; line-height:14px; color:var(--black); text-indent:3px; margin-bottom:8px; }
+.form-field { display:flex; align-items:center; background:var(--white); border:1px solid var(--field-border); border-radius:var(--radius); padding:16px; min-height:52px; transition:border-color var(--dur-base) var(--ease); }
+.form-field:focus-within { border:2px solid var(--field-border-active); padding:15px; }
+.form-input { flex:1; border:none; outline:none; font-family:var(--font-input); font-size:16px; line-height:1.3; color:var(--field-border-active); background:transparent; }
+.form-input::placeholder { color:var(--muted); }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.form-select { width:100%; height:52px; border:1px solid var(--field-border); border-radius:var(--radius); padding:0 16px; font-family:var(--font-input); font-size:16px; color:var(--field-border-active); background:var(--white); appearance:none; background-image:url("data:image/svg+xml,%3Csvg width='12' height='7' viewBox='0 0 12 7' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%232C2825' stroke-width='1.5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 16px center; outline:none; transition:border-color var(--dur-base) var(--ease); }
+.form-select:focus { border:2px solid var(--field-border-active); }
+.edit-save-row { display:flex; justify-content:flex-end; align-items:center; gap:20px; margin-top:8px; }
+.edit-cancel { font-family:var(--font-sans); font-size:14px; color:var(--muted); cursor:pointer; padding:8px 0; transition:color var(--dur-base) var(--ease); }
+.edit-cancel:hover { color:var(--atlantic-black); }
+.btn-sm { display:inline-flex; align-items:center; justify-content:center; padding:12px 24px; border:none; border-radius:var(--radius); background:var(--atlantic-black); color:var(--white); font-family:var(--font-mono); font-size:16px; font-weight:500; line-height:1.1; cursor:pointer; transition:background var(--dur-base) var(--ease); }
+.btn-sm:hover { background:var(--warm-gray-dark); }
+
+/* Expired-card inline notice (amber, not red) */
+.pay-notice { display:flex; gap:10px; align-items:flex-start; font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--warm-gray-dark); background:var(--amber-bg); border:1px solid var(--amber-border); border-radius:var(--radius); padding:11px 13px; margin-bottom:16px; }
+.pay-notice svg { flex-shrink:0; color:var(--amber-ink); margin-top:1px; }
+
+/* Real payment-method picker (PaymentMethodRadioGroup) */
+.pm-group { margin-bottom:2px; }
+.pm-row { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:15px 16px; border:1px solid var(--card-outline); border-radius:var(--radius); background:var(--white); cursor:pointer; margin-bottom:6px; transition:border-color var(--dur-base) var(--ease),background var(--dur-base) var(--ease); }
+.pm-row:hover { background:var(--blue-bg); }
+.pm-row.is-selected { border-color:var(--blue); background:var(--white); }
+.pm-row input[type="radio"] { width:20px; height:20px; accent-color:var(--blue); flex-shrink:0; cursor:pointer; }
+.pm-name { font-family:var(--font-sans); font-size:16px; font-weight:600; color:var(--atlantic-black); }
+.pm-icons { margin-left:auto; display:flex; align-items:center; gap:9px; }
+.pm-icons .pmi-visa svg { height:13px; }
+.pm-icons .pmi-mc svg { height:20px; }
+.pm-icons .pmi-amex svg { height:20px; }
+.pm-icons .pmi-disc svg { height:11px; }
+
+/* Dummy Stripe Payment Element (StripeInput anatomy) */
+.cc-fields { max-height:0; overflow:hidden; transition:max-height 0.4s var(--ease); }
+.cc-fields.open { max-height:360px; }
+.cc-fields-inner { padding:8px 2px 4px; }
+.sgroup { margin-bottom:14px; }
+.srow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.slabel { display:block; margin-bottom:6px; color:var(--warm-gray-dark); font-family:var(--font-sans); font-size:12px; }
+.sinput { width:100%; padding:16px; border:1px solid var(--card-outline); border-radius:var(--radius); color:var(--black); font-family:var(--font-input); font-size:16px; line-height:1; background:var(--white); outline:none; transition:border-color var(--dur-base) var(--ease),box-shadow var(--dur-base) var(--ease); }
+.sinput::placeholder { color:var(--muted); }
+.sinput:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(22,105,153,0.16); }
+.sinput.invalid { border:1px solid var(--red); box-shadow:0 0 0 3px rgba(240,32,79,0.22); }
+.serror { display:none; padding-top:6px; font-family:var(--font-sans); font-size:14px; color:var(--field-error); }
+.serror.show { display:block; }
+
+/* Signed-in row (SignedInAs pattern from the real checkout) */
+.signedin-check { display:inline-flex; color:var(--success); flex-shrink:0; }
+.detail-content b { font-weight:600; }
+
+/* Automatic-renewal enrollment note (AutomaticRenewalNotice pattern) */
+.renewal-note { padding:18px 28px 20px; border-bottom:1px solid var(--card-outline); }
+.renewal-title { font-family:var(--font-sans); font-size:13px; font-weight:600; color:var(--atlantic-black); margin-bottom:7px; }
+.renewal-body { font-family:var(--font-sans); font-size:13px; line-height:1.55; color:var(--muted); }
+.renewal-body em { font-style:italic; }
+
+/* Charge disclosure — the exact amount, above the CTA */
+.charge-line { font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--warm-gray-dark); text-align:center; margin-bottom:14px; }
+.charge-line b { font-weight:600; color:var(--black); }
+
+.cta-section { padding:24px 28px 28px; }
+.btn-restart { display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; padding:12px 24px; border-radius:var(--radius); border:1px solid var(--blue); background:var(--blue-bg); color:var(--blue); font-family:var(--font-mono); font-size:16px; font-weight:500; line-height:1.1; letter-spacing:0; cursor:pointer; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
+.btn-restart:hover { background:var(--blue-hover); border-color:var(--blue-hover); color:var(--white); }
+.btn-restart:disabled, .btn-restart.is-disabled { opacity:0.42; cursor:not-allowed; background:var(--blue-bg); border-color:var(--blue); color:var(--blue); }
+.cta-meta { display:flex; align-items:center; justify-content:center; gap:6px; font-family:var(--font-sans); font-size:12px; color:var(--muted); margin-top:14px; }
+.cta-meta svg { color:var(--success); }
+.cta-legal { font-family:var(--font-sans); font-size:11px; line-height:1.6; color:var(--muted); margin-top:14px; text-align:center; }
+.cta-legal a { color:var(--blue); text-decoration:underline; text-underline-offset:2px; }
+.cta-legal a:hover { color:var(--blue-hover); text-decoration:none; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SCENE 4 — CONFIRMATION (evolved from v1)
+   ═══════════════════════════════════════════════════════════════ */
+.confirm-wrap { max-width:480px; margin:56px auto 0; padding:0 16px 72px; }
+.confirm-card { background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); padding:40px 32px 36px; text-align:center; }
+.confirm-check { width:48px; height:48px; border-radius:50%; border:1.5px solid var(--success-banner); display:inline-flex; align-items:center; justify-content:center; color:var(--success-banner); margin-bottom:22px; }
+.confirm-h1 { font-family:var(--font-serif); font-size:34px; font-weight:400; color:var(--black); margin-bottom:10px; letter-spacing:-0.3px; }
+.confirm-sub { font-family:var(--font-sans); font-size:16px; line-height:1.55; color:var(--muted); margin-bottom:32px; max-width:340px; margin-left:auto; margin-right:auto; }
+.confirm-rule { height:1px; background:var(--card-outline); margin:0 0 26px; }
+.confirm-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px 28px; text-align:left; margin-bottom:28px; }
+.confirm-label { font-family:var(--font-sans); font-size:12px; line-height:14px; color:var(--black); margin-bottom:6px; }
+.confirm-value { font-family:var(--font-sans); font-size:18px; line-height:1.3; color:var(--black); display:flex; align-items:center; gap:8px; }
+.confirm-rule-2 { height:1px; background:var(--card-outline); margin:0 0 26px; }
+.confirm-cta { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:52px; padding:12px 24px; border-radius:var(--radius); border:1px solid var(--blue); background:var(--blue-bg); color:var(--blue); font-family:var(--font-mono); font-size:16px; font-weight:500; line-height:1.1; cursor:pointer; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
+.confirm-cta:hover { background:var(--blue-hover); border-color:var(--blue-hover); color:var(--white); }
+.confirm-manage { display:inline-block; font-family:var(--font-sans); font-size:14px; color:var(--muted); cursor:pointer; margin-top:16px; padding:6px 4px; transition:color var(--dur-base) var(--ease); }
+.confirm-manage:hover { color:var(--atlantic-black); }
+.confirm-note { font-family:var(--font-sans); font-size:14px; color:var(--muted); margin-top:14px; }
+
+/* ═══ STAGED REVEAL (reduced-motion safe) ═══ */
+.reveal { opacity:0; transform:translateY(12px); animation:revealIn 0.6s var(--ease) forwards; }
+@keyframes revealIn { to { opacity:1; transform:translateY(0); } }
+
+/* ═══ SWITCHER ═══ */
+.switcher { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--atlantic-black); border-radius:48px; padding:6px; display:flex; align-items:center; gap:2px; z-index:200; box-shadow:0 4px 24px rgba(0,0,0,0.28); font-family:var(--font-sans); }
+.switcher button { background:none; border:none; color:var(--white); font-family:var(--font-sans); font-size:12px; cursor:pointer; padding:7px 13px; border-radius:32px; white-space:nowrap; transition:background var(--dur-base) var(--ease); }
+.switcher button:hover { background:rgba(255,255,255,0.15); }
+.switcher button.sw-active { background:var(--blue); font-weight:600; }
+.switcher-div { width:1px; height:18px; background:rgba(255,255,255,0.2); }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width:600px) {
+  .enav-inner { grid-template-columns:auto 1fr auto; padding:11px 16px; }
+  .enav-left { display:none; }
+  .enav-wordmark { font-size:22px; text-align:left; }
+  .enav-subscribe { padding:8px 13px; }
+  .article { padding:32px 18px 0; }
+  .headline { font-size:31px; }
+  .dek { font-size:19px; }
+  .body { padding:0 18px; }
+  .body p { font-size:18px; }
+  .body p.first::first-letter { font-size:62px; }
+  .recommended { gap:14px; }
+  .rec-thumb { width:80px; height:60px; }
+
+  /* Modal becomes a bottom sheet */
+  .modal-overlay { align-items:flex-end; padding:0; }
+  .modal-card { max-width:none; border-radius:16px 16px 0 0; border-left:none; border-right:none; border-bottom:none; padding:34px 22px 28px; }
+  .modal-overlay.open .modal-card { animation:sheetUp 0.42s var(--ease); }
+
+  .nav-inner { padding:12px 16px 11px; }
+  .hero { padding:32px 16px 8px; }
+  .hero h1 { font-size:31px; }
+  .hero-sub { font-size:15px; }
+  .hero-mark svg { height:40px; }
+  .main-wrap { padding:0 12px 56px; margin-top:24px; }
+  .plan-row { padding:20px 18px; }
+  .detail-row { padding:16px 18px; }
+  .edit-form-inner { padding:4px 18px 18px; }
+  .cta-section { padding:20px 18px 24px; }
+  .plan-picker-inner { padding:6px 18px 18px; }
+  .plan-row-left { flex-direction:column; gap:3px; }
+  .form-row, .srow { grid-template-columns:1fr; }
+  .pm-icons { display:none; }
+  .confirm-card { padding:32px 20px 28px; }
+  .confirm-grid { grid-template-columns:1fr; gap:18px; }
+  .switcher { bottom:12px; padding:4px; max-width:calc(100vw - 12px); flex-wrap:wrap; justify-content:center; border-radius:24px; }
+  .switcher button { font-size:11px; padding:6px 8px; }
+}
+
+@keyframes sheetUp { from { transform:translateY(100%); } to { transform:none; } }
+
+@media (prefers-reduced-motion:reduce) {
+  .reveal { opacity:1; transform:none; animation:none; }
+  .modal-overlay.open, .modal-overlay.open .modal-card { animation:none; }
+  html { scroll-behavior:auto; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCENE 1 — ARTICLE PAGE
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="scene-article">
+  <header class="enav">
+    <div class="enav-stripe"></div>
+    <div class="enav-inner">
+      <nav class="enav-left">
+        <a>Popular</a>
+        <a>Latest</a>
+        <a>Newsletters</a>
+      </nav>
+      <a class="enav-wordmark" aria-label="The Atlantic">The Atlantic</a>
+      <div class="enav-right">
+        <a class="enav-signin">Sign In</a>
+        <button class="enav-subscribe">Subscribe</button>
+      </div>
+    </div>
+  </header>
+
+  <article class="article">
+    <p class="rubric">Culture</p>
+    <h1 class="headline">Music's New Superstar Is Here—And She's Rather Relaxed</h1>
+    <p class="dek">Ella Langley's country music offers an appealing commonality for this moment: moderation.</p>
+    <p class="byline">By <b>Spencer Kornhaber</b></p>
+    <div class="artmeta">
+      <span>JULY 22, 2026, 8 AM ET</span>
+      <span class="share">
+        <a aria-label="Share"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M11 5.5a2 2 0 100-4 2 2 0 000 4zM5 10a2 2 0 100-4 2 2 0 000 4zM11 14.5a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" stroke-width="1.2"/><path d="M6.7 7L9.3 5.5M6.7 9L9.3 10.5" stroke="currentColor" stroke-width="1.2"/></svg></a>
+        <a aria-label="Save"><svg width="13" height="15" viewBox="0 0 14 16" fill="none"><path d="M3 1.5h8a1 1 0 011 1v11l-5-3-5 3v-11a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></a>
+        <a aria-label="Gift"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="2" y="6" width="12" height="8.5" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M2 6h12M8 6v8.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 6S6.5 2.5 4.8 3.2C3.6 3.7 4.4 6 8 6zM8 6s1.5-3.5 3.2-2.8C12.4 3.7 11.6 6 8 6z" stroke="currentColor" stroke-width="1.2"/></svg></a>
+      </span>
+    </div>
+
+    <figure>
+      <div class="hero-img" role="img" aria-label="Ella Langley on stage in warm light"></div>
+      <figcaption class="hero-cap">
+        <span>Langley performing during her summer tour, where the lighting is as unhurried as the songs.</span>
+        <span class="credit">Illustration / The Atlantic</span>
+      </figcaption>
+    </figure>
+
+    <div class="listen">
+      <span class="listen-play" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 2l7 4-7 4V2z" fill="currentColor"/></svg></span>
+      <span class="listen-mid">
+        <span class="listen-label">Listen to this article</span>
+        <span class="listen-track"></span>
+      </span>
+      <span class="listen-time">14:32</span>
+    </div>
+  </article>
+
+  <div class="body">
+    <p class="first">Ella Langley did not arrive with a manifesto. She arrived with a shrug, a warm alto, and a catalog of songs that seem faintly amused by their own success. In a year when country music has been busy relitigating its borders—who belongs, who sold out, who is too pop and who is not pop enough—Langley has quietly become the genre's most unlikely breakout by declining to pick a fight at all.</p>
+
+    <p>That refusal is, in its way, a position. The prevailing mode in popular music right now is maximal: bigger drops, louder confessions, feelings turned up until they distort. Langley works in a lower register. Her records are built around mid-tempo grooves and conversational phrasing, the sound of someone telling you a story across a kitchen table rather than from a stadium riser. It should not be revolutionary. Somehow it is.</p>
+
+    <p>Part of the appeal is that she makes moderation sound like a choice rather than a limitation. Where a lesser artist might mistake restraint for blandness, Langley uses the space. A held note, a dropped consonant, a guitar figure that resolves a beat later than you expect—these are the small pleasures her songs are made of, and they reward the kind of attention that the streaming economy usually punishes.</p>
+
+    <p>Her breakthrough single spent the spring lodged in the middle of the charts, never quite reaching the summit and never falling off. That, too, feels like the point. It is a song about ambivalence—about wanting someone and wanting to be left alone in roughly equal measure—and it never resolves the tension so much as it learns to live inside it.</p>
+
+    <p>Critics have reached for the usual comparisons, and the usual comparisons don't quite fit. She is not a traditionalist mounting a rescue operation, and she is not an interloper importing pop gloss. She is something harder to categorize: a writer who takes the genre's conventions seriously enough to relax inside them.</p>
+
+    <div id="modal-sentinel" aria-hidden="true"></div>
+
+    <div class="recommended">
+      <div class="rec-thumb" aria-hidden="true"></div>
+      <div class="rec-body">
+        <p class="rlabel">Recommended Reading</p>
+        <a class="rtitle">The Quiet Return of the Mid-Tempo Ballad</a>
+      </div>
+    </div>
+
+    <p>To spend an evening at one of her shows is to notice how little she performs at you. There is no pyro, no costume change, no monologue about the healing power of music. There is a band that plays well, a singer who trusts the songs, and an audience that leans in rather than screams along. The effect is closer to a supper club than an arena, even when the room holds ten thousand people.</p>
+
+    <p>This is the commonality the moment seems to crave. After a decade of music engineered to hijack the nervous system, there is real relief in an artist who assumes you have a nervous system worth protecting. Langley's moderation is not timidity; it is hospitality. She is making room for the listener, and the listener, exhausted, has gratefully accepted the invitation.</p>
+
+    <p>None of this would matter if the songs were not good, and the songs are good. They are built to last precisely because they refuse to shout. A decade from now, when this year's louder hits have curdled into nostalgia, her records will likely still sound like conversations you'd want to have again.</p>
+
+    <p>She is, of course, aware of the narrative forming around her, and she seems determined not to feed it. Asked about her influences, she names a grab-bag of writers across genres and decades and then adds, with a half-smile, that she mostly just likes a good melody. It is the answer of someone who has decided that mystery is more sustainable than manifesto.</p>
+
+    <p>Whether the industry lets her stay this relaxed is another question. Success has a way of demanding escalation—the follow-up must be bigger, the tour longer, the feelings more extreme. Langley's whole appeal is that she seems constitutionally unwilling to escalate. If she can hold that line, she will have done something rarer than a hit. She will have made a case for moderation as a musical value, and made it sound, improbably, like the most interesting thing in the room.</p>
+
+    <p>For now, she is content to let the songs do the arguing. They make it patiently, in the middle register, at a tempo you could walk to. It is not the sound of a superstar demanding your attention. It is the sound of one who assumes she already has it, and would rather not waste it.</p>
+  </div>
+
+  <footer class="efooter">
+    <div class="wm">The Atlantic</div>
+    <div class="efooter-links">
+      <a>About</a><a>Contact</a><a>Podcasts</a><a>Newsletters</a><a>Subscribe</a><a>Privacy Policy</a>
+    </div>
+    <small>Copyright &copy; 2026 The Atlantic Monthly Group. All Rights Reserved.</small>
+  </footer>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCENE 2 — REACTIVATION MODAL
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="reactivation-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this) dismissModal()">
+  <div class="modal-card">
+    <button class="modal-close" aria-label="Close" onclick="dismissModal()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <span class="modal-mark" aria-hidden="true">
+      <svg viewBox="0 0 176 268" xmlns="http://www.w3.org/2000/svg"><path d="M 96.613 0.389 C 92.12 4.874 85.754 8.985 81.26 10.481 C 79.763 10.854 79.388 11.228 79.013 12.722 L 25.464 237.726 C 21.345 255.667 16.102 259.031 1.872 260.152 C 0.749 260.152 0 260.899 0 262.02 L 0 266.132 C 0 267.253 0.749 268 1.872 268 L 53.174 268 C 54.298 268 55.048 267.253 55.048 266.132 L 55.048 262.02 C 55.048 260.899 54.298 260.152 53.174 260.152 C 34.077 260.152 32.204 254.545 35.949 238.848 L 44.936 200.349 C 45.311 199.229 46.06 198.481 47.183 198.481 L 100.732 198.481 C 101.856 198.481 102.603 199.229 102.979 200.349 L 113.091 246.696 C 115.338 256.788 111.591 259.031 98.86 260.152 C 97.737 260.152 96.988 260.899 96.988 262.02 L 96.988 266.132 C 96.988 267.253 97.737 268 98.86 268 L 174.128 268 C 175.253 268 176 267.253 176 266.132 L 176 262.02 C 176 260.899 175.253 260.152 174.128 260.152 C 162.521 259.031 157.652 257.161 155.405 246.696 L 98.86 1.136 C 98.486 0.015 97.362 -0.358 96.613 0.389 L 96.613 0.389 Z M 49.056 190.259 C 47.932 190.259 47.559 189.511 47.559 188.39 L 73.771 76.636 C 74.146 74.767 75.644 74.767 76.018 76.636 L 100.358 188.39 C 100.358 189.511 99.984 190.259 98.861 190.259 L 49.056 190.259 Z" fill="currentColor" fill-rule="evenodd"/></svg>
+    </span>
+    <h2 class="modal-h1" id="modal-title">Your seat's still here, Jane.</h2>
+    <p class="modal-sub">Restart Print &amp; Digital with the Visa on file — nothing to re-enter.</p>
+    <p class="modal-context">Subscriber since 2021 · Last active November 2025</p>
+    <p class="modal-account">Signed in as <b>jane.morrison@gmail.com</b></p>
+    <button class="btn-restart" id="modal-cta" onclick="modalResume()">Restart for $89.99/year</button>
+    <a class="modal-notnow" role="button" tabindex="0" onclick="dismissModal()">Not now</a>
+    <p class="modal-legal">You&rsquo;ll be charged <span id="modal-charge">$89.99</span> today. Renews annually at the then-current rate until you cancel. <a>Terms of Sale</a></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCENE 3 — CHECKOUT
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="scene-checkout" style="display:none;">
+  <header class="nav">
+    <div class="nav-stripe"></div>
+    <div class="nav-inner">
+      <a class="wordmark" aria-label="The Atlantic">The Atlantic</a>
+      <div class="nav-right">
+        <a class="nav-link">Help</a>
+        <a class="nav-link">Sign out</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="back-wrap">
+    <a class="back-link" role="button" tabindex="0" onclick="swScene('article')">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8.5 3L4.5 7l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to article
+    </a>
+  </div>
+
+  <div class="hero">
+    <div class="hero-mark reveal" style="animation-delay:0s">
+      <svg viewBox="0 0 176 268" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The Atlantic"><path d="M 96.613 0.389 C 92.12 4.874 85.754 8.985 81.26 10.481 C 79.763 10.854 79.388 11.228 79.013 12.722 L 25.464 237.726 C 21.345 255.667 16.102 259.031 1.872 260.152 C 0.749 260.152 0 260.899 0 262.02 L 0 266.132 C 0 267.253 0.749 268 1.872 268 L 53.174 268 C 54.298 268 55.048 267.253 55.048 266.132 L 55.048 262.02 C 55.048 260.899 54.298 260.152 53.174 260.152 C 34.077 260.152 32.204 254.545 35.949 238.848 L 44.936 200.349 C 45.311 199.229 46.06 198.481 47.183 198.481 L 100.732 198.481 C 101.856 198.481 102.603 199.229 102.979 200.349 L 113.091 246.696 C 115.338 256.788 111.591 259.031 98.86 260.152 C 97.737 260.152 96.988 260.899 96.988 262.02 L 96.988 266.132 C 96.988 267.253 97.737 268 98.86 268 L 174.128 268 C 175.253 268 176 267.253 176 266.132 L 176 262.02 C 176 260.899 175.253 260.152 174.128 260.152 C 162.521 259.031 157.652 257.161 155.405 246.696 L 98.86 1.136 C 98.486 0.015 97.362 -0.358 96.613 0.389 L 96.613 0.389 Z M 49.056 190.259 C 47.932 190.259 47.559 189.511 47.559 188.39 L 73.771 76.636 C 74.146 74.767 75.644 74.767 76.018 76.636 L 100.358 188.39 C 100.358 189.511 99.984 190.259 98.861 190.259 L 49.056 190.259 Z" fill="currentColor" fill-rule="evenodd"/></svg>
+    </div>
+    <h1 class="reveal" id="checkout-h1" tabindex="-1" style="animation-delay:0.08s">Welcome back, Jane.</h1>
+    <p class="hero-sub reveal" style="animation-delay:0.16s">Confirm the details below and you're in — everything is as you left it.</p>
+    <p class="hero-context reveal" style="animation-delay:0.24s">Subscriber since 2021 · Last active November 2025</p>
+  </div>
+
+  <div class="main-wrap">
+    <div class="main-card reveal" style="animation-delay:0.32s">
+
+      <!-- Plan row -->
+      <div class="plan-row" id="plan-row">
+        <div class="plan-row-left">
+          <span class="plan-summary">
+            <span class="plan-name" id="display-plan-name">Print &amp; Digital</span>
+            <span class="plan-dot">·</span>
+            <span class="plan-price" id="display-plan-price">$89.99/year</span>
+            <span class="plan-previous-tag" id="display-plan-badge">Previous plan</span>
+          </span>
+          <span class="plan-edit-title">Choose your plan</span>
+        </div>
+        <a class="txt-link" id="change-plan-toggle" role="button" tabindex="0" onclick="togglePlanPicker()">Change</a>
+      </div>
+
+      <!-- Plan picker (collapsed) -->
+      <div class="plan-picker" id="plan-picker">
+        <div class="plan-picker-inner">
+          <label class="plan-option" data-plan="digital" onclick="selectPlan(this)">
+            <input type="radio" name="plan" value="digital">
+            <div class="plan-option-info">
+              <div class="plan-option-head">
+                <div class="plan-option-name">Digital</div>
+                <div class="plan-option-price">$79.99/year</div>
+              </div>
+              <div class="plan-option-detail">Unlimited access on any device, the app, narrated articles, games, and more.</div>
+            </div>
+          </label>
+          <label class="plan-option is-selected" data-plan="print-digital" onclick="selectPlan(this)">
+            <input type="radio" name="plan" value="print-digital" checked>
+            <div class="plan-option-info">
+              <div class="plan-option-tag">Best value</div>
+              <div class="plan-option-head">
+                <div class="plan-option-name">Print &amp; Digital</div>
+                <div class="plan-option-price">$89.99/year</div>
+              </div>
+              <div class="plan-option-detail">Everything in Digital, plus 12 print issues and a free tote.</div>
+            </div>
+          </label>
+          <label class="plan-option" data-plan="premium" onclick="selectPlan(this)">
+            <input type="radio" name="plan" value="premium">
+            <div class="plan-option-info">
+              <div class="plan-option-head">
+                <div class="plan-option-name">Premium Plus</div>
+                <div class="plan-option-price">$199.99/year</div>
+              </div>
+              <div class="plan-option-detail">Print and digital, plus 3 gift subscriptions, ad-free reading, and exclusive events.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Account (SignedInAs pattern from the real checkout) -->
+      <div class="detail-row">
+        <div class="detail-left">
+          <span class="detail-num">1</span>
+          <span class="detail-content"><span class="signedin-check" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>You&rsquo;re signed in as <b id="display-email">jane.morrison@gmail.com</b></span>
+        </div>
+        <a class="txt-link" role="button" tabindex="0">Not you?</a>
+      </div>
+
+      <!-- Payment -->
+      <div class="detail-row">
+        <div class="detail-left">
+          <span class="detail-num">2</span>
+          <span class="detail-content" id="display-payment"></span>
+        </div>
+        <a class="txt-link" role="button" tabindex="0" onclick="toggleEdit('payment')">Edit</a>
+      </div>
+      <div class="edit-form" id="edit-payment">
+        <div class="edit-form-inner">
+          <div class="pay-notice" id="pay-notice" style="display:none;">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 1.5l6.5 11.5H1.5L8 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M8 6v3.2M8 11.2v.05" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <span>Your card on file has expired — update it to restart your subscription.</span>
+          </div>
+
+          <div class="pm-group">
+            <label class="pm-row is-selected" data-method="card">
+              <input type="radio" name="pm" value="card" checked onchange="selectMethod('card')">
+              <span class="pm-name">Credit or Debit card</span>
+              <span class="pm-icons" aria-hidden="true">
+                <span class="pmi pmi-visa"><svg viewBox="0 0 38 12" xmlns="http://www.w3.org/2000/svg"><path d="M14.3765 0.212885L9.5324 11.8193H6.372L3.98822 2.55684C3.84349 1.98633 3.71765 1.77733 3.27751 1.53697C2.55891 1.14547 1.37221 0.778167 0.328125 0.550196L0.399041 0.212885H5.48632C6.13478 0.212885 6.71772 0.646377 6.86495 1.39628L8.12391 8.11232L11.2354 0.212691H14.3765V0.212885ZM26.7595 8.03007C26.7722 4.96679 22.5415 4.79803 22.5706 3.42963C22.5797 3.01317 22.9745 2.57039 23.8388 2.45737C24.2672 2.40105 25.4475 2.35809 26.7863 2.97679L27.3114 0.515555C26.592 0.253331 25.6664 0.000976562 24.5148 0.000976562C21.5597 0.000976562 19.48 1.57858 19.4624 3.83758C19.4433 5.50846 20.9468 6.44086 22.0796 6.99607C23.2449 7.56465 23.6359 7.93002 23.6315 8.4386C23.6232 9.21714 22.702 9.56084 21.8412 9.57439C20.3385 9.59761 19.4665 9.16605 18.7714 8.84151L18.2295 11.3842C18.928 11.706 20.2174 11.9868 21.5543 12.001C24.6952 12.001 26.7498 10.4429 26.7595 8.03007ZM34.563 11.8195H37.3281L34.9145 0.212885H32.3622C31.7884 0.212885 31.3043 0.548454 31.09 1.06439L26.6036 11.8193H29.743L30.3662 10.0857H34.202L34.563 11.8193V11.8195ZM31.227 7.70708L32.8007 3.34932L33.7064 7.70708H31.227ZM18.6482 0.212885L16.176 11.8193H13.1863L15.6595 0.212885H18.6482Z" fill="#1434CB"/></svg></span>
+                <span class="pmi pmi-mc"><svg viewBox="0 0 31 18" xmlns="http://www.w3.org/2000/svg"><path d="M19.3859 1.9248H11.2734V16.0764H19.3859V1.9248Z" fill="#FF5F00"/><path d="M11.7879 9.00049C11.7866 7.63759 12.1048 6.29226 12.7183 5.06637C13.3318 3.84047 14.2246 2.76614 15.329 1.92469C13.9613 0.881101 12.3187 0.232108 10.589 0.0518898C8.85925 -0.128328 7.11218 0.167494 5.54746 0.905558C3.98274 1.64362 2.6635 2.79415 1.74054 4.22562C0.817573 5.65709 0.328125 7.31175 0.328125 9.00049C0.328125 10.6892 0.817573 12.3439 1.74054 13.7754C2.6635 15.2068 3.98274 16.3574 5.54746 17.0954C7.11218 17.8335 8.85925 18.1293 10.589 17.9491C12.3187 17.7689 13.9613 17.1199 15.329 16.0763C14.2246 15.2348 13.3318 14.1605 12.7183 12.9346C12.1048 11.7087 11.7866 10.3634 11.7879 9.00049Z" fill="#EB001B"/><path d="M30.3286 9.00049C30.3286 10.6892 29.8392 12.3439 28.9163 13.7753C27.9934 15.2068 26.6742 16.3573 25.1095 17.0954C23.5448 17.8335 21.7978 18.1293 20.0681 17.9491C18.3384 17.7689 16.6958 17.1199 15.3281 16.0763C16.4316 15.234 17.3237 14.1595 17.9371 12.9338C18.5505 11.7081 18.8692 10.3632 18.8692 9.00049C18.8692 7.6378 18.5505 6.2929 17.9371 5.0672C17.3237 3.8415 16.4316 2.76699 15.3281 1.92469C16.6958 0.881097 18.3384 0.232103 20.0681 0.0518874C21.7978 -0.128329 23.5448 0.167507 25.1095 0.905578C26.6742 1.64365 27.9934 2.79417 28.9163 4.22565C29.8392 5.65712 30.3286 7.31178 30.3286 9.00049Z" fill="#F79E1B"/></svg></span>
+                <span class="pmi pmi-amex"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M23.3281 23.5005V19.8559H20.5534L19.1246 18.2763L17.689 19.8559H8.54051V12.4936H5.58776L9.25029 4.20487H12.7826L14.0435 7.04445V4.20487H18.4158L19.1748 6.34479L19.9388 4.20487H23.3281V0.500488H0.328125V23.5005H23.3281ZM21.0208 18.9341H23.3281L20.276 15.6975L23.3281 12.4977H21.0576L19.1725 14.5576L17.3058 12.4977H14.998L18.0321 15.7159L14.998 18.9341H17.2419L19.1361 16.8558L21.0212 18.9341H21.0208ZM21.5603 15.7003L23.3277 17.5807V13.8354L21.5603 15.7003ZM11.2734 17.4446V16.4422H14.9055V14.9896H11.2734V13.9872H14.9975V12.4977H9.51709V18.9345H14.9975V17.445H11.2734V17.4446ZM21.5898 11.5635H23.3277V5.12671H20.6242L19.1803 9.13561L17.746 5.12671H14.9966V11.5635H16.7345V7.05779L18.3896 11.5635H19.9342L21.5893 7.04859V11.5635H21.5898ZM13.02 11.5635H14.9971L12.1556 5.12671H9.89336L7.05194 11.5635H8.98302L9.51663 10.2759H12.4776L13.02 11.5635ZM11.8704 8.83247H10.1234L10.9969 6.72659L11.8704 8.83247Z" fill="#006FCF"/></svg></span>
+                <span class="pmi pmi-disc"><svg viewBox="0 0 55 10" xmlns="http://www.w3.org/2000/svg"><circle cx="28.88" cy="4.95" r="4.55" fill="#F58220"/><path d="M4.77656 7.02022C4.24634 7.48138 3.55757 7.68258 2.46721 7.68258H2.01431V2.17225H2.46721C3.55757 2.17225 4.21923 2.36017 4.77656 2.84617C5.36017 3.34672 5.71128 4.12231 5.71128 4.92061C5.71128 5.72052 5.36017 6.51987 4.77656 7.02022ZM2.80524 0.760409H0.328125V9.09326H2.79217C4.10245 9.09326 5.04854 8.79552 5.87905 8.1313C6.86591 7.34464 7.44952 6.15898 7.44952 4.93261C7.44952 2.47349 5.54198 0.760409 2.80524 0.760409Z" fill="#201D1C"/><path d="M8.22656 9.09131H9.91408V0.758456H8.22656V9.09131Z" fill="#201D1C"/><path d="M14.0415 3.95871C13.0289 3.59779 12.7315 3.35974 12.7315 2.90952C12.7315 2.38474 13.2613 1.98591 13.9886 1.98591C14.4943 1.98591 14.9098 2.18595 15.3495 2.66078L16.2324 1.54713C15.5068 0.935827 14.6387 0.623281 13.6902 0.623281C12.1595 0.623281 10.9919 1.64716 10.9919 3.01096C10.9919 4.15899 11.5356 4.74675 13.1205 5.29616C13.7811 5.52058 14.1173 5.67012 14.287 5.77072C14.6242 5.98279 14.793 6.28298 14.793 6.63292C14.793 7.30811 14.2357 7.80834 13.4827 7.80834C12.6779 7.80834 12.0295 7.42062 11.641 6.69693L10.5508 7.70798C11.3283 8.80725 12.262 9.29443 13.546 9.29443C15.2998 9.29443 16.5299 8.17135 16.5299 6.55819C16.5299 5.23426 15.9612 4.63496 14.0415 3.95871Z" fill="#201D1C"/><path d="M17.0625 4.93024C17.0625 7.37957 19.0593 9.27881 21.629 9.27881C22.3554 9.27881 22.9775 9.14123 23.7447 8.79314V6.87982C23.0701 7.53019 22.4726 7.79248 21.7074 7.79248C20.0079 7.79248 18.8016 6.60565 18.8016 4.91824C18.8016 3.31835 20.046 2.05632 21.629 2.05632C22.4338 2.05632 23.0431 2.33297 23.7447 2.99393V1.08153C23.004 0.719566 22.3948 0.569665 21.6688 0.569665C19.1122 0.569665 17.0625 2.50734 17.0625 4.93024Z" fill="#201D1C"/><path d="M37.1271 6.35671L34.8201 0.759504H32.9766L36.6478 9.30615H37.5559L41.2935 0.759504H39.4642L37.1271 6.35671Z" fill="#201D1C"/><path d="M42.0547 9.09131H46.8404V7.68063H43.7408V5.43133H46.7261V4.01985H43.7408V2.1703H46.8404V0.758456H42.0547V9.09131Z" fill="#201D1C"/><path d="M50.1355 4.5948H49.6425V2.07098H50.1621C51.2131 2.07098 51.7844 2.49508 51.7844 3.30606C51.7844 4.14379 51.2131 4.5948 50.1355 4.5948ZM53.5211 3.21853C53.5211 1.65852 52.4054 0.758456 50.4593 0.758456H47.957V9.09131H49.6425V5.74388H49.8625L52.1984 9.09131H54.2737L51.5502 5.58079C52.8211 5.3319 53.5211 4.49444 53.5211 3.21853Z" fill="#201D1C"/></svg></span>
+              </span>
+            </label>
+            <div class="cc-fields open" id="cc-fields">
+              <div class="cc-fields-inner">
+                <div class="sgroup">
+                  <label class="slabel" for="s-cardnum">Card number</label>
+                  <input class="sinput" id="s-cardnum" type="text" value="•••• •••• •••• 4242" readonly>
+                </div>
+                <div class="srow">
+                  <div class="sgroup">
+                    <label class="slabel" for="s-exp">Expiration</label>
+                    <input class="sinput" id="s-exp" type="text" placeholder="MM / YY" value="09/27" aria-describedby="s-exp-err" oninput="clearInvalid('s-exp','s-exp-err')">
+                    <div class="serror" id="s-exp-err" role="alert">Enter a valid expiration date.</div>
+                  </div>
+                  <div class="sgroup">
+                    <label class="slabel" for="s-cvc">CVC</label>
+                    <input class="sinput" id="s-cvc" type="text" placeholder="CVC" aria-describedby="s-cvc-err" oninput="clearInvalid('s-cvc','s-cvc-err')">
+                    <div class="serror" id="s-cvc-err" role="alert">Enter the security code.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <label class="pm-row" data-method="apple">
+              <input type="radio" name="pm" value="apple" onchange="selectMethod('apple')">
+              <span class="wm-applepay"><svg viewBox="0 0 17 20" xmlns="http://www.w3.org/2000/svg"><path d="M13.6 10.5c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.68 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.77.72 1.06 1.58 2.25 2.72 2.2 1.09-.04 1.5-.7 2.83-.7 1.32 0 1.7.7 2.86.68 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5z" fill="currentColor"/><path d="M11.4 4.05c.6-.73 1-1.75.9-2.77-.87.04-1.92.58-2.54 1.3-.55.65-1.04 1.68-.91 2.68.97.07 1.96-.49 2.55-1.21z" fill="currentColor"/></svg>Pay</span>
+            </label>
+
+            <label class="pm-row" data-method="paypal">
+              <input type="radio" name="pm" value="paypal" onchange="selectMethod('paypal')">
+              <span class="wm-paypal"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944 3.72a.773.773 0 01.762-.65h6.15c2.04 0 3.483.394 4.287 1.172.75.727 1.017 1.794.816 3.263l-.02.124v.36l.282.16c.37.19.667.414.893.674.306.354.504.79.588 1.293.088.516.059 1.13-.084 1.824-.164.796-.43 1.49-.79 2.062a4.09 4.09 0 01-1.235 1.293c-.478.32-1.04.56-1.672.713-.615.148-1.314.223-2.076.223h-.494a1.49 1.49 0 00-1.472 1.26l-.037.2-.63 3.99-.027.14a.109.109 0 01-.108.092H7.076z" fill="#003087"/><path d="M19.532 8.093c-.009.06-.02.12-.032.183-.993 5.1-4.39 6.86-8.725 6.86H8.57a1.07 1.07 0 00-1.059.908l-.84 5.328-.238 1.51a.563.563 0 00.556.651h3.904c.464 0 .858-.338.931-.796l.038-.2.738-4.678.047-.258a.94.94 0 01.929-.795h.585c3.788 0 6.754-1.539 7.622-5.99.362-1.86.175-3.414-.784-4.506a3.73 3.73 0 00-1.066-.873l-.15.656z" fill="#0070E0"/></svg>PayPal</span>
+            </label>
+          </div>
+
+          <div class="edit-save-row">
+            <a class="edit-cancel" role="button" tabindex="0" onclick="toggleEdit('payment')">Cancel</a>
+            <button class="btn-sm" id="btn-pay-update" onclick="paymentUpdate()">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing Address -->
+      <div class="detail-row">
+        <div class="detail-left">
+          <span class="detail-num">3</span>
+          <span class="detail-content" id="display-address">123 Atlantic Ave, Brooklyn, NY 11201</span>
+        </div>
+        <a class="txt-link" role="button" tabindex="0" onclick="toggleEdit('address')">Edit</a>
+      </div>
+      <div class="edit-form" id="edit-address">
+        <div class="edit-form-inner">
+          <div class="form-group">
+            <label class="form-label" for="addr-street">Street address</label>
+            <div class="form-field"><input class="form-input" id="addr-street" type="text" placeholder="Street address" value="123 Atlantic Ave"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="addr-apt">Apartment, suite, etc. (optional)</label>
+            <div class="form-field"><input class="form-input" id="addr-apt" type="text" placeholder="Apt, suite, etc."></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="addr-city">City</label>
+              <div class="form-field"><input class="form-input" id="addr-city" type="text" placeholder="City" value="Brooklyn"></div>
+            </div>
+            <div class="form-row" style="gap:12px;">
+              <div class="form-group">
+                <label class="form-label" for="addr-state">State</label>
+                <select class="form-select" id="addr-state"><option>NY</option></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="addr-zip">ZIP</label>
+                <div class="form-field"><input class="form-input" id="addr-zip" type="text" placeholder="ZIP" value="11201"></div>
+              </div>
+            </div>
+          </div>
+          <div class="edit-save-row">
+            <a class="edit-cancel" role="button" tabindex="0" onclick="toggleEdit('address')">Cancel</a>
+            <button class="btn-sm" onclick="toggleEdit('address')">Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Automatic renewal enrollment (AutomaticRenewalNotice pattern) -->
+      <div class="renewal-note">
+        <div class="renewal-title">Automatic renewal</div>
+        <p class="renewal-body">Restarting enrolls you in automatic renewal. You&rsquo;ll get uninterrupted access to <em>The Atlantic</em> and play a vital role in supporting independent journalism. If you change your mind, cancel within two days for a full refund.</p>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta-section">
+        <p class="charge-line" id="charge-line">Your Visa ending in 4242 will be charged <b>$89.99</b> today.</p>
+        <button class="btn-restart" id="btn-resume" onclick="completeResume()">
+          Restart subscription — $89.99/year
+        </button>
+        <div class="cta-meta">
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true"><rect x="1" y="5" width="10" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="currentColor" stroke-width="1.2"/></svg>
+          Secure checkout · Cancel anytime
+        </div>
+        <p class="cta-legal">By selecting &ldquo;Restart subscription,&rdquo; you agree that your subscription will renew annually at the then-current rate until you cancel. Before each renewal, you&rsquo;ll receive a notification of your term and rate. For a full refund, cancel within two days; after that, cancellations take effect at the end of your billing period. <a>Terms of Sale</a> · <a>Terms of Service</a> · <a>Privacy Policy</a></p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     SCENE 4 — CONFIRMATION
+     ═══════════════════════════════════════════════════════════════ -->
+<section id="scene-confirmation" style="display:none;">
+  <header class="nav">
+    <div class="nav-stripe"></div>
+    <div class="nav-inner">
+      <a class="wordmark" aria-label="The Atlantic">The Atlantic</a>
+      <div class="nav-right"><a class="nav-link">My Account</a></div>
+    </div>
+  </header>
+  <div class="confirm-wrap">
+    <div class="confirm-card">
+      <div class="confirm-check" aria-hidden="true">
+        <svg width="22" height="18" viewBox="0 0 22 18" fill="none"><path d="M2 9.5L8 15.5L20 2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h1 class="confirm-h1" id="confirm-h1" tabindex="-1">You're back.</h1>
+      <p class="confirm-sub">Your subscription is active and your full access has been restored.</p>
+      <div class="confirm-rule"></div>
+      <div class="confirm-grid">
+        <div><div class="confirm-label">Plan</div><div class="confirm-value" id="confirm-plan">Print &amp; Digital</div></div>
+        <div><div class="confirm-label">Payment</div><div class="confirm-value" id="confirm-payment"></div></div>
+        <div><div class="confirm-label">Charged today</div><div class="confirm-value" id="confirm-amount">$89.99</div></div>
+        <div><div class="confirm-label">Next renewal</div><div class="confirm-value" id="confirm-billing">July 23, 2027</div></div>
+      </div>
+      <div class="confirm-rule-2"></div>
+      <button class="confirm-cta" onclick="continueReading()">Continue reading <span aria-hidden="true">→</span></button>
+      <a class="confirm-manage" role="button" tabindex="0">Manage subscription</a>
+      <p class="confirm-note">Confirmation sent to jane.morrison@gmail.com</p>
+    </div>
+  </div>
+</section>
+
+<!-- SWITCHER -->
+<div class="switcher" role="tablist" aria-label="Prototype states">
+  <button class="sw-active" data-state="article" onclick="swScene('article')">Article</button>
+  <div class="switcher-div"></div>
+  <button data-state="modal" onclick="swScene('modal')">Modal</button>
+  <div class="switcher-div"></div>
+  <button data-state="checkout" onclick="swScene('checkout')">Checkout</button>
+  <div class="switcher-div"></div>
+  <button data-state="expired" onclick="swScene('expired')">Expired card</button>
+  <div class="switcher-div"></div>
+  <button data-state="confirmation" onclick="swScene('confirmation')">Confirmation</button>
+</div>
+
+<script>
+// ═══ DATA ═══
+const plans = {
+  'digital':       { name:'Digital',         price:'$79.99/year',  amount:'79.99',  badge:'' },
+  'print-digital': { name:'Print & Digital', price:'$89.99/year',  amount:'89.99',  badge:'Previous plan' },
+  'premium':       { name:'Premium Plus',    price:'$199.99/year', amount:'199.99', badge:'' }
+};
+
+// One state object (per spec)
+const state = {
+  currentPlan: 'print-digital',
+  payMethod:   'card',
+  cardExpired: false,
+  cardExp:     '09/27',
+  savedScrollY: 0
+};
+
+let currentScene = 'article';
+let lastFocused = null;
+
+// Brand marks (kept in brand color — the exception to the blue/red rule)
+const visaSVG = '<svg viewBox="0 0 38 12" xmlns="http://www.w3.org/2000/svg"><path d="M14.3765 0.212885L9.5324 11.8193H6.372L3.98822 2.55684C3.84349 1.98633 3.71765 1.77733 3.27751 1.53697C2.55891 1.14547 1.37221 0.778167 0.328125 0.550196L0.399041 0.212885H5.48632C6.13478 0.212885 6.71772 0.646377 6.86495 1.39628L8.12391 8.11232L11.2354 0.212691H14.3765V0.212885ZM26.7595 8.03007C26.7722 4.96679 22.5415 4.79803 22.5706 3.42963C22.5797 3.01317 22.9745 2.57039 23.8388 2.45737C24.2672 2.40105 25.4475 2.35809 26.7863 2.97679L27.3114 0.515555C26.592 0.253331 25.6664 0.000976562 24.5148 0.000976562C21.5597 0.000976562 19.48 1.57858 19.4624 3.83758C19.4433 5.50846 20.9468 6.44086 22.0796 6.99607C23.2449 7.56465 23.6359 7.93002 23.6315 8.4386C23.6232 9.21714 22.702 9.56084 21.8412 9.57439C20.3385 9.59761 19.4665 9.16605 18.7714 8.84151L18.2295 11.3842C18.928 11.706 20.2174 11.9868 21.5543 12.001C24.6952 12.001 26.7498 10.4429 26.7595 8.03007ZM34.563 11.8195H37.3281L34.9145 0.212885H32.3622C31.7884 0.212885 31.3043 0.548454 31.09 1.06439L26.6036 11.8193H29.743L30.3662 10.0857H34.202L34.563 11.8193V11.8195ZM31.227 7.70708L32.8007 3.34932L33.7064 7.70708H31.227ZM18.6482 0.212885L16.176 11.8193H13.1863L15.6595 0.212885H18.6482Z" fill="#1434CB"/></svg>';
+const visaMark   = '<span class="pmi pmi-inline">' + visaSVG + '</span>';
+const paypalWm   = '<span class="wm-paypal"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944 3.72a.773.773 0 01.762-.65h6.15c2.04 0 3.483.394 4.287 1.172.75.727 1.017 1.794.816 3.263l-.02.124v.36l.282.16c.37.19.667.414.893.674.306.354.504.79.588 1.293.088.516.059 1.13-.084 1.824-.164.796-.43 1.49-.79 2.062a4.09 4.09 0 01-1.235 1.293c-.478.32-1.04.56-1.672.713-.615.148-1.314.223-2.076.223h-.494a1.49 1.49 0 00-1.472 1.26l-.037.2-.63 3.99-.027.14a.109.109 0 01-.108.092H7.076z" fill="#003087"/><path d="M19.532 8.093c-.009.06-.02.12-.032.183-.993 5.1-4.39 6.86-8.725 6.86H8.57a1.07 1.07 0 00-1.059.908l-.84 5.328-.238 1.51a.563.563 0 00.556.651h3.904c.464 0 .858-.338.931-.796l.038-.2.738-4.678.047-.258a.94.94 0 01.929-.795h.585c3.788 0 6.754-1.539 7.622-5.99.362-1.86.175-3.414-.784-4.506a3.73 3.73 0 00-1.066-.873l-.15.656z" fill="#0070E0"/></svg>PayPal</span>';
+const applePayWm = '<span class="wm-applepay"><svg viewBox="0 0 17 20" xmlns="http://www.w3.org/2000/svg"><path d="M13.6 10.5c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.73-1.36-.14-2.65.8-3.34.8-.68 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.77.72 1.06 1.58 2.25 2.72 2.2 1.09-.04 1.5-.7 2.83-.7 1.32 0 1.7.7 2.86.68 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5z" fill="currentColor"/><path d="M11.4 4.05c.6-.73 1-1.75.9-2.77-.87.04-1.92.58-2.54 1.3-.55.65-1.04 1.68-.91 2.68.97.07 1.96-.49 2.55-1.21z" fill="currentColor"/></svg>Pay</span>';
+
+// ═══ SCENE CONTROL ═══
+const sceneArticle = document.getElementById('scene-article');
+const sceneCheckout = document.getElementById('scene-checkout');
+const sceneConfirm = document.getElementById('scene-confirmation');
+
+function showScene(name) {
+  currentScene = name;
+  sceneArticle.style.display  = (name === 'article') ? '' : 'none';
+  sceneCheckout.style.display = (name === 'checkout' || name === 'expired') ? '' : 'none';
+  sceneConfirm.style.display  = (name === 'confirmation') ? '' : 'none';
+
+  if (name === 'checkout' || name === 'expired') {
+    state.cardExpired = (name === 'expired');
+    state.cardExp = '09/27';
+    state.payMethod = 'card';
+    resetPmUI();
+    closeEditForms();
+    closePlanPicker();
+    renderCheckout();
+    const h = document.getElementById('checkout-h1');
+    if (h) h.focus({ preventScroll: true });   // announce the scene change
+  }
+  if (name === 'confirmation') {
+    renderConfirmation();
+    const h = document.getElementById('confirm-h1');
+    if (h) h.focus({ preventScroll: true });
+  }
+}
+
+function swScene(name) {
+  // The switcher always bypasses the modal gate.
+  if (name === 'modal') {
+    document.getElementById('reactivation-modal').classList.remove('open');
+    unlockBody();
+    showScene('article');
+    openModal();
+    setActiveSwitcher('modal');
+    return;
+  }
+  document.getElementById('reactivation-modal').classList.remove('open');
+  unlockBody();
+  showScene(name);
+  window.scrollTo(0, 0);
+  setActiveSwitcher(name);
+}
+
+function setActiveSwitcher(name) {
+  document.querySelectorAll('.switcher button').forEach(b => {
+    b.classList.toggle('sw-active', b.dataset.state === name);
+  });
+}
+
+// ═══ CHECKOUT RENDERING ═══
+function renderCheckout() {
+  const p = plans[state.currentPlan];
+  document.getElementById('display-plan-name').textContent = p.name;
+  document.getElementById('display-plan-price').textContent = p.price;
+  const badge = document.getElementById('display-plan-badge');
+  badge.textContent = p.badge || '';
+  badge.style.display = p.badge ? '' : 'none';
+  renderPaymentRow();
+}
+
+function renderPaymentRow() {
+  const disp = document.getElementById('display-payment');
+  const form = document.getElementById('edit-payment');
+  const notice = document.getElementById('pay-notice');
+
+  if (state.cardExpired) {
+    disp.innerHTML = visaMark + ' •••• 4242 <span class="chip-amber">Expired 11/25</span>';
+    form.classList.add('open');   // expired opens the editor by default
+    notice.style.display = '';
+  } else {
+    if (state.payMethod === 'paypal')      disp.innerHTML = paypalWm;
+    else if (state.payMethod === 'apple')  disp.innerHTML = applePayWm;
+    else                                    disp.innerHTML = visaMark + ' •••• 4242 · exp ' + state.cardExp;
+    notice.style.display = 'none';
+  }
+  updateCtaLabel();
+}
+
+function updateCtaLabel() {
+  const cta = document.getElementById('btn-resume');
+  const charge = document.getElementById('charge-line');
+  const p = plans[state.currentPlan];
+  if (state.cardExpired) {
+    cta.textContent = 'Update payment to restart';
+    cta.disabled = true;
+    cta.classList.add('is-disabled');
+    charge.style.display = 'none';   // the amber notice explains the blocked state
+  } else {
+    cta.textContent = 'Restart subscription — ' + p.price;
+    cta.disabled = false;
+    cta.classList.remove('is-disabled');
+    let src = 'Your Visa ending in 4242';
+    if (state.payMethod === 'paypal')     src = 'Your PayPal account';
+    else if (state.payMethod === 'apple') src = 'Apple Pay';
+    charge.innerHTML = src + ' will be charged <b>$' + p.amount + '</b> today.';
+    charge.style.display = '';
+  }
+}
+
+// ═══ PLAN PICKER ═══
+function togglePlanPicker() {
+  const picker = document.getElementById('plan-picker');
+  const link = document.getElementById('change-plan-toggle');
+  const willOpen = !picker.classList.contains('open');
+  picker.classList.toggle('open', willOpen);
+  document.getElementById('plan-row').classList.toggle('editing', willOpen);
+  link.textContent = willOpen ? 'Keep current' : 'Change';
+}
+
+function closePlanPicker() {
+  document.getElementById('plan-picker').classList.remove('open');
+  document.getElementById('plan-row').classList.remove('editing');
+  document.getElementById('change-plan-toggle').textContent = 'Change';
+}
+
+function selectPlan(el) {
+  const planId = el.dataset.plan;
+  if (!plans[planId]) return;
+  state.currentPlan = planId;
+
+  document.querySelectorAll('.plan-option').forEach(o => {
+    const isSel = o.dataset.plan === planId;
+    o.classList.toggle('is-selected', isSel);
+    o.querySelector('input[type="radio"]').checked = isSel;
+  });
+
+  renderCheckout();
+  closePlanPicker();
+}
+
+// ═══ EDIT FORMS ═══
+function toggleEdit(section) {
+  document.getElementById('edit-' + section).classList.toggle('open');
+}
+
+function closeEditForms() {
+  document.querySelectorAll('.edit-form').forEach(e => e.classList.remove('open'));
+}
+
+function resetPmUI() {
+  document.querySelectorAll('.pm-row').forEach(r => {
+    const sel = r.dataset.method === 'card';
+    r.classList.toggle('is-selected', sel);
+    r.querySelector('input').checked = sel;
+  });
+  document.getElementById('cc-fields').classList.add('open');
+  document.querySelectorAll('.sinput').forEach(i => { i.classList.remove('invalid'); i.removeAttribute('aria-invalid'); });
+  document.querySelectorAll('.serror').forEach(e => e.classList.remove('show'));
+  document.getElementById('s-cardnum').value = '•••• •••• •••• 4242';
+  // Expired card: the whole point is that the old date is no good — leave it blank.
+  document.getElementById('s-exp').value = state.cardExpired ? '' : '09/27';
+  document.getElementById('s-cvc').value = '';
+}
+
+function selectMethod(m) {
+  state.payMethod = m;
+  document.querySelectorAll('.pm-row').forEach(r => r.classList.toggle('is-selected', r.dataset.method === m));
+  document.getElementById('cc-fields').classList.toggle('open', m === 'card');
+}
+
+function clearInvalid(inputId, errId) {
+  const input = document.getElementById(inputId);
+  input.classList.remove('invalid');
+  input.removeAttribute('aria-invalid');
+  document.getElementById(errId).classList.remove('show');
+}
+
+// Update button: branches on whether we're repairing an expired card.
+function paymentUpdate() {
+  if (state.cardExpired) {
+    updateExpiredCard();
+  } else {
+    savePayment();
+  }
+}
+
+function savePayment() {
+  const disp = document.getElementById('display-payment');
+  if (state.payMethod === 'paypal')      disp.innerHTML = paypalWm;
+  else if (state.payMethod === 'apple')  disp.innerHTML = applePayWm;
+  else                                    disp.innerHTML = visaMark + ' •••• 4242 · exp ' + state.cardExp;
+  document.getElementById('edit-payment').classList.remove('open');
+  updateCtaLabel();   // keep the charge line in sync with the chosen method
+}
+
+function updateExpiredCard() {
+  const exp = document.getElementById('s-exp');
+  const cvc = document.getElementById('s-cvc');
+  let bad = false;
+  if (!exp.value.trim()) { exp.classList.add('invalid'); exp.setAttribute('aria-invalid','true'); document.getElementById('s-exp-err').classList.add('show'); bad = true; }
+  if (!cvc.value.trim()) { cvc.classList.add('invalid'); cvc.setAttribute('aria-invalid','true'); document.getElementById('s-cvc-err').classList.add('show'); bad = true; }
+  if (bad) return;
+
+  state.cardExpired = false;
+  state.cardExp = exp.value.trim();   // show what the user actually entered
+  document.getElementById('edit-payment').classList.remove('open');
+  renderPaymentRow();   // valid display + enabled CTA
+}
+
+// ═══ RESUME → CONFIRMATION ═══
+function completeResume() {
+  if (document.getElementById('btn-resume').disabled) return;
+  showScene('confirmation');
+  window.scrollTo(0, 0);
+  setActiveSwitcher('confirmation');
+}
+
+function renderConfirmation() {
+  const p = plans[state.currentPlan];
+  document.getElementById('confirm-plan').textContent = p.name;
+  document.getElementById('confirm-amount').textContent = '$' + p.amount;
+
+  const cp = document.getElementById('confirm-payment');
+  if (state.payMethod === 'paypal')      cp.innerHTML = paypalWm;
+  else if (state.payMethod === 'apple')  cp.innerHTML = applePayWm;
+  else                                    cp.innerHTML = visaMark + ' •••• 4242';
+
+  // Next renewal is fixed copy — no Date() (per spec).
+  document.getElementById('confirm-billing').textContent = 'July 23, 2027';
+}
+
+function continueReading() {
+  sessionStorage.setItem('reactivation_seen', '1');   // never re-fire the modal
+  showScene('article');
+  setActiveSwitcher('article');
+  const y = state.savedScrollY || 0;
+  window.scrollTo(0, y);   // restore the reader's position from when the modal fired
+}
+
+// ═══ MODAL ═══
+function unlockBody() {
+  document.body.classList.remove('modal-open');
+  document.body.style.top = '';
+}
+
+function openModal() {
+  const modal = document.getElementById('reactivation-modal');
+  if (modal.classList.contains('open')) return;
+  lastFocused = document.activeElement;
+  state.savedScrollY = window.scrollY;
+  // Price stays honest if the plan was changed on checkout and the modal reopens.
+  const p = plans[state.currentPlan];
+  document.getElementById('modal-cta').textContent = 'Restart for ' + p.price;
+  document.getElementById('modal-charge').textContent = '$' + p.amount;
+  modal.classList.add('open');
+  document.body.classList.add('modal-open');
+  document.body.style.top = (-state.savedScrollY) + 'px';
+  const first = modal.querySelector('.btn-restart');
+  if (first) first.focus();
+}
+
+function dismissModal() {
+  const modal = document.getElementById('reactivation-modal');
+  if (!modal.classList.contains('open')) return;
+  modal.classList.remove('open');
+  unlockBody();
+  window.scrollTo(0, state.savedScrollY);   // dismissal returns you to where you were reading
+  if (lastFocused && lastFocused.focus) lastFocused.focus();
+  setActiveSwitcher('article');
+  currentScene = 'article';
+}
+
+function modalResume() {
+  document.getElementById('reactivation-modal').classList.remove('open');
+  unlockBody();
+  showScene('checkout');
+  window.scrollTo(0, 0);
+  setActiveSwitcher('checkout');
+}
+
+function trapTab(e) {
+  const modal = document.getElementById('reactivation-modal');
+  if (e.key !== 'Tab') return;
+  const focusables = modal.querySelectorAll('button, a[href], [role="button"], input, [tabindex]:not([tabindex="-1"])');
+  const list = Array.from(focusables).filter(el => el.offsetParent !== null);
+  if (!list.length) return;
+  const first = list[0], last = list[list.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+
+// Organic trigger: fires once per session when the reader scrolls past ~40% (sentinel).
+// A plain scroll listener rather than IntersectionObserver — IO callbacks are
+// throttled or suppressed in some embedded webviews, and a shareable prototype
+// needs its one key moment to fire deterministically everywhere.
+const sentinel = document.getElementById('modal-sentinel');
+function maybeTriggerModal() {
+  if (currentScene !== 'article') return;
+  if (document.getElementById('reactivation-modal').classList.contains('open')) return;
+  if (sessionStorage.getItem('reactivation_seen')) return;
+  if (sentinel.getBoundingClientRect().top <= window.innerHeight) {
+    sessionStorage.setItem('reactivation_seen', '1');
+    openModal();
+    setActiveSwitcher('modal');
+  }
+}
+window.addEventListener('scroll', maybeTriggerModal, { passive: true });
+
+// ═══ KEYBOARD ═══
+document.addEventListener('keydown', e => {
+  const modalOpen = document.getElementById('reactivation-modal').classList.contains('open');
+
+  if (e.key === 'Escape' && modalOpen) { dismissModal(); return; }
+  if (modalOpen) trapTab(e);
+
+  const tag = (document.activeElement && document.activeElement.tagName) || '';
+  const typing = /INPUT|SELECT|TEXTAREA/.test(tag);
+
+  // Arrow keys move between prototype states (v1 pattern) — not while a modal is open or while typing.
+  if (!modalOpen && !typing && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+    const btns = Array.from(document.querySelectorAll('.switcher button'));
+    const idx = btns.findIndex(b => b.classList.contains('sw-active'));
+    if (e.key === 'ArrowRight' && idx < btns.length - 1) btns[idx + 1].click();
+    if (e.key === 'ArrowLeft'  && idx > 0)               btns[idx - 1].click();
+  }
+
+  // role=button links activate on Enter/Space (v1 pattern).
+  if ((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.getAttribute('role') === 'button') {
+    e.preventDefault();
+    document.activeElement.click();
+  }
+});
+
+// ═══ INIT ═══
+showScene('article');
+setActiveSwitcher('article');
+</script>
+
+</body>
+</html>
