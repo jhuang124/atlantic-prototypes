@@ -196,15 +196,15 @@ a { color:inherit; text-decoration:none; }
 .main-wrap { max-width:480px; margin:32px auto 0; padding:0 16px 72px; }
 .main-card { background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); }
 
-.plan-row { padding:24px 28px; display:flex; align-items:baseline; justify-content:space-between; gap:12px; border-bottom:1px solid var(--card-outline); }
-.plan-row-left { display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+.plan-row { padding:22px 30px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; border-bottom:1px solid var(--card-outline); }
+.plan-row-left { display:flex; flex-direction:column; min-width:0; }
 .plan-name { font-family:var(--font-serif); font-size:22px; font-weight:400; color:var(--black); letter-spacing:-0.2px; }
 .plan-price { font-family:var(--font-sans); font-size:14px; font-weight:600; color:var(--atlantic-black); }
 .plan-dot { color:var(--muted-light); font-size:14px; }
 .txt-link { font-family:var(--font-sans); font-size:14px; color:var(--blue); text-decoration:underline; text-underline-offset:2px; cursor:pointer; flex-shrink:0; transition:color var(--dur-base) var(--ease); }
 .txt-link:hover { color:var(--blue-hover); text-decoration:none; }
 .plan-previous-tag { display:inline-block; font-family:var(--font-sans); font-size:10px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted); background:rgba(44,40,37,0.05); padding:2px 7px; border-radius:2px; margin-left:8px; vertical-align:2px; }
-.plan-summary { display:contents; }
+.plan-summary { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin-top:3px; }
 .plan-edit-title { display:none; font-family:var(--font-sans); font-size:16px; font-weight:600; color:var(--atlantic-black); }
 .plan-row.editing .plan-summary { display:none; }
 .plan-row.editing .plan-edit-title { display:inline-block; }
@@ -224,11 +224,12 @@ a { color:inherit; text-decoration:none; }
 .plan-option-detail { font-family:var(--font-sans); font-size:13px; color:var(--muted); line-height:1.45; margin-top:4px; }
 .plan-option-tag { display:inline-block; font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); padding:2px 7px; border-radius:2px; margin-bottom:6px; }
 
-.detail-row { padding:18px 28px; display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:1px solid var(--card-outline); }
-.detail-left { display:flex; align-items:center; gap:14px; min-width:0; }
-.detail-num { font-family:var(--font-mono); font-size:12px; font-weight:500; color:var(--muted-light); flex-shrink:0; width:14px; }
-.detail-content { font-size:14px; color:var(--atlantic-black); display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+.detail-row { padding:20px 30px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; border-bottom:1px solid var(--card-outline); }
+.detail-main { display:flex; flex-direction:column; min-width:0; }
+.detail-label { font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted-light); margin-bottom:7px; }
+.detail-content { font-size:15px; color:var(--atlantic-black); display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; line-height:1.35; }
 .detail-content--muted { color:var(--muted); }
+.detail-row .txt-link { margin-top:2px; }
 
 /* Payment marks — brand marks keep brand color (the exception) */
 .pmi { display:inline-flex; align-items:center; }
@@ -300,11 +301,13 @@ a { color:inherit; text-decoration:none; }
 .renewal-body { font-family:var(--font-sans); font-size:13px; line-height:1.55; color:var(--muted); }
 .renewal-body em { font-style:italic; }
 
-/* Charge disclosure — the exact amount, above the CTA */
-.charge-line { font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--warm-gray-dark); text-align:center; margin-bottom:14px; }
-.charge-line b { font-weight:600; color:var(--black); }
+/* Resume summary — value first (a full year), then the terms */
+.resume-summary { text-align:center; margin-bottom:18px; }
+.access-headline { font-family:var(--font-serif); font-size:22px; font-weight:400; letter-spacing:-0.2px; color:var(--black); margin-bottom:6px; }
+.access-sub { font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--muted); }
+.access-sub b { font-weight:600; color:var(--warm-gray-dark); }
 
-.cta-section { padding:24px 28px 28px; }
+.cta-section { padding:22px 30px 26px; }
 .btn-restart { display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; padding:12px 24px; border-radius:var(--radius); border:1px solid var(--blue); background:var(--blue-bg); color:var(--blue); font-family:var(--font-mono); font-size:16px; font-weight:500; line-height:1.1; letter-spacing:0; cursor:pointer; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
 .btn-restart:hover { background:var(--blue-hover); border-color:var(--blue-hover); color:var(--white); }
 .btn-restart:disabled, .btn-restart.is-disabled { opacity:0.42; cursor:not-allowed; background:var(--blue-bg); border-color:var(--blue); color:var(--blue); }
@@ -365,21 +368,27 @@ a { color:inherit; text-decoration:none; }
   .modal-overlay.open .modal-card { animation:sheetUp 0.42s var(--ease); }
 
   .nav-inner { padding:12px 16px 11px; }
-  .hero { padding:32px 16px 8px; }
-  .hero h1 { font-size:31px; }
-  .hero-sub { font-size:15px; }
-  .hero-mark svg { height:40px; }
-  .main-wrap { padding:0 12px 56px; margin-top:24px; }
-  .plan-row { padding:20px 18px; }
-  .detail-row { padding:16px 18px; }
+  /* Condensed hero — get the card and CTA into view with minimal scroll */
+  .hero { padding:20px 16px 4px; }
+  .hero-mark { margin-bottom:14px; }
+  .hero-mark svg { height:32px; }
+  .hero h1 { font-size:26px; margin-bottom:8px; }
+  .hero-sub { font-size:14px; }
+  .hero-context { margin-top:12px; }
+  .main-wrap { padding:0 12px 48px; margin-top:14px; }
+  .back-wrap { margin-top:12px; }
+  .plan-row { padding:16px 18px; }
+  .detail-row { padding:15px 18px; }
+  .detail-label { margin-bottom:5px; }
+  .renewal-note { padding:14px 18px 16px; }
   .edit-form-inner { padding:4px 18px 18px; }
-  .cta-section { padding:20px 18px 24px; }
+  .cta-section { padding:18px 18px 22px; }
+  .access-headline { font-size:19px; }
   .plan-picker-inner { padding:6px 18px 18px; }
-  .plan-row-left { flex-direction:column; gap:3px; }
   .form-row, .srow { grid-template-columns:1fr; }
   .pm-icons { display:none; }
-  .confirm-card { padding:32px 20px 28px; }
-  .confirm-grid { grid-template-columns:1fr; gap:18px; }
+  .confirm-card { padding:30px 20px 26px; }
+  .confirm-grid { grid-template-columns:1fr; gap:16px; }
   .switcher { bottom:12px; padding:4px; max-width:calc(100vw - 12px); flex-wrap:wrap; justify-content:center; border-radius:24px; }
   .switcher button { font-size:11px; padding:6px 8px; }
 }
@@ -548,6 +557,7 @@ a { color:inherit; text-decoration:none; }
       <!-- Plan row -->
       <div class="plan-row" id="plan-row">
         <div class="plan-row-left">
+          <div class="detail-label">Your plan</div>
           <span class="plan-summary">
             <span class="plan-name" id="display-plan-name">Print &amp; Digital</span>
             <span class="plan-dot">·</span>
@@ -598,18 +608,18 @@ a { color:inherit; text-decoration:none; }
 
       <!-- Account (SignedInAs pattern from the real checkout) -->
       <div class="detail-row">
-        <div class="detail-left">
-          <span class="detail-num">1</span>
-          <span class="detail-content"><span class="signedin-check" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>You&rsquo;re signed in as <b id="display-email">jane.morrison@gmail.com</b></span>
+        <div class="detail-main">
+          <div class="detail-label">Account</div>
+          <div class="detail-content"><span class="signedin-check" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span> <b id="display-email">jane.morrison@gmail.com</b></div>
         </div>
         <a class="txt-link" role="button" tabindex="0">Not you?</a>
       </div>
 
       <!-- Payment -->
       <div class="detail-row">
-        <div class="detail-left">
-          <span class="detail-num">2</span>
-          <span class="detail-content" id="display-payment"></span>
+        <div class="detail-main">
+          <div class="detail-label">Payment</div>
+          <div class="detail-content" id="display-payment"></div>
         </div>
         <a class="txt-link" role="button" tabindex="0" onclick="toggleEdit('payment')">Edit</a>
       </div>
@@ -672,9 +682,9 @@ a { color:inherit; text-decoration:none; }
 
       <!-- Billing Address -->
       <div class="detail-row">
-        <div class="detail-left">
-          <span class="detail-num">3</span>
-          <span class="detail-content" id="display-address">123 Atlantic Ave, Brooklyn, NY 11201</span>
+        <div class="detail-main">
+          <div class="detail-label">Billing address</div>
+          <div class="detail-content" id="display-address">123 Atlantic Ave, Brooklyn, NY 11201</div>
         </div>
         <a class="txt-link" role="button" tabindex="0" onclick="toggleEdit('address')">Edit</a>
       </div>
@@ -719,7 +729,10 @@ a { color:inherit; text-decoration:none; }
 
       <!-- CTA -->
       <div class="cta-section">
-        <p class="charge-line" id="charge-line">Your Visa ending in 4242 will be charged today, then <b>$89.99/year</b> on <b>July 23, 2027</b> and each year after, unless you cancel.</p>
+        <div class="resume-summary" id="resume-summary">
+          <div class="access-headline">A full year of access</div>
+          <div class="access-sub" id="charge-line">Today through <b>July 23, 2027</b>, then renews annually unless you cancel.</div>
+        </div>
         <button class="btn-restart" id="btn-resume" onclick="completeResume()">
           Restart subscription — $89.99/year
         </button>
@@ -889,22 +902,18 @@ function renderPaymentRow() {
 
 function updateCtaLabel() {
   const cta = document.getElementById('btn-resume');
-  const charge = document.getElementById('charge-line');
+  const summary = document.getElementById('resume-summary');
   const p = plans[state.currentPlan];
   if (state.cardExpired) {
     cta.textContent = 'Update payment to restart';
     cta.disabled = true;
     cta.classList.add('is-disabled');
-    charge.style.display = 'none';   // the amber notice explains the blocked state
+    if (summary) summary.style.display = 'none';   // amber notice explains the blocked state
   } else {
     cta.textContent = 'Restart subscription — ' + p.price;
     cta.disabled = false;
     cta.classList.remove('is-disabled');
-    let src = 'Your Visa ending in 4242';
-    if (state.payMethod === 'paypal')     src = 'Your PayPal account';
-    else if (state.payMethod === 'apple') src = 'Apple Pay';
-    charge.innerHTML = src + ' will be charged today, then <b>$' + p.amount + '/year</b> on <b>July 23, 2027</b> and each year after, unless you cancel.';
-    charge.style.display = '';
+    if (summary) summary.style.display = '';
   }
 }
 
