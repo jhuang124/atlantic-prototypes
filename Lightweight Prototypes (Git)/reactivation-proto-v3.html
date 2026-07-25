@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" href="data:,">
-<title>The Atlantic — Reactivation v2</title>
+<title>The Atlantic — Reactivation v3 (in-article gate)</title>
+<meta name="description" content="Prototype: lapsed-subscriber win-back staged inside a real Atlantic article page — inline gate, one-click restart, expired-card repair, confirmation.">
+<meta name="theme-color" content="#ffffff">
+<meta name="color-scheme" content="light">
 <style>
 /* ─────────────────────────────────────────────────────────────
    The Atlantic — Reactivation v2 (lapsed-subscriber win-back)
@@ -48,6 +51,12 @@
 
   /* Red is brand mark + rubric only */
   --red:#DD1001;
+  --red-hover:#B1383C;      /* Accounts DS: Red hover (was #b30d01 — off-system) */
+
+  /* Inactive pair — Accounts DS: every button collapses here when unavailable.
+     #aba9a8 is an INACTIVE token: never use it for live text. */
+  --inactive-bg:#D9D9D9;
+  --inactive-text:#5c5954;  /* DS says #ABA9A8 (3.2:1 on #D9D9D9); darkened to 4.8:1 */
 
   /* Semantic */
   --success:#307f3d;
@@ -65,6 +74,7 @@
   --amber-border:rgba(191,148,42,0.42);
 
   --radius:4px;
+  --sw-clear:96px;          /* keep the fixed state switcher from covering content */
   --ease:cubic-bezier(0.16,1,0.3,1);
   --dur-fast:120ms;
   --dur-base:200ms;
@@ -81,6 +91,16 @@ body.modal-open { position:fixed; width:100%; overflow:hidden; }
 a { color:inherit; text-decoration:none; }
 
 :focus-visible { outline:2px solid var(--blue); outline-offset:2px; border-radius:2px; }
+/* Scene headings + the gate take focus programmatically so screen readers announce
+   the change. They are not interactive, so they must not paint a focus ring. */
+#checkout-h1:focus, #checkout-h1:focus-visible,
+#confirm-h1:focus,  #confirm-h1:focus-visible,
+#reactivation-gate:focus, #reactivation-gate:focus-visible { outline:none; }
+/* Red buttons need a ring that reads against red, not a blue-on-red mudpile. */
+.gate-btn:focus-visible, .enav-subscribe:focus-visible {
+  outline:2px solid var(--black); outline-offset:2px; box-shadow:0 0 0 2px var(--white); }
+/* Scroll targets must clear the sticky masthead. */
+#reactivation-gate, #plan-row, #plan-picker, #edit-payment, #s-exp { scroll-margin-top:96px; }
 
 /* ═══════════════════════════════════════════════════════════════
    SCENE 1 — ARTICLE PAGE (editorial theatlantic.com)
@@ -101,7 +121,7 @@ a { color:inherit; text-decoration:none; }
 .enav-signin { font-family:var(--font-sans); font-size:11px; font-weight:400; color:var(--atlantic-black); cursor:pointer; }
 .enav-signin:hover { color:var(--blue); }
 .enav-subscribe { font-family:var(--font-sans); font-size:11px; font-weight:600; color:var(--white); background:var(--red); border:none; border-radius:3px; padding:9px 17px; cursor:pointer; transition:background var(--dur-base) var(--ease); }
-.enav-subscribe:hover { background:#b30d01; }
+.enav-subscribe:hover { background:var(--red-hover); }
 
 .article { max-width:1080px; margin:0 auto; padding:68px 24px 0; }
 .article-head { max-width:660px; margin:0 auto 54px; }
@@ -134,15 +154,23 @@ a { color:inherit; text-decoration:none; }
 .body p.first::first-letter { float:left; font-family:var(--font-serif); font-weight:400; font-size:88px; line-height:0.72; padding:12px 12px 0 0; color:var(--black); }
 .body p.first::first-line { font-variant:small-caps; letter-spacing:0.035em; }
 
-.recommended { float:right; width:270px; display:block; border-top:2px solid var(--black); border-bottom:1px solid #bdbdbd; padding:14px 0 18px; margin:8px -320px 32px 38px; }
+/* The -320px pull into the right gutter was unclamped, so between ~1101px and
+   ~1340px it pushed past the viewport and produced a horizontal scrollbar
+   (10px of overflow at 1280 — the most common laptop width). Clamp the pull to
+   whatever gutter actually exists: (100vw - 660px column) / 2, less a margin. */
+.recommended { float:right; width:270px; display:block; border-top:2px solid var(--black); border-bottom:1px solid #bdbdbd; padding:14px 0 18px;
+  margin:8px calc(-1 * min(320px, max(0px, (100vw - 660px) / 2 - 24px))) 32px 38px; }
 .rec-thumb { width:100%; aspect-ratio:16/9; margin-bottom:14px; background:url('article-hero-v2.png') 70% 45%/cover no-repeat; filter:saturate(.65); }
 .rec-body .rlabel { font-family:var(--font-serif); font-size:22px; letter-spacing:-0.02em; text-transform:uppercase; color:var(--black); margin-bottom:14px; }
 .rec-body .rtitle { font-family:var(--font-serif); font-size:19px; line-height:1.22; color:var(--black); }
 .rec-body .rtitle:hover { color:var(--blue); }
 
 .gate-preview { transition:opacity .35s var(--ease); }
-.body.gate-active .gate-preview { max-height:260px; overflow:hidden; opacity:.3; -webkit-mask-image:linear-gradient(#000 0%,rgba(0,0,0,.64) 48%,transparent 100%); mask-image:linear-gradient(#000 0%,rgba(0,0,0,.64) 48%,transparent 100%); }
+.body.gate-active .gate-preview { max-height:200px; overflow:hidden; opacity:1; user-select:none; -webkit-user-select:none; pointer-events:none;
+  -webkit-mask-image:linear-gradient(#000 0%,#000 34%,transparent 100%); mask-image:linear-gradient(#000 0%,#000 34%,transparent 100%); }
 .body.gate-active .article-tail { display:none; }
+#scene-article.gate-active { padding-bottom:var(--sw-clear); }
+#scene-article.gate-active .article-gate { margin-bottom:0; }
 #scene-article.gate-active .article-end,
 #scene-article.gate-active .article-discovery,
 #scene-article.gate-active .newsletter-band,
@@ -152,23 +180,33 @@ a { color:inherit; text-decoration:none; }
 @keyframes gateReveal { from { opacity:0; transform:translate(-50%,14px); } to { opacity:1; transform:translate(-50%,0); } }
 .gate-kicker { font-family:var(--font-mono)!important; font-size:11px!important; font-weight:500; letter-spacing:.1em; text-transform:uppercase; margin-bottom:28px!important; }
 .gate-kicker i { font-family:var(--font-serif); font-size:15px; letter-spacing:0; text-transform:none; }
-.gate-title { font-family:var(--font-serif); font-size:42px; line-height:1.08; font-weight:400; color:var(--black); margin-bottom:34px; }
+.gate-title { font-family:var(--font-serif); font-size:42px; line-height:1.08; font-weight:400; color:var(--black); margin-bottom:14px; }
+/* The gate never said WHY access stopped. This line does. */
+.article-gate .gate-lede { max-width:520px; margin:0 auto 36px; font-family:var(--font-serif); font-size:19px; line-height:1.45; color:var(--warm-gray-dark); }
 .gate-options { display:grid; grid-template-columns:1fr 46px 1fr; align-items:stretch; max-width:840px; margin:0 auto; }
-.gate-option { padding:0 42px; }
+/* Flex column + margin-top:auto on the button aligns both CTAs whatever the
+   copy length. The old layout let the primary wrap to two lines and drift. */
+.gate-option { display:flex; flex-direction:column; padding:0 42px; }
 .gate-option h3 { font-family:var(--font-serif); font-size:26px; line-height:1.22; font-weight:400; color:var(--black); }
 .gate-option p { margin:12px auto 22px!important; max-width:310px; font-family:var(--font-sans)!important; font-size:13px!important; line-height:1.45!important; color:var(--muted)!important; }
-.gate-price { display:block; margin-top:8px; font-family:var(--font-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
-.gate-btn { width:100%; min-height:52px; border:1px solid var(--red); border-radius:2px; padding:12px 20px; background:var(--red); color:var(--white); font-family:var(--font-mono); font-size:13px; font-weight:500; letter-spacing:.05em; text-transform:uppercase; cursor:pointer; transition:background var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
-.gate-btn:hover { background:#b30d01; border-color:#b30d01; }
-.gate-btn.secondary { background:var(--white); color:var(--red); }
-.gate-btn.secondary:hover { background:#fff3f1; }
+/* Accounts DS: buttons are Logic Monospace Medium 16/1.1, no transform. The
+   uppercase + tracking was off-system and forced the label onto two lines. */
+.gate-btn { width:100%; margin-top:auto; min-height:52px; border:1px solid var(--red); border-radius:var(--radius); padding:12px 20px; background:var(--red); color:var(--white); font-family:var(--font-mono); font-size:16px; font-weight:500; line-height:1.1; cursor:pointer; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease),transform var(--dur-fast) var(--ease); }
+.gate-btn:hover { background:var(--red-hover); border-color:var(--red-hover); }
+.gate-btn:active { transform:translateY(1px); }
+/* Account Red outlined -> filled on hover (DS: bg #FFF4F3 / hover #B1383C white) */
+.gate-btn.secondary { background:#FFF4F3; color:var(--red); }
+.gate-btn.secondary:hover { background:var(--red-hover); border-color:var(--red-hover); color:var(--white); }
 .gate-or { position:relative; display:flex; align-items:center; justify-content:center; font-family:var(--font-serif); font-size:14px; color:var(--muted); }
 .gate-or::before,.gate-or::after { content:''; position:absolute; left:50%; width:1px; height:calc(50% - 20px); background:#777; }
 .gate-or::before { top:0; }
 .gate-or::after { bottom:0; }
-.gate-account { max-width:900px; margin:38px auto 0; padding:16px 18px; border:1px solid rgba(221,16,1,.45); background:#fff1ef; display:flex; align-items:center; justify-content:space-between; gap:20px; color:#a91610; text-align:left; }
-.gate-account-copy { font-family:var(--font-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; }
-.gate-account-copy b { color:var(--atlantic-black); }
+/* Fine print for the primary path - the gate CTA navigates, it does not charge. */
+.article-gate .gate-fineprint { max-width:620px; margin:26px auto 0; font-family:var(--font-sans); font-size:12px; line-height:1.55; color:var(--muted); }
+/* Was pink-on-pink inside a red border: it read as a validation error. */
+.gate-account { max-width:840px; margin:30px auto 0; padding:16px 0 0; border-top:1px solid var(--card-outline); display:flex; align-items:center; justify-content:space-between; gap:20px; color:var(--muted); text-align:left; }
+.gate-account-copy { font-family:var(--font-mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); }
+.gate-account-copy b { color:var(--atlantic-black); font-weight:500; }
 .gate-dismiss { border:0; background:none; color:var(--atlantic-black); font-family:var(--font-sans); font-size:13px; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
 
 .article-end { max-width:660px; margin:58px auto 90px; }
@@ -203,7 +241,7 @@ a { color:inherit; text-decoration:none; }
 .newsletter-card h2 { font-family:var(--font-serif); font-size:28px; font-weight:400; }
 .newsletter-card p { margin:9px 0 16px; max-width:430px; font-family:var(--font-serif); font-size:17px; line-height:1.35; }
 .newsletter-card button { background:#000; color:#fff; border:0; border-radius:2px; padding:10px 20px; font-family:var(--font-sans); font-size:11px; }
-.efooter { margin-top:0; padding:34px 24px 26px; text-align:left; background:#050505; color:#fff; }
+.efooter { margin-top:0; padding:34px 24px var(--sw-clear); text-align:left; background:#050505; color:#fff; }
 .efooter-inner { max-width:1120px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); gap:34px; }
 .efooter .wm { grid-column:1/-1; font-family:var(--font-serif); font-style:italic; font-size:25px; text-align:right; color:#fff; padding-top:22px; border-top:1px solid #555; }
 .footer-col h3 { font-family:var(--font-mono); font-size:9px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:12px; }
@@ -260,24 +298,29 @@ a { color:inherit; text-decoration:none; }
 .hero-sub { font-family:var(--font-sans); font-size:17px; line-height:1.55; color:var(--muted); max-width:392px; margin:0 auto; }
 .hero-context { font-family:var(--font-mono); font-size:11px; font-weight:500; color:var(--muted); margin-top:20px; letter-spacing:0.08em; text-transform:uppercase; }
 
-.main-wrap { max-width:480px; margin:32px auto 0; padding:0 16px 72px; }
+.main-wrap { max-width:480px; margin:32px auto 0; padding:0 16px var(--sw-clear); }
 .main-card { background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); }
 
 .plan-row { padding:22px 30px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; border-bottom:1px solid var(--card-outline); }
 .plan-row-left { display:flex; flex-direction:column; min-width:0; }
 .plan-name { font-family:var(--font-serif); font-size:22px; font-weight:400; color:var(--black); letter-spacing:-0.2px; }
 .plan-price { font-family:var(--font-sans); font-size:14px; font-weight:600; color:var(--atlantic-black); }
-.plan-dot { color:var(--muted-light); font-size:14px; }
+.plan-dot { color:var(--muted); font-size:14px; }
 .txt-link { font-family:var(--font-sans); font-size:14px; color:var(--blue); text-decoration:underline; text-underline-offset:2px; cursor:pointer; flex-shrink:0; transition:color var(--dur-base) var(--ease); }
 .txt-link:hover { color:var(--blue-hover); text-decoration:none; }
-.plan-previous-tag { display:inline-block; font-family:var(--font-sans); font-size:10px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted); background:rgba(44,40,37,0.05); padding:2px 7px; border-radius:2px; margin-left:8px; vertical-align:2px; }
-.plan-summary { display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin-top:3px; }
+.plan-previous-tag { display:inline-block; font-family:var(--font-sans); font-size:10px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; color:var(--muted); background:rgba(44,40,37,0.05); padding:2px 7px; border-radius:2px; vertical-align:2px; }
+.plan-summary { display:flex; flex-direction:column; align-items:flex-start; gap:5px; margin-top:3px; }
+.plan-summary .plan-dot { display:none; }
+/* Keep price + badge welded together so the badge can't strand on its own row. */
+.plan-price-group { display:inline-flex; align-items:baseline; gap:8px; }
 .plan-edit-title { display:none; font-family:var(--font-sans); font-size:16px; font-weight:600; color:var(--atlantic-black); }
 .plan-row.editing .plan-summary { display:none; }
 .plan-row.editing .plan-edit-title { display:inline-block; }
 
-.plan-picker { max-height:0; overflow:hidden; transition:max-height 0.45s var(--ease); border-bottom:0 solid var(--card-outline); }
-.plan-picker.open { max-height:560px; border-bottom-width:1px; }
+.plan-picker { display:grid; grid-template-rows:0fr; overflow:hidden; transition:grid-template-rows 0.45s var(--ease); border-bottom:0 solid var(--card-outline); }
+.plan-picker > * { overflow:hidden; min-height:0; }
+.plan-picker:not(.open) > * { padding-top:0; padding-bottom:0; }
+.plan-picker.open { grid-template-rows:1fr; border-bottom-width:1px; }
 .plan-picker-inner { padding:6px 28px 22px; }
 .plan-option { display:flex; align-items:flex-start; gap:12px; padding:16px; border:1px solid var(--card-outline); border-radius:var(--radius); cursor:pointer; margin-bottom:8px; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease); }
 .plan-option:last-child { margin-bottom:0; }
@@ -289,11 +332,13 @@ a { color:inherit; text-decoration:none; }
 .plan-option-name { font-family:var(--font-serif); font-size:19px; color:var(--black); }
 .plan-option-price { font-family:var(--font-sans); font-size:13px; font-weight:600; color:var(--atlantic-black); }
 .plan-option-detail { font-family:var(--font-sans); font-size:13px; color:var(--muted); line-height:1.45; margin-top:4px; }
-.plan-option-tag { display:inline-block; font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); padding:2px 7px; border-radius:2px; margin-bottom:6px; }
+.plan-option-tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+.plan-option-tag { display:inline-block; font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--blue); background:var(--blue-bg); padding:2px 7px; border-radius:2px; }
+.plan-option-tag--prev { color:var(--warm-gray-dark); background:rgba(44,40,37,0.06); }
 
 .detail-row { padding:20px 30px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; border-bottom:1px solid var(--card-outline); }
 .detail-main { display:flex; flex-direction:column; min-width:0; }
-.detail-label { font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted-light); margin-bottom:7px; }
+.detail-label { font-family:var(--font-mono); font-size:10px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
 .detail-content { font-size:15px; color:var(--atlantic-black); display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; line-height:1.35; }
 .detail-content--muted { color:var(--muted); }
 .detail-row .txt-link { margin-top:2px; }
@@ -309,8 +354,10 @@ a { color:inherit; text-decoration:none; }
 .wm-applepay svg { height:15px; width:auto; }
 
 /* Inline edit forms */
-.edit-form { max-height:0; overflow:hidden; transition:max-height 0.4s var(--ease); }
-.edit-form.open { max-height:760px; }
+.edit-form { display:grid; grid-template-rows:0fr; overflow:hidden; transition:grid-template-rows 0.4s var(--ease); }
+.edit-form > * { overflow:hidden; min-height:0; }
+.edit-form:not(.open) > * { padding-top:0; padding-bottom:0; }
+.edit-form.open { grid-template-rows:1fr; }
 .edit-form-inner { padding:4px 28px 22px; }
 .form-group { margin-bottom:14px; }
 .form-label { display:block; font-family:var(--font-sans); font-size:12px; line-height:14px; color:var(--black); text-indent:3px; margin-bottom:8px; }
@@ -342,8 +389,10 @@ a { color:inherit; text-decoration:none; }
 .pm-tab-label { font-family:var(--font-sans); font-size:12px; font-weight:600; color:var(--atlantic-black); line-height:1; }
 
 /* Method panels (Card fields / wallet buttons) — collapse like the real Element */
-.pm-panel { max-height:0; overflow:hidden; transition:max-height 0.4s var(--ease); }
-.pm-panel.open { max-height:360px; }
+.pm-panel { display:grid; grid-template-rows:0fr; overflow:hidden; transition:grid-template-rows 0.4s var(--ease); }
+.pm-panel > * { overflow:hidden; min-height:0; }
+.pm-panel:not(.open) > * { padding-top:0; padding-bottom:0; }
+.pm-panel.open { grid-template-rows:1fr; }
 .pm-wallet { padding:6px 2px 8px; text-align:center; }
 .pm-wallet-note { font-family:var(--font-sans); font-size:13px; line-height:1.5; color:var(--muted); margin-bottom:12px; }
 .wallet-btn { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; min-height:48px; border:none; border-radius:var(--radius); font-family:var(--font-sans); font-size:16px; font-weight:600; cursor:pointer; transition:filter var(--dur-base) var(--ease); }
@@ -363,8 +412,7 @@ a { color:inherit; text-decoration:none; }
 .pm-cardicons .pmi-disc svg { height:10px; }
 
 /* Dummy Stripe Payment Element (StripeInput anatomy) */
-.cc-fields { max-height:0; overflow:hidden; transition:max-height 0.4s var(--ease); }
-.cc-fields.open { max-height:360px; }
+/* .cc-fields is also a .pm-panel — it inherits the grid collapse above. */
 .cc-fields-inner { padding:8px 2px 4px; }
 .sgroup { margin-bottom:14px; }
 .srow { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
@@ -395,10 +443,11 @@ a { color:inherit; text-decoration:none; }
 .cta-section { padding:22px 30px 26px; }
 .btn-restart { display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; padding:12px 24px; border-radius:var(--radius); border:1px solid var(--blue); background:var(--blue-bg); color:var(--blue); font-family:var(--font-mono); font-size:16px; font-weight:500; line-height:1.1; letter-spacing:0; cursor:pointer; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
 .btn-restart:hover { background:var(--blue-hover); border-color:var(--blue-hover); color:var(--white); }
-.btn-restart:disabled, .btn-restart.is-disabled { opacity:0.42; cursor:not-allowed; background:var(--blue-bg); border-color:var(--blue); color:var(--blue); }
+.btn-restart:disabled, .btn-restart.is-disabled { background:var(--inactive-bg); border-color:transparent; color:var(--inactive-text); cursor:pointer; }
+.btn-restart.is-disabled:hover { background:#cfcfcf; border-color:transparent; color:var(--inactive-text); }
 .cta-meta { display:flex; align-items:center; justify-content:center; gap:6px; font-family:var(--font-sans); font-size:12px; color:var(--muted); margin-top:14px; }
 .cta-meta svg { color:var(--success); }
-.cta-legal { font-family:var(--font-sans); font-size:11px; line-height:1.6; color:var(--muted); margin-top:14px; text-align:center; }
+.cta-legal { font-family:var(--font-sans); font-size:11px; line-height:1.65; color:var(--muted); margin-top:16px; text-align:left; }
 .cta-legal a { color:var(--blue); text-decoration:underline; text-underline-offset:2px; }
 .cta-legal a:hover { color:var(--blue-hover); text-decoration:none; }
 
@@ -416,7 +465,7 @@ a { color:inherit; text-decoration:none; }
 /* ═══════════════════════════════════════════════════════════════
    SCENE 4 — CONFIRMATION (evolved from v1)
    ═══════════════════════════════════════════════════════════════ */
-.confirm-wrap { max-width:480px; margin:56px auto 0; padding:0 16px 72px; }
+.confirm-wrap { max-width:480px; margin:56px auto 0; padding:0 16px var(--sw-clear); }
 .confirm-card { background:var(--white); border:1px solid var(--card-outline); border-radius:var(--radius); padding:40px 32px 36px; text-align:center; }
 .confirm-check { width:48px; height:48px; border-radius:50%; border:1.5px solid var(--success-banner); display:inline-flex; align-items:center; justify-content:center; color:var(--success-banner); margin-bottom:22px; }
 .confirm-h1 { font-family:var(--font-serif); font-size:34px; font-weight:400; color:var(--black); margin-bottom:10px; letter-spacing:-0.3px; }
@@ -425,11 +474,12 @@ a { color:inherit; text-decoration:none; }
 .confirm-grid { display:grid; grid-template-columns:1fr 1fr; gap:22px 28px; text-align:left; margin-bottom:28px; }
 .confirm-label { font-family:var(--font-sans); font-size:12px; line-height:14px; color:var(--black); margin-bottom:6px; }
 .confirm-value { font-family:var(--font-sans); font-size:18px; line-height:1.3; color:var(--black); display:flex; align-items:center; gap:8px; }
+.confirm-next { font-family:var(--font-sans); font-size:13px; line-height:1.55; color:var(--muted); text-align:left; margin:-8px 0 26px; }
 .confirm-rule-2 { height:1px; background:var(--card-outline); margin:0 0 26px; }
 .confirm-cta { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-height:52px; padding:12px 24px; border-radius:var(--radius); border:1px solid var(--blue); background:var(--blue-bg); color:var(--blue); font-family:var(--font-mono); font-size:16px; font-weight:500; line-height:1.1; cursor:pointer; transition:background var(--dur-base) var(--ease),border-color var(--dur-base) var(--ease),color var(--dur-base) var(--ease); }
 .confirm-cta:hover { background:var(--blue-hover); border-color:var(--blue-hover); color:var(--white); }
-.confirm-manage { display:inline-block; font-family:var(--font-sans); font-size:14px; color:var(--muted); cursor:pointer; margin-top:16px; padding:6px 4px; transition:color var(--dur-base) var(--ease); }
-.confirm-manage:hover { color:var(--atlantic-black); }
+.confirm-manage { display:inline-block; font-family:var(--font-sans); font-size:14px; color:var(--blue); text-decoration:underline; text-underline-offset:2px; cursor:pointer; margin-top:16px; padding:6px 4px; transition:color var(--dur-base) var(--ease); }
+.confirm-manage:hover { color:var(--blue-hover); text-decoration:none; }
 .confirm-note { font-family:var(--font-sans); font-size:14px; color:var(--muted); margin-top:14px; }
 
 /* ═══ STAGED REVEAL (reduced-motion safe) ═══ */
@@ -488,6 +538,7 @@ a { color:inherit; text-decoration:none; }
 }
 
 @media (max-width:600px) {
+  :root { --sw-clear:124px; }   /* the switcher wraps to two rows down here */
   .enav-inner { grid-template-columns:auto 1fr auto; padding:11px 16px; }
   .enav-left { display:none; }
   .enav-wordmark { font-size:22px; text-align:left; }
@@ -512,14 +563,16 @@ a { color:inherit; text-decoration:none; }
   .rec-thumb { width:100%; height:auto; margin-bottom:12px; }
   .rec-body .rlabel { font-size:20px; }
   .article-gate { margin-top:38px; margin-bottom:62px; }
-  .gate-title { font-size:32px; margin-bottom:28px; }
+  .gate-title { font-size:32px; margin-bottom:12px; }
+  .article-gate .gate-lede { font-size:17px; margin-bottom:26px; }
   .gate-options { grid-template-columns:1fr; gap:24px; }
   .gate-option { padding:0; }
+  .article-gate .gate-fineprint { margin-top:20px; }
   .gate-or { min-height:24px; }
   .gate-or::before,.gate-or::after { top:50%; bottom:auto; width:calc(50% - 24px); height:1px; }
   .gate-or::before { left:0; }
   .gate-or::after { left:auto; right:0; }
-  .gate-account { align-items:flex-start; flex-direction:column; }
+  .gate-account { align-items:flex-start; flex-direction:column; gap:12px; }
   .article-end { margin:46px 18px 64px; }
   .article-discovery { padding:0 18px; margin-bottom:48px; }
   .popular-list { display:block; }
@@ -572,6 +625,10 @@ a { color:inherit; text-decoration:none; }
   .verify-overlay.open { animation:none; }
   #scene-article, #scene-checkout, #scene-confirmation { animation:none; }
   .detail-row.row-repaired { animation:none; }
+  .plan-picker, .edit-form, .pm-panel, .gate-preview { transition:none; }
+  .article-gate.open { animation:none; }
+  .modal-overlay.open .modal-card { animation:none; }
+  .gate-btn:active { transform:none; }
   #scene-confirmation .confirm-check,
   #scene-confirmation .confirm-rule { animation:none; transform:none; }
   #scene-confirmation .confirm-check svg path { stroke-dashoffset:0; animation:none; }
@@ -664,24 +721,24 @@ a { color:inherit; text-decoration:none; }
       <p>This is the commonality the moment seems to crave. After a decade of music engineered to hijack the nervous system, there is real relief in an artist who assumes you have a nervous system worth protecting. Langley's moderation is not timidity; it is hospitality. She is making room for the listener, and the listener, exhausted, has gratefully accepted the invitation.</p>
     </div>
 
-    <section class="article-gate" id="reactivation-gate" aria-labelledby="gate-title" aria-hidden="true">
-      <p class="gate-kicker">Keep reading <i>The Atlantic</i></p>
+    <section class="article-gate" id="reactivation-gate" aria-labelledby="gate-title" aria-hidden="true" tabindex="-1">
+      <p class="gate-kicker">Subscriber since 2021 · Lapsed November 2025</p>
       <h2 class="gate-title" id="gate-title">Your seat is still here, Jane.</h2>
+      <p class="gate-lede">Your subscription ended in November, so the rest of this piece is paused. Pick it back up and it opens again — along with everything else you had.</p>
       <div class="gate-options">
         <div class="gate-option">
           <h3>Restart where you left off</h3>
-          <span class="gate-price">Print &amp; Digital · $89.99/year</span>
-          <p>Use the Visa already on file and restore full access without re-entering your details.</p>
-          <button class="gate-btn" id="gate-cta" onclick="gateResume()">Restart subscription</button>
+          <p id="gate-primary-detail">Print &amp; Digital, $89.99/year, on the Visa already on file. Nothing to re-enter.</p>
+          <button class="gate-btn" id="gate-cta" onclick="gateResume()">Restart Print &amp; Digital</button>
         </div>
         <div class="gate-or" aria-hidden="true">or</div>
         <div class="gate-option">
           <h3>Choose a different plan</h3>
-          <span class="gate-price">Digital plans from $79.99/year</span>
-          <p>Compare digital, print, and premium options before restarting your membership.</p>
-          <button class="gate-btn secondary" onclick="gateResume()">Review plans</button>
+          <p>Compare digital, print, and premium side by side. Digital starts at $79.99/year.</p>
+          <button class="gate-btn secondary" onclick="gateReviewPlans()">Review plans</button>
         </div>
       </div>
+      <p class="gate-fineprint">You&rsquo;ll confirm your plan and payment on the next screen — nothing is charged from here.</p>
       <div class="gate-account">
         <span class="gate-account-copy">Signed in as <b>jane.morrison@gmail.com</b></span>
         <button class="gate-dismiss" onclick="dismissGate()">Not now — continue reading</button>
@@ -825,8 +882,10 @@ a { color:inherit; text-decoration:none; }
           <span class="plan-summary">
             <span class="plan-name" id="display-plan-name">Print &amp; Digital</span>
             <span class="plan-dot">·</span>
-            <span class="plan-price" id="display-plan-price">$89.99/year</span>
-            <span class="plan-previous-tag" id="display-plan-badge">Previous plan</span>
+            <span class="plan-price-group">
+              <span class="plan-price" id="display-plan-price">$89.99/year</span>
+              <span class="plan-previous-tag" id="display-plan-badge">Previous plan</span>
+            </span>
           </span>
           <span class="plan-edit-title">Choose your plan</span>
         </div>
@@ -849,7 +908,7 @@ a { color:inherit; text-decoration:none; }
           <label class="plan-option is-selected" data-plan="print-digital" onclick="selectPlan(this)">
             <input type="radio" name="plan" value="print-digital" checked>
             <div class="plan-option-info">
-              <div class="plan-option-tag">Best value</div>
+              <div class="plan-option-tags"><span class="plan-option-tag">Best value</span><span class="plan-option-tag plan-option-tag--prev">Your previous plan</span></div>
               <div class="plan-option-head">
                 <div class="plan-option-name">Print &amp; Digital</div>
                 <div class="plan-option-price">$89.99/year</div>
@@ -876,7 +935,7 @@ a { color:inherit; text-decoration:none; }
           <div class="detail-label">Account</div>
           <div class="detail-content"><span class="signedin-check" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M4.8 8.2l2.1 2.1 4.3-4.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span> <b id="display-email">jane.morrison@gmail.com</b></div>
         </div>
-        <a class="txt-link" role="button" tabindex="0">Not you?</a>
+        <a class="txt-link" role="button" tabindex="0" onclick="notYou()">Not you?</a>
       </div>
 
       <!-- Payment -->
@@ -962,7 +1021,7 @@ a { color:inherit; text-decoration:none; }
           </div>
 
           <div class="edit-save-row">
-            <a class="edit-cancel" role="button" tabindex="0" onclick="toggleEdit('payment')">Cancel</a>
+            <a class="edit-cancel" id="pay-cancel" role="button" tabindex="0" onclick="toggleEdit('payment')">Cancel</a>
             <button class="btn-sm" id="btn-pay-update" onclick="paymentUpdate()">Update</button>
           </div>
         </div>
@@ -1060,6 +1119,7 @@ a { color:inherit; text-decoration:none; }
         <div><div class="confirm-label">Charged today</div><div class="confirm-value" id="confirm-amount">$89.99</div></div>
         <div><div class="confirm-label">Next renewal</div><div class="confirm-value" id="confirm-billing">July 23, 2027</div></div>
       </div>
+      <p class="confirm-next reveal" id="confirm-next" style="animation-delay:0.74s"></p>
       <div class="confirm-rule-2 reveal" style="animation-delay:0.78s"></div>
       <button class="confirm-cta reveal" style="animation-delay:0.84s" onclick="continueReading()">Continue reading <span aria-hidden="true">→</span></button>
       <a class="confirm-manage reveal" role="button" tabindex="0" style="animation-delay:0.92s">Manage subscription</a>
@@ -1079,15 +1139,15 @@ a { color:inherit; text-decoration:none; }
 
 <!-- SWITCHER -->
 <div class="switcher" role="tablist" aria-label="Prototype states">
-  <button class="sw-active" data-state="article" onclick="swScene('article')">Article</button>
+  <button class="sw-active" role="tab" aria-selected="false" data-state="article" onclick="swScene('article')">Article</button>
   <div class="switcher-div"></div>
-  <button data-state="gate" onclick="swScene('gate')">Gate</button>
+  <button role="tab" aria-selected="false" data-state="gate" onclick="swScene('gate')">Gate</button>
   <div class="switcher-div"></div>
-  <button data-state="checkout" onclick="swScene('checkout')">Checkout</button>
+  <button role="tab" aria-selected="false" data-state="checkout" onclick="swScene('checkout')">Checkout</button>
   <div class="switcher-div"></div>
-  <button data-state="expired" onclick="swScene('expired')">Expired card</button>
+  <button role="tab" aria-selected="false" data-state="expired" onclick="swScene('expired')">Expired card</button>
   <div class="switcher-div"></div>
-  <button data-state="confirmation" onclick="swScene('confirmation')">Confirmation</button>
+  <button role="tab" aria-selected="false" data-state="confirmation" onclick="swScene('confirmation')">Confirmation</button>
 </div>
 
 <script>
@@ -1109,6 +1169,11 @@ const state = {
 
 let currentScene = 'article';
 let lastFocused = null;
+
+// scroll-behavior:smooth is right for in-page jumps and wrong for scene swaps —
+// it made every state change glide from wherever the reader happened to be.
+function jumpTo(y) { window.scrollTo({ top: y, left: 0, behavior: 'instant' }); }
+function jumpTop() { jumpTo(0); }
 
 // Brand marks (kept in brand color — the exception to the blue/red rule)
 const visaSVG = '<svg viewBox="0 0 38 12" xmlns="http://www.w3.org/2000/svg"><path d="M14.3765 0.212885L9.5324 11.8193H6.372L3.98822 2.55684C3.84349 1.98633 3.71765 1.77733 3.27751 1.53697C2.55891 1.14547 1.37221 0.778167 0.328125 0.550196L0.399041 0.212885H5.48632C6.13478 0.212885 6.71772 0.646377 6.86495 1.39628L8.12391 8.11232L11.2354 0.212691H14.3765V0.212885ZM26.7595 8.03007C26.7722 4.96679 22.5415 4.79803 22.5706 3.42963C22.5797 3.01317 22.9745 2.57039 23.8388 2.45737C24.2672 2.40105 25.4475 2.35809 26.7863 2.97679L27.3114 0.515555C26.592 0.253331 25.6664 0.000976562 24.5148 0.000976562C21.5597 0.000976562 19.48 1.57858 19.4624 3.83758C19.4433 5.50846 20.9468 6.44086 22.0796 6.99607C23.2449 7.56465 23.6359 7.93002 23.6315 8.4386C23.6232 9.21714 22.702 9.56084 21.8412 9.57439C20.3385 9.59761 19.4665 9.16605 18.7714 8.84151L18.2295 11.3842C18.928 11.706 20.2174 11.9868 21.5543 12.001C24.6952 12.001 26.7498 10.4429 26.7595 8.03007ZM34.563 11.8195H37.3281L34.9145 0.212885H32.3622C31.7884 0.212885 31.3043 0.548454 31.09 1.06439L26.6036 11.8193H29.743L30.3662 10.0857H34.202L34.563 11.8193V11.8195ZM31.227 7.70708L32.8007 3.34932L33.7064 7.70708H31.227ZM18.6482 0.212885L16.176 11.8193H13.1863L15.6595 0.212885H18.6482Z" fill="#1434CB"/></svg>';
@@ -1160,13 +1225,15 @@ function swScene(name) {
   document.getElementById('reactivation-modal').classList.remove('open');
   unlockBody();
   showScene(name);
-  window.scrollTo(0, 0);
+  jumpTop();
   setActiveSwitcher(name);
 }
 
 function setActiveSwitcher(name) {
   document.querySelectorAll('.switcher button').forEach(b => {
-    b.classList.toggle('sw-active', b.dataset.state === name);
+    const on = b.dataset.state === name;
+    b.classList.toggle('sw-active', on);
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
   });
 }
 
@@ -1186,11 +1253,16 @@ function renderPaymentRow() {
   const form = document.getElementById('edit-payment');
   const notice = document.getElementById('pay-notice');
 
+  const cancel = document.getElementById('pay-cancel');
   if (state.cardExpired) {
     disp.innerHTML = visaMark + ' •••• 4242 <span class="chip-amber">Expired 11/25</span>';
     form.classList.add('open');   // expired opens the editor by default
     notice.style.display = '';
+    // Cancelling used to close the editor, hide the explanation, and leave a
+    // blocked CTA with no way forward. There is nothing to cancel back to.
+    if (cancel) cancel.style.display = 'none';
   } else {
+    if (cancel) cancel.style.display = '';
     if (state.payMethod === 'paypal')      disp.innerHTML = paypalWm;
     else if (state.payMethod === 'apple')  disp.innerHTML = applePayWm;
     else                                    disp.innerHTML = visaMark + ' •••• 4242 · exp ' + state.cardExp;
@@ -1205,12 +1277,16 @@ function updateCtaLabel() {
   const p = plans[state.currentPlan];
   if (state.cardExpired) {
     cta.textContent = 'Update payment to restart';
-    cta.disabled = true;
+    // aria-disabled, not disabled: a truly disabled button is unfocusable and
+    // explains nothing. This one stays reachable and routes you to the blocker.
+    cta.disabled = false;
+    cta.setAttribute('aria-disabled', 'true');
     cta.classList.add('is-disabled');
     if (summary) summary.style.display = 'none';   // amber notice explains the blocked state
   } else {
     cta.textContent = 'Restart subscription — ' + p.price;
     cta.disabled = false;
+    cta.removeAttribute('aria-disabled');
     cta.classList.remove('is-disabled');
     if (summary) summary.style.display = '';
   }
@@ -1232,24 +1308,44 @@ function closePlanPicker() {
   document.getElementById('change-plan-toggle').textContent = 'Change';
 }
 
-function selectPlan(el) {
-  const planId = el.dataset.plan;
-  if (!plans[planId]) return;
+function applyPlan(planId) {
+  if (!plans[planId]) return false;
   state.currentPlan = planId;
-
   document.querySelectorAll('.plan-option').forEach(o => {
     const isSel = o.dataset.plan === planId;
     o.classList.toggle('is-selected', isSel);
     o.querySelector('input[type="radio"]').checked = isSel;
   });
-
   renderCheckout();
-  closePlanPicker();
+  return true;
 }
+
+// Pointer path: apply, then collapse the picker.
+function selectPlan(el) {
+  if (applyPlan(el.dataset.plan)) closePlanPicker();
+}
+
+// Keyboard path: arrow keys move between radios and fire `change`. Apply the
+// plan but leave the picker open so the reader can keep comparing.
+document.querySelectorAll('.plan-picker input[name="plan"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const opt = r.closest('.plan-option');
+    if (opt) applyPlan(opt.dataset.plan);
+  });
+});
 
 // ═══ EDIT FORMS ═══
 function toggleEdit(section) {
-  document.getElementById('edit-' + section).classList.toggle('open');
+  const target = document.getElementById('edit-' + section);
+  const willOpen = !target.classList.contains('open');
+  // Two editors open at once made the card taller than the viewport and left
+  // the reader unsure which "Update" they were about to press.
+  document.querySelectorAll('.edit-form').forEach(f => { if (f !== target) f.classList.remove('open'); });
+  target.classList.toggle('open', willOpen);
+  if (willOpen) {
+    const first = target.querySelector('input:not([readonly]), select');
+    if (first) setTimeout(() => first.focus({ preventScroll:true }), 60);
+  }
 }
 
 function closeEditForms() {
@@ -1295,11 +1391,23 @@ function clearInvalid(inputId, errId) {
 
 // Update button: branches on whether we're repairing an expired card.
 function paymentUpdate() {
-  if (state.cardExpired) {
-    updateExpiredCard();
-  } else {
+  // A wallet replaces the dead card outright — there are no card fields to validate.
+  if (state.cardExpired && state.payMethod !== 'card') {
+    state.cardExpired = false;
     savePayment();
+    renderPaymentRow();
+    flashRepaired();
+    return;
   }
+  if (state.cardExpired) updateExpiredCard();
+  else savePayment();
+}
+
+// Acknowledge a repair: a brief blue wash decays over the payment row.
+function flashRepaired() {
+  const row = document.getElementById('display-payment').closest('.detail-row');
+  if (!row) return;
+  row.classList.remove('row-repaired'); void row.offsetWidth; row.classList.add('row-repaired');
 }
 
 function savePayment() {
@@ -1323,10 +1431,7 @@ function updateExpiredCard() {
   state.cardExp = exp.value.trim();   // show what the user actually entered
   document.getElementById('edit-payment').classList.remove('open');
   renderPaymentRow();   // valid display + enabled CTA
-
-  // Acknowledge the fix: a brief blue wash decays over the payment row.
-  const repairedRow = document.getElementById('display-payment').closest('.detail-row');
-  if (repairedRow) { repairedRow.classList.remove('row-repaired'); void repairedRow.offsetWidth; repairedRow.classList.add('row-repaired'); }
+  flashRepaired();
 }
 
 // ═══ RESUME → (processing + 3DS) → CONFIRMATION ═══
@@ -1354,13 +1459,22 @@ function cancelResume() {
 
 function goToConfirmation() {
   showScene('confirmation');
-  window.scrollTo(0, 0);
+  jumpTop();
   setActiveSwitcher('confirmation');
 }
 
 function completeResume() {
   const btn = document.getElementById('btn-resume');
-  if (btn.disabled || resumeInProgress) return;   // expired card keeps its blocked state
+  if (resumeInProgress) return;
+
+  // Blocked by an expired card: don't fail silently — open the editor and put
+  // the cursor in the field that is actually stopping the restart.
+  if (btn.getAttribute('aria-disabled') === 'true') {
+    document.getElementById('edit-payment').classList.add('open');
+    const exp = document.getElementById('s-exp');
+    if (exp) { exp.scrollIntoView({ block:'center' }); exp.focus({ preventScroll:true }); }
+    return;
+  }
 
   // Reduced motion: skip the theater, go straight through (seek-safe instant path).
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1401,6 +1515,17 @@ function renderConfirmation() {
 
   // Next renewal is fixed copy — no Date() (per spec).
   document.getElementById('confirm-billing').textContent = 'July 23, 2027';
+
+  // A receipt tells you what you paid. This tells you what to expect.
+  const next = document.getElementById('confirm-next');
+  if (next) {
+    const extras = {
+      'digital':       'Digital access is live now — the app and narrated articles are already unlocked.',
+      'print-digital': 'Digital access is live now. Your first print issue ships within two weeks, to 123 Atlantic Ave.',
+      'premium':       'Digital access is live now. Your first print issue ships within two weeks, and your three gift subscriptions are ready to send from My Account.'
+    };
+    next.textContent = extras[state.currentPlan] || extras['digital'];
+  }
 }
 
 function continueReading() {
@@ -1409,7 +1534,7 @@ function continueReading() {
   showScene('article');
   setActiveSwitcher('article');
   const y = state.savedScrollY || 0;
-  window.scrollTo(0, y);   // restore the reader's position from when the gate fired
+  jumpTo(y);   // restore the reader's position from when the gate fired
 }
 
 // ═══ IN-ARTICLE GATE ═══
@@ -1421,7 +1546,11 @@ function closeGateVisual() {
     gate.classList.remove('open');
     gate.setAttribute('aria-hidden', 'true');
   }
-  if (body) body.classList.remove('gate-active');
+  if (body) {
+    body.classList.remove('gate-active');
+    const preview = body.querySelector('.gate-preview');
+    if (preview) preview.removeAttribute('aria-hidden');
+  }
   if (scene) scene.classList.remove('gate-active');
 }
 
@@ -1431,13 +1560,32 @@ function openGate(shouldScroll) {
   const scene = document.getElementById('scene-article');
   if (!gate || !body || !scene) return;
   state.savedScrollY = window.scrollY;
+
   const p = plans[state.currentPlan];
-  document.getElementById('gate-cta').textContent = 'Restart ' + p.name + ' — ' + p.price;
+  document.getElementById('gate-cta').textContent = 'Restart ' + p.name;
+  const detail = document.getElementById('gate-primary-detail');
+  if (detail) detail.textContent = p.name + ', ' + p.price + ', on the Visa already on file. Nothing to re-enter.';
+
   body.classList.add('gate-active');
   scene.classList.add('gate-active');
   gate.classList.add('open');
   gate.setAttribute('aria-hidden', 'false');
-  if (shouldScroll) gate.scrollIntoView({ behavior:'smooth', block:'center' });
+
+  // The faded tail is decorative once the gate is up: a screen reader that
+  // still reads it defeats the gate and confuses the reader.
+  const preview = body.querySelector('.gate-preview');
+  if (preview) preview.setAttribute('aria-hidden', 'true');
+
+  // Hiding the tail + footer collapses the document height, so measure AFTER
+  // the class changes have been laid out, then land the gate deliberately.
+  requestAnimationFrame(() => {
+    const top = gate.getBoundingClientRect().top + window.scrollY;
+    const y = Math.max(0, top - (shouldScroll ? 96 : 132));
+    jumpTo(y);
+    // Move focus to the gate so keyboard and screen-reader users are told the
+    // article just stopped, instead of tabbing into content that vanished.
+    gate.focus({ preventScroll: true });
+  });
 }
 
 function dismissGate() {
@@ -1450,8 +1598,31 @@ function dismissGate() {
 function gateResume() {
   closeGateVisual();
   showScene('checkout');
-  window.scrollTo(0, 0);
+  jumpTop();
   setActiveSwitcher('checkout');
+}
+
+// The two gate buttons used to do exactly the same thing. "Review plans" is a
+// promise to show plans — so open the picker and put the reader inside it.
+function gateReviewPlans() {
+  gateResume();
+  togglePlanPicker();
+  requestAnimationFrame(() => {
+    const picker = document.getElementById('plan-picker');
+    if (!picker) return;
+    jumpTo(Math.max(0, picker.getBoundingClientRect().top + window.scrollY - 120));
+    const sel = picker.querySelector('.plan-option.is-selected input[type="radio"]');
+    if (sel) sel.focus({ preventScroll: true });
+  });
+}
+
+// "Not you?" — the honest consequence is abandoning the restart, not a no-op.
+function notYou() {
+  cancelResume();
+  closeGateVisual();
+  showScene('article');
+  setActiveSwitcher('article');
+  jumpTop();
 }
 
 // ═══ LEGACY MODAL (kept off-stage for comparison only) ═══
@@ -1481,7 +1652,7 @@ function dismissModal() {
   if (!modal.classList.contains('open')) return;
   modal.classList.remove('open');
   unlockBody();
-  window.scrollTo(0, state.savedScrollY);   // dismissal returns you to where you were reading
+  jumpTo(state.savedScrollY);   // dismissal returns you to where you were reading
   if (lastFocused && lastFocused.focus) lastFocused.focus();
   setActiveSwitcher('article');
   currentScene = 'article';
@@ -1491,7 +1662,7 @@ function modalResume() {
   document.getElementById('reactivation-modal').classList.remove('open');
   unlockBody();
   showScene('checkout');
-  window.scrollTo(0, 0);
+  jumpTop();
   setActiveSwitcher('checkout');
 }
 
@@ -1518,11 +1689,18 @@ function maybeTriggerModal() {
   if (sessionStorage.getItem('reactivation_seen')) return;
   if (sentinel.getBoundingClientRect().top <= window.innerHeight) {
     sessionStorage.setItem('reactivation_seen', '1');
+    window.removeEventListener('scroll', onScroll);   // one shot; stop listening
     openGate(false);
     setActiveSwitcher('gate');
   }
 }
-window.addEventListener('scroll', maybeTriggerModal, { passive: true });
+let scrollTick = false;
+function onScroll() {
+  if (scrollTick) return;
+  scrollTick = true;
+  requestAnimationFrame(() => { scrollTick = false; maybeTriggerModal(); });
+}
+window.addEventListener('scroll', onScroll, { passive: true });
 
 // ═══ KEYBOARD ═══
 document.addEventListener('keydown', e => {
