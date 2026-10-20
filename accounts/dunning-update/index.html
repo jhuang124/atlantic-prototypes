@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fix your payment</title>
+<link rel="stylesheet" href="./demo-kit.css">
+<style>
+/* --- Product additions for the sign-in-free update page (look floor: atlantic-accounts) --- */
+.urlbar { display: flex; align-items: center; gap: 8px; margin: -40px 0 28px; padding: 8px 12px; background: var(--mist); border-radius: 4px;
+  font: 13px/1.2 var(--font-sans); color: var(--graphite); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.urlbar b { font-weight: 400; color: var(--ink); }
+.device-frame { max-width: 400px; margin: 0 auto; border: 1px solid var(--hairline); border-radius: 28px; padding: 56px 20px 28px; background: var(--surface); }
+.device-frame .urlbar { margin-top: -36px; }
+.mark { font: italic 22px/1 var(--font-serif); color: var(--ink); margin: 0 0 40px; text-align: center; }
+.eyebrow { font: 12px/1.75 var(--font-sans); letter-spacing: .03em; color: var(--stone); margin: 0 0 8px; }
+.lede { font: 19px/1.45 var(--font-serif); color: var(--ink-soft); margin: 12px 0 0; }
+.lede strong { font-weight: 600; color: var(--ink); }
+.methods { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 32px; }
+.method { height: 56px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--hairline); border-radius: 6px; color: var(--ink);
+  font: 15px/1 var(--font-sans); transition: border-color .12s, background .12s; }
+.method:hover { border-color: var(--stone); }
+.method[aria-checked="true"] { border: 1.5px solid var(--link); background: #F0F6FF; }
+.method:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.method .mk { display: inline-flex; align-items: center; gap: 3px; font: 600 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.method .mk svg { margin-top: -2px !important; }
+.method .pp { font-size: 16px; }
+.section-title { margin: 32px 0 12px; font: 600 16px/1.3 var(--font-sans); color: var(--ink); }
+.express { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.express .wallet { height: 44px; border-radius: 4px; font-size: 16px; }
+.express .wallet svg { width: 15px; height: 15px; }
+.express .pp { font-size: 16px; }
+.or { margin: 16px 0; }
+.btn-primary-lg { height: 48px; font-size: 16px; }
+.method-panel { margin-top: 16px; }
+.until { margin: 12px 0 0; font: 15px/1.4 var(--font-sans); color: var(--graphite); }
+.until strong { color: var(--ink); font-weight: 600; }
+.receipt-line { margin: 16px 0 0; font: 14px/1.5 var(--font-sans); color: var(--stone); }
+.benefits { margin: 0 0 8px; padding-left: 20px; } .benefits li { margin: 4px 0; }
+.reassure a { color: inherit; }
+.method-note { margin: 0; padding: 16px; background: var(--page); border-radius: 6px; font: 15px/1.5 var(--font-sans); color: var(--ink-soft); }
+.method-panel .wallet { height: 48px; border-radius: 6px; font-size: 18px; }
+.w-paypal { background: #FFC439 !important; }
+.w-paypal:hover { background: #F2BA36 !important; }
+.pp { font: italic 700 19px/1 Verdana, 'Helvetica Neue', sans-serif; letter-spacing: -.02em; }
+.pp b { color: #003087; font-weight: 700; } .pp i { color: #0070E0; }
+.reassure { margin: 20px 0 0; text-align: center; font: 13px/1.4 var(--font-sans); color: var(--stone); }
+.sheet.paypal { background: #fff; border-radius: 12px; padding: 22px; }
+.paypal .sheet-pay { background: #0070E0; border-radius: 22px; height: 44px; font-size: 15px; }
+.device-frame .methods { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 480px) { .methods { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.wallet { height: 48px; width: 100%; border: 0; border-radius: 4px; background: #000; color: #fff; cursor: pointer;
+  font: 600 17px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.wallet:hover { background: #222; }
+.wallet:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.wallet small { font-weight: 400; font-size: 13px; opacity: .8; margin-left: 6px; }
+.or { display: flex; align-items: center; gap: 12px; margin: 24px 0 20px; font: 12px/1 var(--font-sans); letter-spacing: .03em; color: var(--stone); }
+.or::before, .or::after { content: ''; flex: 1; border-top: 1px solid var(--hairline); }
+.pe { border: 1px solid var(--stone); border-radius: 4px; background: var(--surface); }
+.pe-row { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--hairline); }
+.pe-row > * + * { border-left: 1px solid var(--hairline); }
+.pe-cell { position: relative; }
+.pe input { width: 100%; height: 52px; border: 0; background: transparent; padding: 0 16px; font: 16px/1.3 Arial, sans-serif; color: var(--ink); }
+.pe input:focus { outline: 2px solid var(--link); outline-offset: -2px; border-radius: 4px; }
+.pe input[aria-invalid="true"] { color: var(--error); }
+.pe .brands { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; pointer-events: none; }
+.brand-chip { font: 600 10px/1 var(--font-sans); letter-spacing: .02em; padding: 4px 5px; border: 1px solid var(--hairline); border-radius: 3px; color: var(--graphite); background: #fff; }
+.brand-chip.on { border-color: var(--ink); color: var(--ink); }
+.pe-errors { margin: 8px 0 0; font: 14px/1.4 var(--font-sans); color: var(--error); }
+.pe-errors:empty { display: none; }
+.fine { font: 13px/1.5 var(--font-sans); color: var(--stone); margin: 16px 0 0; }
+.fine a { color: var(--stone); }
+.trust { display: flex; gap: 8px; align-items: flex-start; font: 13px/1.5 var(--font-sans); color: var(--graphite); margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--hairline); }
+.quiet-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; }
+.btn-block { width: 100%; justify-content: center; }
+.more { margin-top: 16px; border: 1px solid var(--hairline); border-radius: 4px; }
+.more-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; font: 15px/1.3 var(--font-sans); }
+.more-row + .more-row { border-top: 1px solid var(--hairline); }
+.paypal-mark { font: italic 700 16px/1 Verdana, sans-serif; color: #003087; }
+.paypal-mark span { color: #009CDE; }
+.receipt { margin-top: 28px; }
+.check { width: 44px; height: 44px; border-radius: 50%; background: var(--success-tint); color: var(--success); display: flex; align-items: center; justify-content: center; font: 22px/1 var(--font-sans); margin-bottom: 16px; }
+/* Wallet sheets: system UI, not Atlantic. Drawn to read as the OS, not the product. */
+.sheet-scrim { position: fixed; inset: 0; background: rgb(0 0 0 / .45); display: flex; align-items: flex-end; justify-content: center; z-index: 60; }
+.sheet-scrim.center { align-items: center; }
+.sheet { width: min(420px, 100%); background: #f2f2f7; border-radius: 14px 14px 0 0; padding: 14px 18px 26px; font: 15px/1.35 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #000; }
+.sheet.gpay { background: #fff; border-radius: 12px; padding: 22px 22px 18px; font-family: Roboto, 'Segoe UI', Arial, sans-serif; }
+.sheet.link-sheet { background: #fff; border-radius: 12px; padding: 22px; }
+.sheet.bank { background: #fff; border-radius: 8px; padding: 22px; font-family: Arial, sans-serif; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 600; font-size: 17px; }
+.sheet-head button { background: none; border: 0; color: #0a64d8; font: inherit; font-weight: 400; cursor: pointer; }
+.sheet-card { background: #fff; border-radius: 10px; }
+.sheet-line { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; }
+.sheet-line + .sheet-line { border-top: .5px solid #d1d1d6; }
+.sheet-line span:first-child { color: #6b6b70; }
+.sheet-pay { margin-top: 16px; width: 100%; height: 50px; border: 0; border-radius: 10px; background: #000; color: #fff; font: 600 17px/1 inherit; cursor: pointer; }
+.gpay .sheet-pay { background: #1a73e8; border-radius: 22px; height: 44px; font-size: 15px; }
+.link-sheet .sheet-pay { background: #00D66F; color: #011E0F; border-radius: 6px; }
+.bank .sheet-pay { background: #1a1a1a; border-radius: 4px; height: 42px; font-size: 15px; }
+.sheet .alert { margin: 12px 0 0; }
+.sheet-note { font-size: 12px; color: #6b6b70; text-align: center; margin: 10px 0 0; }
+.map td, .map th { vertical-align: top; }
+.map code { font: 12.5px/1.4 var(--font-mono); background: var(--page); padding: 1px 4px; border-radius: 3px; }
+.live-box { border: 1px solid var(--hairline); padding: 20px; border-radius: 4px; background: var(--surface); }
+/* --- Atlantic visual language (atlantic-accounts tokens + www-ui editorial idioms) --- */
+:root { --atl-red: #DD1001; --atl-gray: #5E6A74; --rule: rgba(0,0,0,.15); }
+.wm { display: block; height: 22px; width: auto; margin: 0 auto; }
+.public-bar .wm { height: 24px; }
+.wm-email { height: 20px; margin: 0 0 28px; }
+.mark { margin: 0 0 36px; padding-bottom: 20px; border-bottom: 1px solid var(--hairline); }
+.mark .wm { height: 20px; }
+.public:has(.desk-body) { background: #fff; }
+.public:has(.desk-body) .desk-chrome { background: #F1F0ED; }
+.kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink); }
+.kicker::before { content: ''; width: 18px; height: 3px; background: var(--atl-red); }
+.atl-h1 { margin: 0; font: 400 42px/1.08 var(--font-serif); letter-spacing: -.01em; color: #000; }
+.device-frame .atl-h1 { font-size: 34px; }
+.lede { margin: 12px 0 0; max-width: 34em; font: 20px/1.4 var(--font-serif); color: var(--ink-soft); text-wrap: pretty; }
+.lede i { font-style: italic; }
+.until { margin: 8px 0 0; font: 15px/1.4 var(--font-sans); color: var(--graphite); }
+.section-title { margin: 36px 0 12px; padding-top: 16px; border-top: 1px solid #000; font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
+.reassure { color: var(--atl-gray); }
+.receipt { margin: 28px 0 0; border-top: 1px solid #000; }
+.receipt div { display: grid; grid-template-columns: 96px 1fr; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+.receipt dt { font: 500 12px/1.6 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--atl-gray); }
+.receipt dd { margin: 0; font: 16px/1.5 var(--font-sans); color: var(--ink); }
+.receipt dd { overflow-wrap: anywhere; }
+@media (max-width: 480px) { .receipt div { grid-template-columns: 76px 1fr; gap: 12px; } }
+.issue { margin-top: 56px; }
+.issue-head { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid #000; padding-top: 14px; margin-bottom: 8px; }
+.issue-head h2 { margin: 0; font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--atl-red); }
+.issue-head a { font: 14px/1 var(--font-sans); color: var(--ink); }
+.river { list-style: none; margin: 0; padding: 0; counter-reset: item; }
+.river li { counter-increment: item; border-bottom: 1px solid var(--rule); }
+.river li:last-child { border-bottom: 0; }
+.river a { display: grid; grid-template-columns: 32px 1fr; padding: 18px 0; color: inherit; text-decoration: none; }
+.river a::before { content: counter(item); grid-row: 1 / span 3; color: var(--atl-red); font: 26px/1 var(--font-serif); }
+.river h3 { margin: 0; font: 400 21px/1.25 var(--font-serif); color: #000; }
+.river a:hover h3 { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.river .dek { margin: 6px 0 0; font: 17px/1.35 var(--font-serif); color: var(--atl-gray); }
+.river .by { margin: 8px 0 0; font: 12px/1 var(--font-sans); letter-spacing: .02em; color: var(--ink); text-transform: uppercase; }
+.atl-foot { display: flex; justify-content: space-between; align-items: center; gap: 40px; background: var(--page); border-top: 1px solid var(--hairline); }
+.atl-foot nav { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+.atl-foot nav a { font: 14px/1.3 var(--font-sans); color: #000; text-decoration: none; }
+.atl-foot p { margin: 14px 0 0; font: 12px/1.75 var(--font-sans); color: var(--stone); }
+.foot-wm { height: 18px; width: auto; opacity: .9; }
+.public:has(.desk-body) { padding-bottom: 0; }
+.foot-desk { margin: 104px calc(50% - 50vw) 0; padding: 48px max(80px, calc(50vw - 560px)); }
+.foot-phone { flex-direction: column; align-items: flex-start; gap: 20px; margin: 48px -20px -28px; padding: 28px 20px; border-radius: 0 0 28px 28px; }
+.foot-phone nav { gap: 10px 18px; }
+@media (max-width: 720px) { .foot-desk { flex-direction: column; align-items: flex-start; padding: 32px 24px; } .atl-h1 { font-size: 34px; } }
+/* Full-width stage: the presenter card floats on wide screens and drops below the page on narrow ones */
+.public .stage.has-side { display: block; max-width: none; }
+.public .stage.has-side > .demo-sidecard { position: fixed; top: 120px; right: 20px; width: 272px; z-index: 40; max-height: calc(100vh - 140px); overflow: auto; }
+@media (max-width: 1239px) { .public .stage.has-side > .demo-sidecard { position: static; width: auto; max-width: 560px; margin: 48px auto 0; max-height: none; } }
+.desk-chrome { margin: -64px calc(50% - 50vw) 0; background: var(--mist); }
+.desk-chrome .urlbar { margin: 0 auto; max-width: none; border-radius: 0; padding: 10px 24px; background: transparent; }
+.public main > .desk-bar { margin: -64px calc(50% - 50vw) 56px; }
+.device-frame { max-width: 390px; padding-top: 36px; }
+@media (max-width: 480px) { .device-frame { border: 0; padding: 40px 0 0; border-radius: 0; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="./demo-kit.js"></script>
+<script>
+/* ==========================================================================
+   Dunning: fix your payment without signing in (Option A, wallet-first).
+   A renewal charge failed. The dunning email's button opens a single-purpose
+   page that charges the open invoice with any available method: Apple Pay,
+   Google Pay, PayPal or a card, no matter what failed. Visual only: nothing
+   is charged and no payment provider is called.
+   Order: constants → scenarios → axes → derive → actions → paths → pages → init.
+   ========================================================================== */
+
+/* --- 1. Constants ------------------------------------------------------------ */
+const TODAY = '2026-10-20';           // the anchor: day 7 of dunning
+const FAILED_ON = '2026-10-13';       // day 0: the renewal charge failed
+const CANCEL_ON = '2026-11-12';       // day 30: the subscription is canceled
+const RENEWS_NEXT = '2027-10-13';     // a year from the original renewal date
+const PRICE = 89.99;
+const HELP = 'Questions? Visit our Help Center or call (855) 940-0585.';
+const STD_DAYS = [2, 5, 7, 15, 20, 25, 29];
+const STD_SUBJECTS = ['Did your billing info change?', 'Issue With Your Subscription To The Atlantic', 'Don’t lose your access to The Atlantic',
+  'Your subscription will be cancelled soon', 'Action Required - Your Atlantic subscription payment has failed', 'Your Atlantic subscription is ending',
+  'Your subscription—and what it means to us'];
+const GIFT_DAYS = [2, 5, 7, 15, 20, 25];
+const GIFT_SUBJECTS = ['Did your billing info change?', 'Issue With Your Gift Subscription To The Atlantic', 'So they can keep enjoying unlimited access, please act now',
+  'Your gift subscription will be cancelled soon', 'Action Required - Your gift subscription payment has failed', 'Your Atlantic gift subscription is ending'];
+
+const DAY_MS = 864e5;
+const at = (d) => new Date(DemoKit.iso(d) + 'T00:00:00Z');
+const diff = (a, b) => Math.round((at(b) - at(a)) / DAY_MS);
+// Dates as written, per the accounts voice rules: “November 12, 2026”
+const F = (d, style) => style === 'short' ? DemoKit.fmt(d, 'short') : at(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const esc = DemoKit.esc;
+const money = (n) => '$' + n.toFixed(2);
+
+const APPLE = '<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true" style="margin-top:-3px"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>';
+
+const GLOGO = '<svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>';
+const PAYPAL = '<span class="pp"><b>Pay</b><i>Pal</i></span>';
+// Views: a phone frame or a desktop page. All three wallets show in both, for the demo.
+const DEVICES = { iphone: { frame: true }, android: { frame: true }, desktop: { frame: false } };
+const CARD_ICON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 9.5h19M6 15h4"/></svg>';
+const METHODS = [
+  { id: 'card', mark: CARD_ICON + '<span>Card</span>' },
+  { id: 'apple_pay', mark: '<span class="mk">' + APPLE + 'Pay</span>', note: 'You’ll confirm with Face ID or Touch ID, using the card saved on your device.' },
+  { id: 'google_pay', mark: '<span class="mk">' + GLOGO + 'Pay</span>', note: 'You’ll confirm with a card saved to your Google account.' },
+  { id: 'paypal', mark: '<span class="pp">PayPal</span>'.replace('PayPal', '<b>Pay</b><i>Pal</i>'), note: 'You’ll sign in to PayPal to approve the payment, then return here.' },
+];
+const WALLETS = {
+  apple_pay: { label: 'Apple Pay', button: APPLE + '<span>Pay</span>', card: 'Visa •• 1881', sheet: 'apple' },
+  google_pay: { label: 'Google Pay', button: GLOGO + '<span>Pay</span>', card: 'Mastercard •• 5100', sheet: 'gpay' },
+  paypal: { label: 'PayPal', button: PAYPAL, card: 'jane.m•••@example.com', sheet: 'paypal' },
+};
+
+const ISSUE = [
+  { title: 'Choose Your Overlord: Musk or Bezos?', by: 'Josh Tyrangiel', dek: 'The billionaires’ race to build—and control—a new off-world economy.' },
+  { title: 'The Babies Left Behind in America', by: 'Caitlin Dickerson', dek: 'Deporting parents without their children is creating a new family-separation crisis.' },
+  { title: 'When Anesthesia Goes Wrong', by: 'Sarah Zhang', dek: 'A mother’s quest to understand what anesthesia did to her son.' },
+  { title: 'The Baltic States Prepare for War', by: '', dek: 'How the most vulnerable NATO members are preparing for a Russian attack.' },
+];
+
+/* --- 2. Scenarios: who failed, and why --------------------------------------- */
+const JANE = { first: 'Jane', name: 'Jane Morrison', email: 'jane.morrison@example.com', masked: 'j•••@example.com', since: 2021 };
+const base = (extra) => Object.assign({ subscriber: JANE, plan: 'Atlantic Digital, annual', gift: null,
+  sub: { status: 'past_due', method: null, paidOn: null } }, extra);
+const scenarios = [
+  { id: 'subscriber', label: 'Subscriber', description: 'Jane’s Visa expired, so her $89.99 annual renewal failed. Access continues while she fixes it.',
+    build: () => base({ old: { type: 'card', brand: 'Visa', last4: '3220', reason: 'expired', decline: 'hard' } }) },
+  { id: 'gift', label: 'Gift giver', description: 'Same failure, but Jane pays for Sam Whitaker’s gift. Sam keeps reading and never sees the dunning.',
+    build: () => base({ plan: 'Atlantic Digital gift, annual', gift: { name: 'Sam Whitaker', first: 'Sam' },
+      old: { type: 'card', brand: 'Visa', last4: '3220', reason: 'expired', decline: 'hard' } }) },
+];
+
+/* --- 3. Axes: the dunning clock ---------------------------------------------- */
+const axes = [
+  { key: 'day', label: 'Dunning clock', default: 'd7', keptOnSwitch: true, options: [
+    { value: 'd7', label: 'Before cancellation', description: 'October 20, day 7 of 30. The third email has gone out; access continues.' },
+    { value: 'ended', label: 'After cancellation', today: '2026-11-13', description: 'November 13. The subscription was canceled on November 12, so the page hands off to Resubscribe.' },
+  ] },
+];
+
+/* --- 4. Derive: everything dated comes from the clock ------------------------ */
+function derive(s, today) {
+  const t = DemoKit.iso(today);
+  const day = diff(FAILED_ON, t);
+  const paid = s.sub.status === 'active';
+  const ended = !paid && t >= CANCEL_ON;
+  const daysLeft = diff(t, CANCEL_ON);
+  const gift = s.gift;
+  const days = gift ? GIFT_DAYS : STD_DAYS, subjects = gift ? GIFT_SUBJECTS : STD_SUBJECTS;
+  let emailNo = 0;
+  days.forEach((d, i) => { if (d <= day) emailNo = i + 1; });
+  emailNo = Math.max(1, emailNo);
+  const emailSentOn = DemoKit.iso(new Date(at(FAILED_ON).getTime() + days[emailNo - 1] * DAY_MS));
+  const o = s.old;
+  const oldLabel = o.type === 'paypal' ? 'PayPal' : `${o.brand} ending ${o.last4}`;
+  const why = o.reason === 'expired' ? `The ${oldLabel} expired in September, so we couldn’t charge your ${money(PRICE)} renewal on ${F(FAILED_ON, 'short')}.`
+    : o.reason === 'insufficient_funds' ? `Your bank declined the ${money(PRICE)} renewal on the ${oldLabel} on ${F(FAILED_ON, 'short')}.`
+    : `Your PayPal account stopped allowing payments to The Atlantic, so we couldn’t charge your ${money(PRICE)} renewal on ${F(FAILED_ON, 'short')}.`;
+  const giftWhy = gift && (o.reason === 'expired' ? `The ${oldLabel} expired in September, so we couldn’t renew the gift you give ${gift.name} on ${F(FAILED_ON, 'short')}.`
+    : o.reason === 'insufficient_funds' ? `Your bank declined the ${money(PRICE)} renewal of the gift you give ${gift.name}.`
+    : `Your PayPal account stopped allowing payments, so we couldn’t renew the gift you give ${gift.name}.`);
+  const reason = o.reason === 'expired' ? `your ${oldLabel} has expired` : o.reason === 'insufficient_funds' ? `your bank declined the ${oldLabel}` : 'your PayPal billing agreement was canceled';
+  const who = gift ? `${gift.first}` : 'You';
+  const when = daysLeft <= 7
+    ? `<strong>${gift ? `${gift.first}’s access ends` : 'Your access ends'} ${F(CANCEL_ON)}, in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}.</strong>`
+    : `${gift ? `${gift.first} keeps reading` : 'You’ll keep reading'} until ${F(CANCEL_ON, 'short')}.`;
+  const short = gift
+    ? `We couldn’t renew ${gift.first}’s gift because ${reason}.`
+    : `We couldn’t renew your subscription because ${reason}.`;
+  const until = daysLeft <= 7
+    ? `<strong>${gift ? `${gift.first}’s access ends` : 'Your access ends'} ${F(CANCEL_ON)}, in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}.</strong>`
+    : `${gift ? `${gift.first}’s access continues` : 'Your access continues'} until ${F(CANCEL_ON)}.`;
+  const reader = gift ? `${gift.first} keeps reading` : 'Your access continues';
+  const deadline = daysLeft <= 7
+    ? `<strong>${gift ? `${gift.first}’s access ends` : 'Your access ends'} ${F(CANCEL_ON)}, in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}.</strong>`
+    : `${reader} until <strong>${F(CANCEL_ON, 'short')}</strong>.`;
+  const anyMethod = o.type === 'paypal' ? ' It doesn’t have to be PayPal.' : '';
+  const methodText = (m) => m ? (m.type === 'card' ? `${m.brand} ending ${m.last4}` : `${WALLETS[m.type].label} (${m.card})`) : oldLabel;
+  return { short, until, giftWhy, day, paid, ended, daysLeft, emailNo, emailSentOn, subject: subjects[emailNo - 1], oldLabel, why, deadline, anyMethod, methodText,
+    status: paid ? 'active' : ended ? 'cancelled' : 'past_due',
+    headline: gift ? `So ${gift.first} can keep enjoying The Atlantic` : 'Don’t miss a story' };
+}
+
+/* --- 5. Actions -------------------------------------------------------------- */
+const actions = {
+  pay: (s, method) => ({ ...s, sub: { status: 'active', method, paidOn: kit.days(0) } }),
+};
+
+/* --- 6. Paths ---------------------------------------------------------------- */
+const paths = [
+  { id: 'one-tap', label: 'From the email to paid, in one tap',
+    summary: 'Subscriber on a phone. Open the email, pay with Apple Pay, land on the confirmation. No demo panel needed after Start.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone' },
+    steps: [
+      'Email 3, the real template: “Don’t let your access expire. Please act now.” → “Update Your Payment”.',
+      'accounts.theatlantic.com, no sign-in: “Don’t miss a story” and “Your access continues until November 12, 2026.”',
+      '“Payment Information”: Apple Pay, Google Pay and PayPal in one even row; “Or”; the card form and “Renew for $89.99”.',
+      'Apple Pay → the sheet: The Atlantic, $89.99, Visa •• 1881 → “Pay with Face ID”.',
+      'Confirmation: “Thank you, Jane”, the receipt, and four stories from the November issue.',
+      'Back on the email → “Update Your Payment”: “You’re all set” (the link is spent).',
+    ] },
+  { id: 'card', label: 'Paying by card, with a decline',
+    summary: 'Subscriber on desktop. The card form is the main path; the error switch shows a decline, and the retry goes through.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/update?device=desktop' },
+    steps: [
+      'Full-width desktop page: the wallets sit in one row above the card form. No typing needed; the card fields are for show.',
+      'Demo → “Next save fails” on, then “Renew for $89.99”.',
+      'Red alert above the button: “Your card was declined, and nothing was charged.”',
+      '“Renew for $89.99” again → “Thank you, Jane”, paid with Visa ending 4242.',
+    ] },
+  { id: 'gift', label: 'Keeping a gift going',
+    summary: 'Gift giver on a phone. Jane renews Sam’s gift with Google Pay.',
+    start: { scenario: 'gift', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone' },
+    steps: [
+      'Gift email 3, the real template: “Don’t let their access expire. Please act now.”',
+      '“Update Your Payment” → “So Sam can keep enjoying The Atlantic”.',
+      'Google Pay → the sheet with Mastercard •• 5100 → “Continue”.',
+      '“Thank you, Jane”: “Thank you for sharing The Atlantic, and for supporting independent journalism.”',
+      'Optional: Demo → Dunning clock → After cancellation, to see the page after the subscription ends.',
+    ] },
+];
+
+/* --- 7. Pages ---------------------------------------------------------------- */
+const publicBar = () => `<div class="public-bar"><img class="wm" src="./assets/atlantic-logo.svg" alt="The Atlantic"></div>`;
+const deviceOf = () => DEVICES[kit.param('device')] ? kit.param('device') : 'iphone';
+const token = 'k7Qx2fT9mWp4';
+const urlbar = () => `<div class="urlbar" aria-hidden="true">🔒 <b>accounts.theatlantic.com</b>/update-payment/${token}…</div>`;
+const WORDMARK = '<img class="wm" src="./assets/atlantic-logo.svg" alt="The Atlantic">';
+const mark = `<p class="mark">${WORDMARK}</p>`;
+const FOOT_LINKS = ['Visit our Help Center', 'Accounts & Subscription Help', 'Privacy Policy', 'Terms of Sale'];
+const footer = (cls) => `<footer class="atl-foot ${cls}"><div class="atl-foot-in"><nav>${FOOT_LINKS.map((l) => `<a href="#/help">${l}</a>`).join('')}</nav>
+  <p>© 2026 The Atlantic Monthly Group. All Rights Reserved.</p></div><img class="foot-wm" src="./assets/atlantic-logo.svg" alt=""></footer>`;
+// Desktop: a full-width page (browser bar + Atlantic header edge to edge, content centered). Phone: a centered phone.
+// `stage` is presenter chrome (NEXT IN THE DEMO); it sits under the page, above the footer.
+const framed = (inner, stage = '') => DEVICES[deviceOf()].frame
+  ? `<div class="device-frame">${mark}${inner}${footer('foot-phone')}</div>${stage}`
+  : `<div class="public-bar desk-bar">${WORDMARK}</div><div class="desk-body">${inner}</div>${stage}${footer('foot-desk')}`;
+const keep = () => `device=${deviceOf()}`;
+
+// Side-card controls. "Opened on" is a URL param; Subscription and Dunning clock drive the
+// demo state (scenario and clock axis): a click writes a one-shot param, syncControls() applies
+// it to state and clears it, and each control's default reads back from state.
+const PRE = [
+  { key: 'who', label: 'Subscription', get default() { return kit.state.scenario === 'gift' ? 'gift' : 'self'; },
+    options: [{ value: 'self', label: 'Self' }, { value: 'gift', label: 'Gift' }] },
+  { key: 'when', label: 'Dunning clock', get default() { return (kit.state.axes || {}).day === 'ended' ? 'ended' : 'd7'; },
+    options: [{ value: 'd7', label: 'Before cancellation' }, { value: 'ended', label: 'After' }] },
+  { key: 'device', label: 'Opened on', options: [{ value: 'iphone', label: 'Phone' }, { value: 'desktop', label: 'Desktop' }] },
+];
+function syncControls() {
+  const q = kit.params(), who = q.get('who'), when = q.get('when');
+  if (!who && !when) return false;
+  setTimeout(() => {
+    if (who) { kit.setParam('who', null); const id = who === 'gift' ? 'gift' : 'subscriber'; if (kit.state.scenario !== id) kit.loadScenario(id); }
+    if (when) { kit.setParam('when', null); if ((kit.state.axes || {}).day !== when) kit.setAxis('day', when); }
+  });
+  return true;
+}
+
+/* Dunning email (public, link-entry). Bodies follow the current customer emails; only the
+   button label changed, to “Update Your Payment”, since any method works now. */
+const BENEFITS = ['Unlimited articles on any device', '12 magazine issues in print or PDF', 'The Atlantic app with daily editors’ picks, puzzles, and our latest journalism',
+  'An archive featuring Baldwin, Hemingway, Plath, Steinbeck, and more of America’s best writers', 'Narrated stories and podcasts', 'Gift articles to share with fellow readers', 'Screenings, Q&As, and more subscriber events'];
+const STILL = 'We are still unable to process payment to renew your subscription. To make sure you keep enjoying another year of unlimited articles, audio, and more, please update your payment information.';
+const STILL_GIFT = 'We are still unable to process payment to renew your gift subscription. To make sure your gift recipient keeps enjoying another year of unlimited articles, audio, and more, please update your payment information.';
+const GIFT_AFTER = 'If you have any questions about your gift subscription, please reach out to us. Thank you for sharing The Atlantic, and for supporting independent journalism.';
+const TEMPLATES = {
+  std: [
+    { hed: 'To keep enjoying unlimited access, please act now.', body: ['Thank you for subscribing to The Atlantic, and for supporting our work. We hope our journalism has kept you informed, exposed you to new perspectives, challenged your assumptions, and enriched your life.',
+      'We’re writing to let you know that we’re having trouble processing payment to renew your subscription. This can happen if your credit card expires, or if you change billing addresses.',
+      'To make sure you keep enjoying The Atlantic’s ideas and insight for another year, please take a moment to update your payment information. You’ll not only be guaranteeing your continued access, you’ll also be helping to support a bright future for our journalism.'] },
+    { hed: 'To keep enjoying unlimited access, please act now.', body: ['Thank you for being a subscriber and supporting our work. The goal of our journalism is to help you navigate the world in all of its complexity: its problems and possibilities, its challenges and wonders.',
+      'This is a reminder about your renewal. We were unable to process payment to keep your subscription active for another year. To make sure that you don’t lose access to your subscriber benefits, please take a moment to update your payment information.'], list: 'Your subscription includes:' },
+    { hed: 'Don’t let your access expire. Please act now.', body: [STILL], list: 'Unless you act soon, you’ll lose access to:' },
+    { hed: 'Don’t let your access end. Please act now.', body: [STILL], list: 'Unless you act soon, you’ll lose access to:' },
+    { hed: 'Don’t let your unlimited access end. Please act now.', body: [STILL], list: 'Unless you act soon, you’ll lose access to:' },
+    { hed: 'Don’t let your access expire. Act now.', body: ['This is the last time we’ll contact you before your Atlantic subscription ends. Unless you update your payment information now, you’ll lose access to:'], list: '',
+      after: 'Please update your information before your subscription expires. You’ll not only be guaranteeing your continued access, you’ll also be helping to support a bright future for our journalism. If you have any questions, please reach out to us. We’re happy to help.' },
+  ],
+  gift: [
+    { hed: 'So they can keep enjoying The Atlantic, please act now.', body: ['Last year, you gave someone a gift subscription to The Atlantic, which means you gave them unlimited access to journalism that we hope has kept them informed, exposed them to new perspectives, challenged their assumptions, and enriched their lives.',
+      'Now, we’re writing to let you know that we’re having trouble processing payment to renew your gift. This can happen if your credit card expires, or if you change billing addresses.',
+      'To ensure your gift recipient keeps enjoying The Atlantic’s ideas and insight for another year, please take a moment to update your payment information. You’ll not only be guaranteeing their continued access, you’ll also be helping to support a bright future for our journalism.'],
+      after: 'As a reminder, you can manage your gift subscription in your account. If you have any questions, please reach out to us. We’re happy to help.' },
+    { hed: 'So they can keep enjoying unlimited access, please act now.', body: ['Last year, you gave someone a gift subscription to The Atlantic and, in doing so, gave them unlimited access to journalism that has helped them navigate the world in all of its complexity: its problems and possibilities, its challenges and wonders.',
+      'This is a reminder about your gift renewal. We were unable to process payment to keep your gift subscription active for another year. To make sure that your gift recipient does not lose their access to their subscriber benefits, please take a moment to update your payment information.'],
+      list: 'Your gift subscription includes:', after: 'If you need help, or if you believe you received this email in error, please contact Customer Care. We’re happy to help. You may also sign into your account to manage your gift subscription.' },
+    { hed: 'Don’t let their access expire. Please act now.', body: [STILL_GIFT], list: 'Unless you act soon, they will lose access to:', after: GIFT_AFTER },
+    { hed: 'Don’t let their access end. Please act now.', body: [STILL_GIFT], list: 'Unless you act soon, they will lose access to:', after: GIFT_AFTER },
+    { hed: 'Don’t let their unlimited access expire. Please act now.', body: [STILL_GIFT], list: 'Unless you act soon, they will lose access to:', after: GIFT_AFTER },
+    { hed: 'Don’t let their access expire. Act now.', body: ['This is the last time we’ll contact you before your gift subscription ends. Unless you update your payment information now, your gift recipient will lose access to:'], list: '',
+      after: 'Please update your information before your gift recipient loses their subscription. You’ll not only be guaranteeing their continued access, you’ll also be helping to support a bright future for our journalism. If you have any questions, please reach out to us. We’re happy to help.' },
+  ],
+};
+const STD_MAP = [0, 1, 2, 3, 4, 4, 5];   // 7 standard sends, 6 templates: sends 5 and 6 share one
+
+function emailPage(el, { state, derived: d }) {
+  if (syncControls()) return;
+  const s = state, g = s.gift;
+  const t = d.ended
+    ? { hed: 'Your subscription has been canceled', body: [`We weren’t able to process payment to renew your ${g ? 'gift ' : ''}subscription, so it was canceled on ${F(CANCEL_ON)}. Nothing is owed.`,
+        'Thank you for your time as a subscriber and for your support. We hope to welcome you back in the future.'] }
+    : g ? TEMPLATES.gift[d.emailNo - 1] : TEMPLATES.std[STD_MAP[d.emailNo - 1]];
+  const subject = d.ended ? 'Your subscription has been canceled' : d.subject;
+  const cta = `<div class="actions" style="margin:24px 0"><button class="btn btn-black" type="button" data-cta>${d.ended ? 'Resubscribe' : 'Update Your Payment'}</button></div>`;
+  el.innerHTML = `<div class="email-wrap"><article class="email">
+    <dl class="envelope"><dt>From</dt><dd>The Atlantic &lt;accounts@noreply.theatlantic.com&gt;</dd><dt>To</dt><dd>${esc(s.subscriber.email)}</dd>
+      <dt>Subject</dt><dd><strong>${esc(subject)}</strong></dd>
+      <dt>Preview</dt><dd>Don’t miss a story from The Atlantic. Update your payment today.</dd>
+      <dt>Sent</dt><dd>${F(d.ended ? CANCEL_ON : d.emailSentOn)}${d.ended ? '' : ` · email ${d.emailNo} of ${g ? 6 : 7}`}</dd></dl>
+    <div class="email-body"><img class="wm wm-email" src="./assets/atlantic-logo.svg" alt="The Atlantic">
+      <h1>${esc(t.hed)}</h1>
+      ${t.body.map((p) => `<p>${esc(p)}</p>`).join('')}
+      ${t.list != null ? `${cta}${t.list ? `<p>${esc(t.list)}</p>` : ''}<ul class="benefits">${BENEFITS.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}
+      ${cta}
+      ${t.after ? `<p>${esc(t.after)}</p>` : ''}
+      <p>—The Team at The Atlantic</p>
+      <p class="email-foot">Responses to this email are not monitored. For customer-service inquiries or assistance with your account, please visit our Help Center.<br>The Atlantic ∙ 610 Water St. SW ∙ Washington, DC 20024</p>
+    </div></article></div>`;
+  el.querySelectorAll('[data-cta]').forEach((b) => b.addEventListener('click', () =>
+    kit.navigate(d.ended ? '#/restart' : `#/update?${keep()}`, { push: true })));
+}
+
+/* The update page (public). Steps: pay (default) → done. Expired and ended are derived. */
+function updatePage(el, ctx) {
+  if (syncControls()) return;
+  const { state: s, derived: d } = ctx;
+  const step = kit.param('step') || 'pay';
+  const g = s.gift;
+  const head = (h, lede, kicker) => `${kicker ? `<p class="kicker">${kicker}</p>` : ''}<h1 class="atl-h1">${h}</h1>${lede ? `<p class="lede">${lede}</p>` : ''}`;
+  const kick = g ? 'Your Gift Subscription' : 'Your Subscription';
+  const status = `${s.plan.replace(', annual', '')} · Subscriber since ${s.subscriber.since}`;
+
+  if (step === 'done' && d.paid) {
+    const m = s.sub.method;
+    const rows = [['Plan', `${g ? `Atlantic Digital gift for ${esc(g.name)}` : 'Atlantic Digital'}, $89.99/year`], ['Paid', `${money(PRICE)} with ${esc(d.methodText(m))}`],
+      ['Renews', F(RENEWS_NEXT)], ['Receipt', `Sent to ${esc(s.subscriber.email)}`]];
+    el.innerHTML = framed(`<div class="confirm">
+      ${head(`Thank you, ${esc(s.subscriber.first)}`, g
+        ? `${esc(g.first)}’s gift subscription is renewed through ${F(RENEWS_NEXT)}. Thank you for sharing <i>The Atlantic</i>, and for supporting independent journalism.`
+        : `Your subscription is renewed through ${F(RENEWS_NEXT)}. Thank you for supporting our work.`, 'Payment Received')}
+      <dl class="receipt">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+      <div class="actions" style="margin-top:28px"><a class="btn btn-block btn-primary-lg" href="#/reading">${g ? 'Return to The Atlantic' : 'Continue Reading'}</a></div>
+      <section class="issue" aria-labelledby="issue-h">
+        <div class="issue-head"><h2 id="issue-h">From the November Issue</h2><a href="#/reading">Read the Issue</a></div>
+        <ol class="river">${ISSUE.map((a) => `<li><a href="#/reading"><h3>${a.title}</h3><p class="dek">${a.dek}</p>${a.by ? `<p class="by">By ${a.by}</p>` : ''}</a></li>`).join('')}</ol>
+      </section></div>`, kit.next({ text: 'The email link is spent now: opening it again shows the payment is up to date.',
+        links: [{ label: 'Open the email again >', to: `#/email?${keep()}` }, { label: 'See it in the account >', to: '#/account', session: 'in' }] }));
+    return;
+  }
+  if (d.paid) {
+    const m = s.sub.method;
+    el.innerHTML = framed(`${head('You’re all set', `We received your ${money(PRICE)} payment on ${F(s.sub.paidOn)}, and ${g ? `${esc(g.first)}’s gift subscription` : 'your subscription'} is renewed through ${F(RENEWS_NEXT)}. Thank you for supporting our work.`, kick)}
+      <div class="actions" style="margin-top:28px"><a class="btn btn-block btn-primary-lg" href="#/reading">Continue Reading</a></div>`);
+    return;
+  }
+  if (d.ended) {
+    el.innerHTML = framed(`${head(`Your ${g ? 'gift ' : ''}subscription has been canceled`,
+        `We weren’t able to process payment before ${F(CANCEL_ON)}, so ${g ? `the gift subscription for ${esc(g.name)}` : 'your subscription'} was canceled. Nothing is owed. Thank you for your time ${g ? 'sharing The Atlantic' : 'as a subscriber'} and for your support. We hope to welcome you back.`, kick)}
+      <div class="actions" style="margin-top:28px"><a class="btn btn-block" href="#/restart">${g ? 'Give a New Gift' : 'Resubscribe'}</a></div>
+`);
+    return;
+  }
+
+  // The pay step, laid out like production checkout (CreditCardFormStripe.js): heading,
+  // an express row of equal wallet buttons, “Or”, then the card form and the one primary button.
+  el.innerHTML = framed(`${head(d.headline, d.short, kick)}<p class="until">${d.until}</p>
+    <h2 class="section-title">Payment Information</h2>
+    <div class="express" aria-label="Express payment">${['apple_pay', 'google_pay', 'paypal'].map((w) => `<button type="button" class="wallet w-${w}" data-wallet="${w}" aria-label="Pay with ${WALLETS[w].label}">${WALLETS[w].button}</button>`).join('')}</div>
+    <p class="or">Or</p>
+    <form id="card" novalidate data-dk-scope>
+      <div class="pe">
+        <div class="pe-cell"><input id="cc" inputmode="numeric" autocomplete="cc-number" placeholder="Card number" aria-label="Card number">
+          <span class="brands"><span class="brand-chip" data-b="Visa">VISA</span><span class="brand-chip" data-b="Mastercard">MC</span><span class="brand-chip" data-b="Amex">AMEX</span></span></div>
+        <div class="pe-row"><input id="exp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY" aria-label="Expiration date">
+          <input id="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC" aria-label="Security code"></div>
+        <div class="pe-row" style="grid-template-columns:1fr"><input id="zip" inputmode="numeric" autocomplete="postal-code" placeholder="ZIP" aria-label="ZIP code"></div>
+      </div>
+      <p class="pe-errors" id="pe-err" role="alert"></p>
+      <div class="actions" style="margin-top:20px"><button class="btn btn-block btn-primary-lg" type="submit">Renew for ${money(PRICE)}</button></div>
+    </form>
+    <p class="reassure"><span aria-hidden="true">🔒</span> Secure payment. No sign-in needed.<br>Questions? <a href="#/help">We’re happy to help.</a></p>`);
+  el.querySelectorAll('[data-wallet]').forEach((b) => b.addEventListener('click', () => walletSheet(b.dataset.wallet)));
+  cardForm(el);
+}
+
+/* Mock Payment Element: Stripe’s own field messages, Stripe’s test cards */
+function cardForm(el) {
+  // Visual only: no validation and no Stripe. Typing is optional; "Renew" always goes through.
+  // Show a decline with Demo → "Next save fails".
+  const f = el.querySelector('#card');
+  const cc = f.querySelector('#cc'), exp = f.querySelector('#exp'), cvc = f.querySelector('#cvc'), zip = f.querySelector('#zip');
+  const digits = (v) => v.replace(/\D/g, '');
+  const brandOf = (n) => /^3[47]/.test(n) ? 'Amex' : /^5[1-5]|^2[2-7]/.test(n) ? 'Mastercard' : /^4/.test(n) ? 'Visa' : null;
+  cc.addEventListener('input', () => {
+    const n = digits(cc.value).slice(0, 16);
+    cc.value = n.replace(/(\d{4})(?=\d)/g, '$1 ');
+    const b = brandOf(n);
+    el.querySelectorAll('.brand-chip').forEach((c) => c.classList.toggle('on', c.dataset.b === b));
+  });
+  exp.addEventListener('input', () => { const n = digits(exp.value).slice(0, 4); exp.value = n.length > 2 ? n.slice(0, 2) + ' / ' + n.slice(2) : n; });
+  [cvc, zip].forEach((i) => i.addEventListener('input', () => { i.value = digits(i.value).slice(0, i === zip ? 5 : 4); }));
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const n = digits(cc.value);
+    const method = { type: 'card', brand: (n.length >= 4 && brandOf(n)) || 'Visa', last4: n.length >= 4 ? n.slice(-4) : '4242' };
+    const ok = await kit.run(() => kit.act('pay', method),
+      'Your card was declined, and nothing was charged. Please try another card or payment method.',
+      { label: 'pay by card', trigger: e.submitter });
+    if (ok) kit.setParam('step', 'done', { push: true });
+  });
+}
+
+/* Wallet sheets: drawn as the OS would show them; the confirm runs through the error arm */
+function overlay(cls, html, center) {
+  const scrim = document.createElement('div');
+  scrim.className = 'sheet-scrim' + (center ? ' center' : '');
+  scrim.innerHTML = `<div class="sheet ${cls}" role="dialog" aria-modal="true" data-dk-scope>${html}</div>`;
+  document.body.appendChild(scrim);
+  const close = () => scrim.remove();
+  scrim.addEventListener('click', (e) => { if (e.target === scrim || e.target.closest('[data-close]')) close(); });
+  const onKey = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+  setTimeout(() => { const b = scrim.querySelector('.sheet-pay'); if (b) b.focus(); });
+  return { scrim, close };
+}
+function walletSheet(w) {
+  const W = WALLETS[w], amt = money(PRICE);
+  const lines = `<div class="sheet-card">
+      <div class="sheet-line"><span>Card</span><span>${W.card}</span></div>
+      <div class="sheet-line"><span>Pay</span><span><b>The Atlantic</b> · ${amt}</span></div></div>`;
+  const html = W.sheet === 'apple'
+    ? `<div class="sheet-head"><span>${APPLE}Pay</span><button type="button" data-close>Cancel</button></div>${lines}
+       <div class="actions"><button type="button" class="sheet-pay">Pay with Face ID</button></div><p class="sheet-note">Double-click the side button in real life.</p>`
+    : W.sheet === 'paypal'
+      ? `<div class="sheet-head"><span>${PAYPAL}</span><button type="button" data-close>✕</button></div>
+         <p style="margin:0 0 12px">Hi, Jane</p>${lines.replace('<span>Card</span>', '<span>Account</span>')}
+         <div class="actions"><button type="button" class="sheet-pay">Pay Now</button></div>`
+    : W.sheet === 'gpay'
+      ? `<div class="sheet-head"><span>${GLOGO} Pay</span><button type="button" data-close>✕</button></div>${lines}
+         <div class="actions"><button type="button" class="sheet-pay">Continue</button></div>`
+      : `<div class="sheet-head"><span>link</span><button type="button" data-close>✕</button></div>${lines}
+         <div class="actions"><button type="button" class="sheet-pay">Pay ${amt}</button></div>`;
+  const { scrim, close } = overlay(W.sheet === 'apple' ? '' : W.sheet, html, W.sheet !== 'apple');
+  scrim.querySelector('.sheet-pay').addEventListener('click', async (e) => {
+    const ok = await kit.run(() => kit.act('pay', { type: w, card: W.card }),
+      `${W.label} couldn’t complete the payment, so nothing was charged. Try again, or pay with a card.`,
+      { label: 'pay with a wallet', trigger: e.currentTarget, delay: 900 });
+    if (ok) { close(); kit.setParam('step', 'done', { push: true }); }
+  });
+}
+function bankCheck(method) {
+  const { scrim, close } = overlay('bank', `<div class="sheet-head"><span>Verify it’s you</span><button type="button" data-close>✕</button></div>
+    <p style="margin:0 0 6px">Your bank wants to confirm this ${money(PRICE)} payment to The Atlantic.</p>
+    <p class="sheet-note" style="text-align:left">Stripe’s 3D Secure test page. In real life this is the bank’s screen or app.</p>
+    <div class="actions"><button type="button" class="sheet-pay">Complete authentication</button></div>`, true);
+  scrim.querySelector('.sheet-pay').addEventListener('click', async (e) => {
+    const ok = await kit.run(() => kit.act('pay', method), 'Your bank didn’t confirm the payment, so nothing was charged. Try again, or use another card.',
+      { label: 'bank check', trigger: e.currentTarget });
+    if (ok) { close(); kit.setParam('step', 'done', { push: true }); }
+  });
+}
+
+/* Signed-in account (app): the same facts from the other side */
+function accountPage(el, { state: s, derived: d }) {
+  const m = s.sub.method;
+  const banner = d.paid
+    ? `<div class="banner banner-success" style="margin-bottom:32px"><strong>Payment updated on ${F(s.sub.paidOn)}.</strong> Thanks for staying with us.</div>`
+    : d.ended
+      ? `<div class="banner banner-red" style="margin-bottom:32px"><strong>Your subscription ended on ${F(CANCEL_ON)}.</strong> We couldn’t collect the ${money(PRICE)} renewal. <a class="link" href="#/restart">Restart &gt;</a></div>`
+      : `<div class="banner banner-red" style="margin-bottom:32px"><strong>We’re having trouble processing payment to renew your ${s.gift ? 'gift ' : ''}subscription.</strong> ${s.gift ? `${esc(s.gift.first)}’s access continues` : 'Your access continues'} until ${F(CANCEL_ON)}. <a class="link" href="#/update?${keep()}" data-dk-session="out">Update Your Payment &gt;</a></div>`;
+  el.innerHTML = `<div class="page-head"><h1 class="t-heading">Subscription</h1><p class="dek">${esc(s.subscriber.name)} · ${esc(s.subscriber.email)}</p></div>
+    ${banner}
+    <table class="kv"><tbody>
+      <tr><th scope="row">Plan</th><td>${esc(s.plan)}${s.gift ? `<br><span class="muted">For ${esc(s.gift.name)}</span>` : ''}</td></tr>
+      <tr><th scope="row">Status</th><td>${d.paid ? 'Active' : d.ended ? 'Cancelled' : 'Payment past due'}</td></tr>
+      <tr><th scope="row">Payment method</th><td>${d.paid ? esc(d.methodText(m)) : `${esc(d.oldLabel)} <span class="muted">· ${s.old.reason === 'expired' ? 'expired' : 'declined'}</span>`}</td></tr>
+      <tr><th scope="row">${d.paid ? 'Next billing date' : 'Amount due'}</th><td>${d.paid ? F(RENEWS_NEXT) : d.ended ? 'Nothing' : money(PRICE)}</td></tr>
+      <tr><th scope="row">Auto-renew</th><td>${d.ended ? 'Off' : 'On'}</td></tr>
+    </tbody></table>`;
+}
+
+const stubPage = (title, body, links) => () => `${publicBar()}<div class="page-head"><h1 class="t-heading">${title}</h1><p class="dek">${body}</p></div>
+  ${links ? `<div class="quiet-links">${links}</div>` : ''}<p style="margin-top:20px"><span class="stub-tag">Not built in this prototype</span></p>`;
+
+
+const pages = [
+  { path: '/email', title: 'Dunning email', area: 'public', render: emailPage,
+    purpose: 'Start here. The email for today’s dunning day; one button opens the update page.',
+    sideCardIntro: 'Set up the demo here. The email and the page update to match.', preconditions: PRE },
+  { path: '/update', title: 'Fix your payment', area: 'public', render: updatePage,
+    purpose: 'The sign-in-free page, laid out like checkout: an express row of wallets, then the card form. Also its expired, spent and ended states.',
+    sideCardIntro: 'Set up the demo here. Switching Subscription resets the demo data.', preconditions: PRE },
+  { path: '/restart', title: 'Restart (reactivation)', area: 'public',
+    purpose: 'Where an ended subscription goes. The reactivation flow is its own prototype.',
+    render: stubPage('Resubscribe', 'This is where the reactivation flow takes over: one-page checkout with the expired-card repair and “You’re back.”',
+      '') },
+  { path: '/signin', title: 'Sign in', area: 'public', purpose: 'The existing sign-in, for anyone who’d rather use their account.',
+    render: stubPage('Sign in', 'The existing accounts.theatlantic.com sign-in. After it, Subscription shows the same past-due banner.',
+      '<a class="link" href="#/account" data-dk-session="in">Skip to the signed-in page &gt;</a>') },
+  { path: '/cancel', title: 'Cancel', area: 'public', purpose: 'The quiet way out. Today’s cancel flow, unchanged.',
+    render: stubPage('Cancel your subscription', 'The existing cancel flow. Offered as a plain link so nobody feels trapped on a payment page.') },
+  { path: '/help', title: 'Help Center', area: 'public', purpose: 'Where “We’re happy to help” goes.',
+    render: stubPage('Help Center', 'support.theatlantic.com, where Customer Care answers billing questions.') },
+  { path: '/reading', title: 'Back to reading', area: 'public', purpose: 'Where “Continue reading” lands.',
+    render: stubPage('Back to The Atlantic', 'theatlantic.com, where they were before the email.') },
+  { path: '/account', title: 'Subscription', area: 'app', render: accountPage,
+    purpose: 'The signed-in Subscription page, showing the same facts: past due, then paid.' },
+];
+
+const nav = [
+  { path: '/account', label: 'Subscription' },
+  { path: '/newsletters', label: 'Newsletters', stub: 'Newsletters aren’t part of this prototype.' },
+  { path: '/settings', label: 'Account settings', stub: 'Account settings aren’t part of this prototype.' },
+];
+
+/* --- 8. Init ------------------------------------------------------------------ */
+const kit = DemoKit.init({
+  key: 'proto-dunning-update-v3',
+  today: TODAY,
+  home: '/email',
+  project: { name: 'Fix your payment', description: 'Dunning emails link to a sign-in-free page that takes Apple Pay, Google Pay, PayPal or a card, whatever failed before' },
+  company: 'The Atlantic',
+  contact: { name: 'Atlantic customer care', email: 'help@theatlantic.com' },
+  footer: HELP,
+  brand: 'The Atlantic',
+  scenarios, axes, pages, paths, nav, derive, actions,
+  saves: ['pay with a wallet', 'pay by card'],
+  validate: (s) => s && s.sub && typeof s.sub.status === 'string' && s.old && s.subscriber,
+  fonts: 'atlantic-accounts',
+  mode: new URLSearchParams(location.search).has('sketch') ? 'sketch' : 'build',
+});
+</script>
+</body>
+</html>
