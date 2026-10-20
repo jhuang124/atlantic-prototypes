@@ -416,8 +416,8 @@ function emailPage(el, { state, derived: d }) {
     <div class="email-body"><img class="wm wm-email" src="./assets/atlantic-logo.svg" alt="The Atlantic">
       <h1>${esc(t.hed)}</h1>
       ${t.body.map((p) => `<p>${esc(p)}</p>`).join('')}
-      ${t.list != null ? `${cta}${t.list ? `<p>${esc(t.list)}</p>` : ''}<ul class="benefits">${BENEFITS.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}
       ${cta}
+      ${t.list != null ? `${t.list ? `<p>${esc(t.list)}</p>` : ''}<ul class="benefits">${BENEFITS.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}
       ${t.after ? `<p>${esc(t.after)}</p>` : ''}
       <p>—The Team at The Atlantic</p>
       <p class="email-foot">Responses to this email are not monitored. For customer-service inquiries or assistance with your account, please visit our Help Center.<br>The Atlantic ∙ 610 Water St. SW ∙ Washington, DC 20024</p>
