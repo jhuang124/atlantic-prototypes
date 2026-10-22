@@ -4,6 +4,8 @@ Sign-in-free payment update for subscribers whose renewal failed: the dunning em
 page on the accounts site that charges the renewal, whatever failed before.
 
 - Entry point: `index.html` (presenter controls behind the "Demo" button, bottom left)
+- Two experiences, switched on the email's side card ("Experience"): **Today** (the current
+  email, sign-in, Subscription page and card form) and **Proposed** (the sign-in-free page)
 - Two layouts, switched from the side card ("Payment page"): **All methods** (PayPal, Apple Pay,
   Google Pay, then a card) or **Card only** (one clean card form, the hosted-update-page pattern)
 - Visual only: nothing is charged and no payment provider is called

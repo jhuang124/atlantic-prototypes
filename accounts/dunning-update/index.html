@@ -150,6 +150,125 @@
 /* Email (kit email frame, Atlantic template body) */
 .wm-email { display: block; height: 20px; width: auto; margin: 0 0 28px; }
 .benefits { margin: 0 0 8px; padding-left: 20px; } .benefits li { margin: 4px 0; }
+/* ==========================================================================
+   Today: replicas of the accounts site as it ships (SiteHeader, PageLayout,
+   AccountsNav, Card, BillingInfo, AddCreditCardStripe, EmailLoginForm).
+   Values from the SCSS: card 687, nav 174, Garamond titles 26→30, Goldwyn-style
+   mono buttons 16/300, primary #2c2825, secondary blue on #f0f6ff.
+   ========================================================================== */
+.acct-header .left, .acct-header .right { min-width: 1px; }
+.af-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; position: relative; padding: 12px 24px; border: 1px solid transparent; border-radius: 4px;
+  background: #2c2825; color: #fff; font: 300 16px/19px var(--font-mono); cursor: pointer; text-decoration: none; white-space: nowrap; }
+.af-btn:hover { background: #45423f; }
+.af-btn.thick { padding: 16px 24px; }
+.af-btn.block { width: 100%; }
+.af-btn-sec { background: #f0f6ff; color: #166999; border-color: #166999; }
+.af-btn-sec:hover { background: #10537a; border-color: #10537a; color: #fff; }
+.af-btn-ter { background: none; border: 0; padding: 0 0 2px; color: #166999; font: 300 16px/19px var(--font-mono); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .3em; cursor: pointer; }
+.af-saved { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 4px; background: #e0e6ed; color: #007358; font: 16px/1 var(--font-sans); }
+
+/* Account page grid: nav rail 174 + card column 687 */
+.af-page { display: grid; grid-template-columns: 1fr 687px 1fr; padding: 32px 0 50px; }
+.af-nav { justify-self: start; width: 174px; padding-left: 48px; box-sizing: content-box; }
+.af-nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; }
+.af-nav a { font: 16px/1.25 var(--font-sans); color: #4a4a4a; text-decoration: none; }
+.af-nav a:hover { color: #000; }
+.af-nav a[aria-current="page"] { color: #000; font-weight: 600; border-bottom: 2px solid #000; padding-bottom: 2px; }
+.af-nav ul ul { margin: 20px 0 0 5px; padding-left: 15px; border-left: 1px solid #ebeae8; }
+.af-nav ul ul a { font-size: 14px; }
+.af-navbtn { display: none; }
+.af-main { min-width: 0; }
+.af-card { background: #fff; border: 1px solid #e7e3db; margin-bottom: 24px; position: relative; }
+.af-int { padding: 24px; border-top: 1px solid #e7e3db; }
+.af-title { margin: 0; font: 400 30px/34px var(--font-serif); color: #2c2825; }
+.af-desc { margin: 12px 0 24px; font: 18px/24px var(--font-sans); color: #2c2825; }
+.af-gray { font: 18px/24px var(--font-sans); color: #6f6c69; }
+.af-benefits { list-style: none; margin: 0; padding: 0; }
+.af-benefits li { display: flex; align-items: flex-start; padding-bottom: 8px; font: 14px/18px var(--font-sans); color: #2c2825; }
+.af-benefits li:last-child { padding-bottom: 0; }
+.af-benefits svg { flex: none; margin: 2px 12px 0 4px; }
+.af-benefits em { font-style: italic; }
+.af-action { position: absolute; top: 24px; right: 24px; }
+.af-fields { display: flex; flex-wrap: wrap; }
+.af-field { width: 50%; }
+.af-fields.thirds .af-field { width: 33.333%; padding-bottom: 24px; }
+.af-field dt { margin-bottom: 8px; font: 12px/1.2 var(--font-sans); color: #2c2825; }
+.af-field dd { margin: 0; display: flex; align-items: center; font: 18px/1 var(--font-sans); color: #2c2825; }
+.af-billhead { display: flex; justify-content: space-between; align-items: flex-end; column-gap: 12px; padding-bottom: 12px; }
+.af-billhead + .af-fields { padding-top: 16px; }
+.af-brand { height: 24px; min-width: 46px; margin-right: 8px; }
+.af-addr { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.af-addr .af-card { height: 207px; margin: 0; }
+.af-addr h3 { margin: 0 0 16px; font: 12px/1.2 var(--font-sans); color: #2c2825; }
+.af-addr .af-gray { height: 120px; }
+.af-addr .af-ter-pos { position: absolute; top: 24px; right: 24px; }
+.af-note-small { margin: 8px 0 20px; font: 12px/16px var(--font-sans); color: #4a4a4a; letter-spacing: .17px; }
+
+/* Stripe Payment Element, default theme (no appearance passed in AddCreditCardStripe.js) */
+.spe { margin: 20px 0 24px; font: 14px/1.3 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; color: #30313d; }
+.spe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.spe-f { display: flex; flex-direction: column; gap: 4px; position: relative; }
+.spe-f.full { grid-column: 1 / -1; }
+.spe-f label { font-size: 14px; color: #30313d; }
+.spe-in { height: 44px; padding: 0 12px; border: 1px solid #e6e6e6; border-radius: 5px; background: #fff; color: #30313d;
+  box-shadow: 0 1px 1px rgba(0,0,0,.03), 0 3px 6px rgba(0,0,0,.02); font: 16px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; width: 100%; }
+.spe-in:focus { outline: 0; border-color: hsla(210,96%,45%,50%); box-shadow: 0 0 0 3px hsla(210,96%,45%,25%); }
+.spe-in::placeholder { color: #757680; }
+.spe-f .brands { bottom: 13px; }
+.spe-f.has-brands .spe-in { padding-right: 124px; }
+.spe-legal { margin-top: 12px; font-size: 12px; color: #6d6e78; }
+.af-btnrow { display: flex; flex-wrap: nowrap; align-items: center; gap: 24px; }
+.af-btnrow .af-btn { flex: 0 0 50%; }
+.af-scope .alert { order: 3; margin: 24px 0 0; padding: 0; border: 0; background: none; color: #dd1001; font: 16px/1.4 var(--font-sans); }
+.af-scope { display: flex; flex-direction: column; }
+
+/* Sign-in (EmailLoginCardLayout: 432 wide, on the page background, no card) */
+.af-login { max-width: 432px; margin: 48px auto 0; padding: 0 28px 104px; box-sizing: content-box; }
+.af-login .af-title { padding-bottom: 32px; }
+.af-label { display: block; margin-bottom: 8px; font: 600 12px/12px var(--font-sans); letter-spacing: .5px; color: #2c2825; }
+.af-inwrap { position: relative; }
+.af-input { width: 100%; height: 52px; padding: 16px; border: 1px solid #6f6c69; border-radius: 4px; background: #fff; color: #2c2825; font: 16px/1.2 var(--font-sans); }
+.af-input:disabled { background: #f8f7f4; color: #6f6c69; }
+.af-input:focus { outline: 0; border: 2px solid #000; padding: 15px; }
+.af-inline { position: absolute; top: 0; right: 0; padding: 18px; background: none; border: 0; font: 500 14px/16px var(--font-sans); color: #2c2825; cursor: pointer; }
+.af-gap { height: 22px; }
+.af-or { display: flex; align-items: center; margin: 24px 0 16px; font: 14px/15px var(--font-sans); letter-spacing: 1px; text-transform: uppercase; color: #2c2825; }
+.af-or::before, .af-or::after { content: ''; flex: 1; border-top: 1px solid #e7e3db; }
+.af-or span { padding: 0 16px; }
+.af-social { display: grid; gap: 8px; }
+.af-lb { position: relative; display: flex; align-items: center; width: 100%; padding: 12px 40px 12px 20px; border: 1px solid #6f6c69; border-radius: 4px; background: #e7e3db;
+  color: #2c2825; font: 16px/16px var(--font-mono); text-align: left; cursor: pointer; text-decoration: none; }
+.af-lb:hover { background: #48413d; color: #fff; }
+.af-lb svg { position: absolute; left: 12px; width: 16px; height: 16px; }
+.af-lb span { padding-left: 12px; }
+.af-help { margin-top: 24px; font: 16px/24px var(--font-sans); color: #2c2825; }
+.af-help a, .af-help button { color: #166999; text-decoration: underline; background: none; border: 0; padding: 0; font: inherit; cursor: pointer; }
+.af-back { display: inline-block; margin-bottom: 24px; font: 500 14px/16px var(--font-sans); color: #2c2825; text-decoration: none; }
+.af-body { margin: -16px 0 24px; font: 16px/24px var(--font-sans); color: #2c2825; }
+.af-body a { color: #166999; }
+
+/* Narrow: SiteHeader logo 129x20, nav rail → "Subscription ⌄" bar, cards stack */
+@container (max-width: 1079px) { .af-page { grid-template-columns: auto minmax(0, 1fr); gap: 48px; padding: 32px 48px 50px; } .af-nav { padding-left: 0; } }
+@container (max-width: 767px) {
+  .acct-header { border-top-width: 0; }
+  .acct-header .wm { height: 20px; }
+  .af-page { display: block; padding: 0 0 50px; }
+  .af-nav { display: none; }
+  .af-navbtn { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px; padding: 16px; border: 0; border-bottom: 1px solid #ccc; background: #fff; font: 600 16px/1 var(--font-sans); color: #000; }
+  .af-int { padding: 24px 16px; }
+  .af-title { font-size: 26px; }
+  .af-action { position: static; display: flex; width: 100%; margin-top: 24px; }
+  .af-billhead { flex-direction: column; align-items: stretch; row-gap: 16px; }
+  .af-fields.thirds .af-field { width: 100%; }
+  .af-addr { grid-template-columns: 1fr; gap: 0; }
+  .af-addr .af-card { margin-bottom: 24px; }
+  .af-login { margin-top: 32px; padding: 0 12px 104px; }
+  .af-login .af-title { font-size: 26px; line-height: 34px; }
+  .spe-grid { grid-template-columns: 1fr; }
+}
+.acct-body.flush { padding: 0; }
+.af-stage { max-width: 687px; margin: 0 auto 48px; } .af-stage .demo-box { margin: 0; }
+@container (max-width: 767px) { .af-stage { margin: 0 16px 40px; } }
 </style>
 </head>
 <body>
@@ -261,6 +380,26 @@ const actions = {
 
 /* --- 6. Paths ---------------------------------------------------------------- */
 const paths = [
+  { id: 'today', label: 'Today: from the email to a new card',
+    summary: 'How it works now. The email’s button goes to the signed-in Subscription page, so a signed-out subscriber signs in first, then adds a card on a page that never mentions the failed renewal.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&exp=today' },
+    steps: [
+      'Email 3, the live send: “To keep enjoying unlimited access, please act now.” → “Update Your Card Now”.',
+      'Signed out, so the Subscription link redirects to sign-in: “Enter your email to sign in or create an account” → “Continue”.',
+      '“Sign in to your account”: email locked, password field → “Sign In”.',
+      'Subscription page: Subscription Details, then Billing Information with Visa ending 3220, expired 09/2026. Nothing says the renewal failed.',
+      '“+ Add a New Payment Method” → the card form, card only, no wallets → “Save”.',
+      '“Saved”, then Billing Information shows “Ending in 4242” and a next billing date of Oct 13, 2027. No message that the $89.99 renewal went through.',
+    ] },
+  { id: 'today-link', label: 'Today: no password, so a one-time link',
+    summary: 'The same flow on a phone for a subscriber who doesn’t know their password: a second email before they can pay.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&exp=today' },
+    steps: [
+      'Email 3 → “Update Your Card Now” → the sign-in page.',
+      'Under “Or use”: “A one-time email link” → “Use email to sign in” → “Next”.',
+      '“Email sent!”: “This link will expire in 3 hours.”',
+      'Next in the demo → “Open the sign-in link” → the Subscription page, then the same card form.',
+    ] },
   { id: 'one-tap', label: 'From the email to paid, in one tap',
     summary: 'Subscriber on a phone, All methods page. Open the email, pay with Apple Pay, land on the confirmation.',
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all' },
@@ -305,25 +444,32 @@ const paths = [
 /* --- 7. Pages ---------------------------------------------------------------- */
 const deviceOf = () => kit.param('device') === 'desktop' ? 'desktop' : 'iphone';
 const layoutOf = () => kit.param('layout') === 'card' ? 'card' : 'all';
-const keep = () => `device=${deviceOf()}&layout=${layoutOf()}`;
+const keep = () => qs();
 const WORDMARK = '<img class="wm" src="./assets/atlantic-logo.svg" alt="The Atlantic">';
-// The accounts shell: header (Home · wordmark · Sign in), warm paper body, footer.
+// The accounts shell (SiteHeader, Footer): Home · wordmark · Sign in/Sign out, warm paper body, footer.
+// Sign-in pages leave both header slots empty and drop the footer's Sign In link.
 // Phone = the same page in a 375px viewport; container queries do the narrow layout.
 // `stage` is presenter chrome (NEXT IN THE DEMO); it sits under the content, above the footer.
-const shell = (inner, stage = '') => `<div class="acct${deviceOf() === 'desktop' ? '' : ' is-phone'}"><div class="vp">
-  <header class="acct-header"><a href="#/reading">Home</a>${WORDMARK}<a class="right" href="#/signin">Sign in</a></header>
-  <div class="acct-body">${inner}${stage}</div>
+const shell = (inner, stage = '', o = {}) => {
+  const left = o.left === '' ? '<span class="left"></span>' : '<a class="left" href="#/reading">Home</a>';
+  const right = o.right === '' ? '<span class="right"></span>'
+    : o.right === 'out' ? '<a class="right" href="#/email" data-dk-signout>Sign out</a>' : `<a class="right" href="#/login?${qs({ step: 'email' })}">Sign in</a>`;
+  return `<div class="acct${deviceOf() === 'desktop' ? '' : ' is-phone'}"><div class="vp">
+  <header class="acct-header">${left}${WORDMARK}${right}</header>
+  <div class="acct-body${o.flush ? ' flush' : ''}">${inner}${stage}</div>
   <footer class="acct-foot"><div>
-      <nav><a href="#/signin">Sign In</a><a href="#/help">Visit our Help Center</a><a href="#/help">Accounts &amp; Subscription help</a><a href="#/help">Call us at (855) 940-0585</a></nav>
+      <nav>${o.footSignIn === false ? '' : `<a href="#/login?${qs({ step: 'email' })}">Sign In</a>`}<a href="#/help">Visit our Help Center</a><a href="#/help">Accounts &amp; subscription help</a></nav>
       <p class="legal"><a href="#/help">Privacy Policy</a><span aria-hidden="true"></span><a href="#/help">Terms &amp; Conditions</a></p>
       <p class="captcha">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p></div>
     <div class="foot-mark" aria-hidden="true"><span class="glyph">A</span><img src="./assets/atlantic-logo.svg" alt=""></div>
     <a class="help-pill" href="#/help">${CHAT_ICON}Help</a></footer>
 </div></div>`;
+};
 
 // Side-card controls. "Opened on" and "Payment page" are URL params; Subscription and Dunning
 // clock drive the demo state (scenario and clock axis): a click writes a one-shot param,
 // syncControls() applies it to state and clears it, and each control's default reads back from state.
+const EXP = { key: 'exp', label: 'Experience', options: [{ value: 'today', label: 'Today' }, { value: 'new', label: 'Proposed' }] };
 const PRE = [
   { key: 'who', label: 'Subscription', get default() { return kit.state.scenario === 'gift' ? 'gift' : 'self'; },
     options: [{ value: 'self', label: 'Self' }, { value: 'gift', label: 'Gift' }] },
@@ -332,6 +478,8 @@ const PRE = [
     options: [{ value: 'd7', label: 'Before cancellation' }, { value: 'ended', label: 'After' }] },
   { key: 'device', label: 'Opened on', options: [{ value: 'iphone', label: 'Phone' }, { value: 'desktop', label: 'Desktop' }] },
 ];
+const PRE_EMAIL = [EXP, ...PRE];
+const PRE_ACCT = PRE.filter((c) => c.key !== 'layout');
 function syncControls() {
   const q = kit.params(), who = q.get('who'), when = q.get('when');
   if (!who && !when) return false;
@@ -341,6 +489,42 @@ function syncControls() {
   });
   return true;
 }
+/* Today's dunning emails, as they go out since the September 2026 move to a new email platform (copied from
+   live sends in October 2026). Every send has one "Update Your Card Now" button and a short
+   preheader; the shared footer follows. Gift sends were not captured, so the gift scenario
+   shows the earlier gift template with today's button label. */
+const TODAY_HEAD = 'To keep enjoying unlimited access, please act now.';
+const TODAY_HELP = 'If you have any questions about your subscription, please <a href="#/help">reach out to us</a>.';
+const TODAY_STD = [
+  { subject: 'Did your billing info change?', pre: 'Don’t miss a story from The Atlantic. Update your payment today.',
+    body: ['Thank you for subscribing to The Atlantic. We’re having trouble processing your annual payment for your subscription. Unfortunately, the credit card we have on file recently failed. This can happen if your card expires, or if you change billing addresses.',
+      'To ensure your access to uninterrupted access to The Atlantic, and to continue supporting our journalism, please take a moment to update your payment information.'],
+    after: ['As a reminder, you can manage your subscription in <a href="#/subscription">your account</a>. If you have any questions, please <a href="#/help">reach out to us</a>. We’re happy to help.'] },
+  { subject: 'Issue With Your Subscription To The Atlantic', pre: '',
+    body: ['Thank you for subscribing to The Atlantic. We’re having trouble processing your annual payment for your subscription. To avoid losing access, please update your payment method.'],
+    after: ['If you need other help, or if you believe you received this email in error, please <a href="#/help">contact Customer Care.</a> You may also <a href="#/subscription">log into your account</a> at any time to edit billing information.',
+      'Thank you for being a subscriber, and for supporting our journalism.'] },
+  { subject: 'Don’t lose your access to The Atlantic', pre: 'To keep reading The Atlantic, update your payment information today.',
+    body: ['After several tries, we are still unable to process payment for your next one-year term. To keep your subscription active, please update your billing information. Unless you act soon, you will lose your access to The Atlantic’s journalism, including our website, magazine, iOS app, and your digital library.'],
+    after: [TODAY_HELP, 'Thank you for being a subscriber, and for supporting our journalism.'] },
+  { subject: 'Your subscription will be cancelled soon', pre: 'To secure your access to The Atlantic, update your payment information today.',
+    body: ['Your subscription is at risk of being cancelled. Please update your billing information, so we can process payment for your next one-year term. Unless you act soon, you will lose your access to all of your subscriber benefits, including:'],
+    list: ['Unlimited access to TheAtlantic.com', '10 issues of the magazine each year', 'Our beautifully designed iOS app', 'A subscriber-only weekly newsletter', 'Exclusive live events', 'Audio articles, ebooks, special issues, and more'],
+    after: [TODAY_HELP + ' We appreciate your support, which helps make our journalism possible.'] },
+  { subject: 'Action Required - Your Atlantic subscription payment has failed', pre: 'To secure your access to The Atlantic, update your payment information today.',
+    body: ['Payment for your next subscription term is now past due. Your subscription will be cancelled if your payment information is not updated.',
+      'Don’t risk losing all of your subscriber-only benefits, including unlimited access to TheAtlantic.com and the app, issues of the magazine, audio articles, exclusive events, and more.',
+      'Update your information with one click:'],
+    after: [TODAY_HELP + ' We hope you choose to stay a subscriber, and to continue supporting independent journalism.'] },
+  { subject: 'Your Atlantic subscription is ending', pre: 'This is the final notice about your subscription. Update your payment info today.',
+    body: ['This is the last time we’ll contact you before your subscription is cancelled. Unless you update your payment information, you will lose your unlimited access to The Atlantic.',
+      'To keep your subscription active, update your information now:'],
+    after: [TODAY_HELP + ' We hope you choose to stay a subscriber, and to continue supporting independent journalism.'] },
+];
+const TODAY_FOOT = `<p class="email-foot">You may cancel this subscription by visiting your <a href="#/login">Account page</a> or by contacting our Customer Care team at support@theatlantic.com. Cancellations take effect at the end of the current billing period. Please read our full terms <a href="#/help">here</a>.<br><br>
+  The Atlantic is published monthly except for combined issues in January/February and July/August.<br>Download The Atlantic app for <a href="#/help">Android</a> and <a href="#/help">iOS</a><br><a href="#/help">Unsubscribe</a> | <a href="#/help">Privacy Policy</a><br><br>
+  Responses to this email are not monitored. For customer-service inquiries or assistance with your account, please visit <a href="#/help">The Atlantic Help Center</a>.<br>The Atlantic ∙ 610 Water St. SW ∙ Washington, DC 20024</p>`;
+
 /* Dunning email (public, link-entry). Bodies follow the current customer emails; only the
    button label changed, to “Update Your Payment”, since any method works now. */
 const BENEFITS = ['Unlimited articles on any device', '12 magazine issues in print or PDF', 'The Atlantic app with daily editors’ picks, puzzles, and our latest journalism',
@@ -381,12 +565,14 @@ const STD_MAP = [0, 1, 2, 3, 4, 4, 5];   // 7 standard sends, 6 templates: sends
 function emailPage(el, { state, derived: d }) {
   if (syncControls()) return;
   const s = state, g = s.gift;
+  const today = expOf() === 'today' && !d.ended;
+  if (today && !g) return todayEmail(el, s, d);
   const t = d.ended
     ? { hed: 'Your subscription has been canceled', body: [`We weren’t able to process payment to renew your ${g ? 'gift ' : ''}subscription, so it was canceled on ${F(CANCEL_ON)}. Nothing is owed.`,
         'Thank you for your time as a subscriber and for your support. We hope to welcome you back in the future.'] }
     : g ? TEMPLATES.gift[d.emailNo - 1] : TEMPLATES.std[STD_MAP[d.emailNo - 1]];
   const subject = d.ended ? 'Your subscription has been canceled' : d.subject;
-  const cta = `<div class="actions" style="margin:24px 0"><button class="btn btn-black" type="button" data-cta>${d.ended ? 'Resubscribe' : 'Update Your Payment'}</button></div>`;
+  const cta = `<div class="actions" style="margin:24px 0"><button class="btn btn-black" type="button" data-cta>${d.ended ? 'Resubscribe' : today ? 'Update Your Card Now' : 'Update Your Payment'}</button></div>`;
   el.innerHTML = `<div class="email-wrap"><article class="email">
     <dl class="envelope"><dt>From</dt><dd>The Atlantic &lt;accounts@noreply.theatlantic.com&gt;</dd><dt>To</dt><dd>${esc(s.subscriber.email)}</dd>
       <dt>Subject</dt><dd><strong>${esc(subject)}</strong></dd>
@@ -402,7 +588,29 @@ function emailPage(el, { state, derived: d }) {
       <p class="email-foot">Responses to this email are not monitored. For customer-service inquiries or assistance with your account, please visit our Help Center.<br>The Atlantic ∙ 610 Water St. SW ∙ Washington, DC 20024</p>
     </div></article></div>`;
   el.querySelectorAll('[data-cta]').forEach((b) => b.addEventListener('click', () =>
-    kit.navigate(d.ended ? '#/restart' : `#/update?${keep()}`, { push: true })));
+    kit.navigate(d.ended ? '#/restart' : today ? `#/subscription?${qs()}` : `#/update?${keep()}`, { push: true })));
+  if (today) el.insertAdjacentHTML('beforeend', kit.note('Gift sends since the September email move weren’t captured. This is the earlier gift copy with today’s button, which goes to the signed-in Subscription page.'));
+}
+
+/* Today's email: the live send for this dunning day */
+function todayEmail(el, s, d) {
+  const t = TODAY_STD[Math.min(d.emailNo, TODAY_STD.length) - 1];
+  el.innerHTML = `<div class="email-wrap"><article class="email">
+    <dl class="envelope"><dt>From</dt><dd>The Atlantic &lt;accounts@noreply.theatlantic.com&gt;</dd><dt>To</dt><dd>${esc(s.subscriber.email)}</dd>
+      <dt>Subject</dt><dd><strong>${esc(t.subject)}</strong></dd>
+      ${t.pre ? `<dt>Preview</dt><dd>${esc(t.pre)}</dd>` : ''}
+      <dt>Sent</dt><dd>${F(d.emailSentOn)} · email ${Math.min(d.emailNo, TODAY_STD.length)} of ${TODAY_STD.length}</dd></dl>
+    <div class="email-body"><img class="wm wm-email" src="./assets/atlantic-logo.svg" alt="The Atlantic">
+      <h1>${TODAY_HEAD}</h1>
+      ${t.body.map((x) => `<p>${x}</p>`).join('')}
+      ${t.list ? `<ul class="benefits">${t.list.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>` : ''}
+      <div class="actions" style="margin:24px 0"><button class="btn btn-black" type="button" data-cta>Update Your Card Now</button></div>
+      ${t.after.map((x) => `<p>${x}</p>`).join('')}
+      <p>—The Team at The Atlantic</p>
+      ${TODAY_FOOT}
+    </div></article></div>
+    ${kit.note('A live send from October 2026, after the move to the new email platform. The button’s target sits behind a tracking link; the same emails’ text links and the earlier template point to accounts.theatlantic.com/accounts/subscription/, so the button goes there. The send schedule since the move isn’t documented.')}`;
+  el.querySelector('[data-cta]').addEventListener('click', () => kit.navigate(`#/subscription?${qs()}`, { push: true }));
 }
 
 /* The update page (public, link-entry). Steps: pay (default) → done. Spent and ended are derived. */
@@ -430,9 +638,9 @@ function updatePage(el, ctx) {
         <dl class="cf-grid">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl></section>
       <hr class="cf-rule">
       <p class="cf-care">Something not right? <a href="#/help">Contact Customer Care</a>.</p>
-      <div class="cf-actions"><a class="btn" href="#/reading">Back to TheAtlantic.com</a><a class="link" href="#/account" data-dk-session="in">See Your Account</a></div>
+      <div class="cf-actions"><a class="btn" href="#/reading">Back to TheAtlantic.com</a><a class="link" href="#/subscription?${qs()}" data-dk-session="in">See Your Account</a></div>
     </div>`, kit.next({ text: 'The email link is spent now: opening it again shows the payment is up to date.',
-        links: [{ label: 'Open the email again >', to: `#/email?${keep()}` }, { label: 'See it in the account >', to: '#/account', session: 'in' }] }));
+        links: [{ label: 'Open the email again >', to: `#/email?${keep()}` }, { label: 'See it in the account >', to: '#/subscription?' + qs(), session: 'in' }] }));
     return;
   }
   if (d.paid) {
@@ -552,23 +760,173 @@ function walletSheet(w) {
   });
 }
 
-/* Signed-in account (app): the same facts from the other side */
-function accountPage(el, { state: s, derived: d }) {
-  const m = s.sub.method;
-  const banner = d.paid
-    ? `<div class="banner banner-success" style="margin-bottom:32px"><strong>Payment updated on ${F(s.sub.paidOn)}.</strong> Thanks for staying with us.</div>`
-    : d.ended
-      ? `<div class="banner banner-red" style="margin-bottom:32px"><strong>Your subscription ended on ${F(CANCEL_ON)}.</strong> We couldn’t collect the ${money(PRICE)} renewal. <a class="link" href="#/restart">Restart &gt;</a></div>`
-      : `<div class="banner banner-red" style="margin-bottom:32px"><strong>We’re having trouble processing payment to renew your ${s.gift ? 'gift ' : ''}subscription.</strong> ${s.gift ? `${esc(s.gift.first)}’s access continues` : 'Your access continues'} until ${F(CANCEL_ON)}. <a class="link" href="#/update?${keep()}" data-dk-session="out">Update Your Payment &gt;</a></div>`;
-  el.innerHTML = `<div class="page-head"><h1 class="t-heading">Subscription</h1><p class="dek">${esc(s.subscriber.name)} · ${esc(s.subscriber.email)}</p></div>
-    ${banner}
-    <table class="kv"><tbody>
-      <tr><th scope="row">Plan</th><td>${esc(s.plan)}${s.gift ? `<br><span class="muted">For ${esc(s.gift.name)}</span>` : ''}</td></tr>
-      <tr><th scope="row">Status</th><td>${d.paid ? 'Active' : d.ended ? 'Cancelled' : 'Payment past due'}</td></tr>
-      <tr><th scope="row">Payment method</th><td>${d.paid ? esc(d.methodText(m)) : `${esc(d.oldLabel)} <span class="muted">· ${s.old.reason === 'expired' ? 'expired' : 'declined'}</span>`}</td></tr>
-      <tr><th scope="row">${d.paid ? 'Next billing date' : 'Amount due'}</th><td>${d.paid ? F(RENEWS_NEXT) : d.ended ? 'Nothing' : money(PRICE)}</td></tr>
-      <tr><th scope="row">Auto-renew</th><td>${d.ended ? 'Off' : 'On'}</td></tr>
-    </tbody></table>`;
+/* ==========================================================================
+   Today: the sign-in and the signed-in Subscription page, as the accounts site
+   ships them. No dunning UI exists there: the page doesn't know the renewal
+   failed, the form is card-only, and saving shows "Saved" and nothing more.
+   ========================================================================== */
+const CHECK = '<svg width="11" height="14" viewBox="0 0 11 14" aria-hidden="true"><path d="M1 7.5l3 3L10 2" fill="none" stroke="#166999" stroke-width="2"/></svg>';
+const VISA_LOGO = '<svg class="af-brand" viewBox="0 0 46 24" aria-label="Visa"><rect width="46" height="24" rx="3" fill="#1A1F71"/><text x="23" y="16.5" text-anchor="middle" font-family="Arial" font-weight="700" font-style="italic" font-size="11" fill="#fff">VISA</text></svg>';
+const MC_LOGO = '<svg class="af-brand" viewBox="0 0 46 24" aria-label="MasterCard"><rect width="46" height="24" rx="3" fill="#252525"/><circle cx="19" cy="12" r="7" fill="#EB001B"/><circle cx="27" cy="12" r="7" fill="#F79E1B" fill-opacity=".9"/></svg>';
+const AMEX_LOGO = '<svg class="af-brand" viewBox="0 0 46 24" aria-label="American Express"><rect width="46" height="24" rx="3" fill="#2E77BC"/><text x="23" y="15.5" text-anchor="middle" font-family="Arial" font-weight="700" font-size="9" fill="#fff">AMEX</text></svg>';
+const brandLogo = (b) => b === 'Mastercard' ? MC_LOGO : b === 'Amex' ? AMEX_LOGO : VISA_LOGO;
+const IC = {
+  facebook: '<svg viewBox="0 0 16 16"><path fill="currentColor" d="M9 16V9h2.3l.4-2.7H9V4.6c0-.8.2-1.3 1.3-1.3h1.4V.9C11.5.8 10.6.7 9.6.7 7.6.7 6.2 2 6.2 4.3v2H4V9h2.2v7z"/></svg>',
+  google: '<svg viewBox="0 0 16 16"><path fill="currentColor" d="M15.7 8.2c0-.6-.1-1.1-.2-1.6H8v3h4.3a3.7 3.7 0 0 1-1.6 2.4v2h2.6c1.5-1.4 2.4-3.4 2.4-5.8zM8 16c2.2 0 4-.7 5.3-2l-2.6-2c-.7.5-1.6.8-2.7.8a4.7 4.7 0 0 1-4.4-3.2H.9v2.1A8 8 0 0 0 8 16zM3.6 9.6a4.8 4.8 0 0 1 0-3.1V4.4H.9a8 8 0 0 0 0 7.2zM8 3.2c1.2 0 2.3.4 3.2 1.2l2.3-2.3A8 8 0 0 0 .9 4.4l2.7 2.1A4.7 4.7 0 0 1 8 3.2z"/></svg>',
+  apple: '<svg viewBox="0 0 16 16"><path fill="currentColor" d="M11.2 8.5c0-1.6 1.3-2.4 1.4-2.4a3 3 0 0 0-2.4-1.3c-1-.1-2 .6-2.5.6s-1.3-.6-2.2-.6A3.2 3.2 0 0 0 2.8 6.5c-1.2 2-.3 5.1.9 6.8.6.8 1.2 1.7 2.1 1.7s1.2-.6 2.2-.6 1.3.6 2.2.6 1.5-.8 2-1.7c.7-1 .9-1.9 1-1.9a2.9 2.9 0 0 1-2-2.9zM9.6 3.6c.5-.6.8-1.4.7-2.2-.7 0-1.5.5-2 1.1-.4.5-.8 1.3-.7 2.1.8.1 1.5-.4 2-1z"/></svg>',
+  institution: '<svg viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" d="M1 6h14L8 1.5zM2.5 6v7M6 6v7M10 6v7M13.5 6v7M1 14.5h14"/></svg>',
+  email: '<svg viewBox="0 0 16 16"><path fill="none" stroke="currentColor" stroke-width="1.2" d="M1.5 3.5h13v9h-13zM1.5 3.5L8 9l6.5-5.5"/></svg>',
+};
+const expOf = () => kit.param('exp') === 'today' ? 'today' : 'new';
+const qs = (extra) => {
+  const p = new URLSearchParams({ device: deviceOf(), layout: layoutOf(), exp: expOf() });
+  Object.entries(extra || {}).forEach(([k, v]) => p.set(k, v));
+  return p.toString();
+};
+const later = (fn) => setTimeout(fn);   // navigate after the current render settles
+
+/* /login: EmailLoginFlow. Steps: email → password, or the one-time link, or reset. */
+function loginPage(el, { state: s }) {
+  if (syncControls()) return;
+  if (s.session === 'in') { later(() => kit.navigate('#/subscription?' + qs(), { push: false })); return; }   // AuthRedirect
+  const step = kit.param('step') || 'email';
+  const go = (st) => kit.setParam('step', st, { push: true });
+  const alt = `<p class="af-or"><span>Or use</span></p>
+    <div class="af-social">
+      <a class="af-lb" href="#/help">${IC.facebook}<span>Facebook</span></a>
+      <a class="af-lb" href="#/help">${IC.google}<span>Google</span></a>
+      <a class="af-lb" href="#/help">${IC.apple}<span>Apple</span></a>
+      <a class="af-lb" href="#/help">${IC.institution}<span>An institution login</span></a>
+      <button class="af-lb" type="button" data-step="magic">${IC.email}<span>A one-time email link</span></button>
+    </div>
+    <p class="af-help">Forgot your <a href="#/help">email</a> or <button type="button" data-step="reset">password</button>?</p>`;
+  const emailField = (disabled) => `<label class="af-label" for="em">Your Email</label>
+    <div class="af-inwrap"><input class="af-input" id="em" type="email" placeholder="name@provider.com" ${disabled ? `value="${esc(s.subscriber.email)}" disabled` : ''}>
+    ${disabled ? '<button class="af-inline" type="button" data-step="email">Edit</button>' : ''}</div>`;
+  let html, stage = '';
+  if (step === 'password') {
+    html = `<h1 class="af-title">Sign in to your account</h1>
+      <form data-next="in">${emailField(true)}<div class="af-gap"></div>
+        <label class="af-label" for="pw">Password</label>
+        <div class="af-inwrap"><input class="af-input" id="pw" type="password" autocomplete="current-password"><button class="af-inline" type="button" data-show>Show</button></div>
+        <div class="af-gap"></div><button class="af-btn thick block" type="submit">Sign In</button></form>${alt}`;
+  } else if (step === 'magic') {
+    html = `<a class="af-back" href="#/login?${qs({ step: 'email' })}">← Back</a><h1 class="af-title">Use email to sign in</h1>
+      <p class="af-body">Enter the email address you use for your account, and we’ll send you a link to sign in without a password.</p>
+      <form data-next="sent">${emailField(false)}<div class="af-gap"></div><button class="af-btn thick block" type="submit">Next</button></form>`;
+  } else if (step === 'sent') {
+    html = `<h1 class="af-title">Email sent!</h1>
+      <p class="af-body">Please check your inbox for a link to sign into your account. This link will expire in 3 hours.</p>
+      <p class="af-body">If you don’t see an email in your inbox or spam folder, it’s possible you don’t have an account with us yet. <a href="#/help">Create one</a> today.</p>
+      <p class="af-body">For further assistance, please contact our <a href="#/help">Customer Care team</a>.</p>
+      <a class="af-btn thick block" href="#/login?${qs({ step: 'email' })}">Back to Sign In</a>`;
+    stage = kit.next({ text: 'In real life the subscriber now leaves this page, finds a second email from The Atlantic, and taps its link. It signs them in and goes on to Subscription.',
+      links: [{ label: 'Open the sign-in link >', to: '#/subscription?' + qs(), session: 'in' }] });
+  } else if (step === 'reset') {
+    html = `<a class="af-back" href="#/login?${qs({ step: 'email' })}">← Back</a><h1 class="af-title">Reset your password</h1>
+      <p class="af-body">Enter the email address you use for your account, and we’ll send you a link to create a new password.</p>
+      <form data-next="sent">${emailField(false)}<div class="af-gap"></div><button class="af-btn thick block" type="submit">Next</button></form>`;
+  } else {
+    html = `<h1 class="af-title">Enter your email to sign in or create an account</h1>
+      <form data-next="password">${emailField(false)}<div class="af-gap"></div><button class="af-btn thick block" type="submit">Continue</button></form>${alt}`;
+  }
+  el.innerHTML = shell(`<div class="af-login">${html}</div>`, stage, { left: '', right: '', footSignIn: false });
+  el.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => go(b.dataset.step)));
+  const show = el.querySelector('[data-show]');
+  if (show) show.addEventListener('click', () => { const pw = el.querySelector('#pw'); const on = pw.type === 'password'; pw.type = on ? 'text' : 'password'; show.textContent = on ? 'Hide' : 'Show'; });
+  const f = el.querySelector('form[data-next]');
+  if (f) f.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (f.dataset.next === 'in') kit.navigate('#/subscription?' + qs(), { session: 'in', push: true });   // AuthRedirect → ?redirect=
+    else go(f.dataset.next);
+  });
+}
+
+/* /subscription: AccountsApp + PageLayout + Subscription route, signed in */
+let justSaved = false;
+function subscriptionPage(el, { state: s, derived: d }) {
+  if (syncControls()) return;
+  if (s.session !== 'in') { later(() => kit.navigate('#/login?' + qs({ step: 'email' }), { push: false })); return; }   // AccountsApp: signed out → /login/?redirect=
+  const g = s.gift, m = s.sub.method;
+  const adding = kit.param('form') === 'add';
+  const navRail = `<nav class="af-nav" aria-label="Account"><ul>
+      <li><a href="#/help">Account</a></li>
+      <li><a href="#/subscription?${qs()}" aria-current="page">Subscription</a>
+        <ul>${d.ended || g ? '' : '<li><a href="#/help">Manage Subscription</a></li>'}<li><a href="#/help">Gift Subscriptions</a></li></ul></li>
+      <li><a href="#/help">Saved Stories</a></li><li><a href="#/help">Newsletters</a></li>
+      <li><a href="#/help">Library</a><ul><li><a href="#/help">Audio Articles</a></li></ul></li>
+      <li><a href="#/help">Help</a></li></ul></nav>`;
+  // Subscription Details. Assumes the subscription still reports "active" during dunning (the app only knows active, trialing, expired, canceled).
+  const lastIssue = at(RENEWS_NEXT).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const short = (x) => DemoKit.fmt(x);
+  const details = d.ended
+    ? `<div class="af-card"><div class="af-int"><h2 class="af-title">Restart your subscription today.</h2>
+        <a class="af-btn af-action" href="#/restart">Explore Options</a><div style="height:24px"></div></div></div>`
+    : g
+      ? `<div class="af-card"><div class="af-int"><h2 class="af-title">Become an Atlantic subscriber today.</h2>
+          <a class="af-btn af-action" href="#/restart">Explore Options</a><div style="height:24px"></div></div></div>`
+      : `<div class="af-card"><div class="af-int"><h2 class="af-title">Subscription Details</h2>
+          <p class="af-desc">As a Digital subscriber, you enjoy:</p>
+          <ul class="af-benefits">${['Unlimited access on any device', `12 magazine issues in PDF<em>&nbsp;(your last issue will be ${lastIssue})</em>`, '<em>The Atlantic</em>&nbsp;app for iOS and Android',
+            'Narrated stories and podcasts', 'A digital archive, from 1857 to today', 'Gift articles to share with other readers', 'Subscriber events and discounts'].map((b) => `<li>${CHECK}<span>${b}</span></li>`).join('')}</ul>
+          <a class="af-btn af-action" href="#/help">Manage</a></div>
+        <div class="af-int"><dl class="af-fields"><div class="af-field"><dt>Subscription Period</dt><dd>${short(FAILED_ON)}—${short(RENEWS_NEXT)}</dd></div>
+          <div class="af-field"><dt>Renewal Rate</dt><dd>${money(PRICE)}/year</dd></div></dl></div></div>`;
+  // Billing Information, or the add-card form in its place
+  const card = m && m.type === 'card' ? m : null;
+  const shownBrand = card ? card.brand : s.old.brand, shownLast4 = card ? card.last4 : s.old.last4;
+  const shownExp = card ? (card.exp || '12/2029') : '09/2026';
+  const billing = d.ended ? '' : adding
+    ? `<div class="af-card"><div class="af-int"><h2 class="af-title">Add a New Payment Method</h2>
+        <form id="af-add" class="af-scope" novalidate>
+          <div class="spe"><div class="spe-grid">
+            <div class="spe-f full has-brands"><label for="s-cc">Card number</label><input class="spe-in" id="s-cc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234"><span class="brands">${BRANDS}</span></div>
+            <div class="spe-f"><label for="s-exp">Expiration date</label><input class="spe-in" id="s-exp" inputmode="numeric" placeholder="MM / YY"></div>
+            <div class="spe-f"><label for="s-cvc">Security code</label><input class="spe-in" id="s-cvc" inputmode="numeric" placeholder="CVC"></div>
+            <div class="spe-f"><label for="s-country">Country</label><select class="spe-in" id="s-country"><option>United States</option><option>Canada</option><option>United Kingdom</option></select></div>
+            <div class="spe-f"><label for="s-zip">ZIP code</label><input class="spe-in" id="s-zip" inputmode="numeric" placeholder="12345"></div>
+          </div><p class="spe-legal">By providing your card information, you allow The Atlantic Monthly Group LLC to charge your card for future payments in accordance with their terms.</p></div>
+          <div class="af-btnrow actions"><button class="af-btn" type="submit">Save${justSaved ? `<span class="af-saved">✓ Saved</span>` : ''}</button><button class="af-btn-ter" type="button" data-cancel>Cancel</button></div>
+        </form></div></div>`
+    : `<div class="af-card"><div class="af-int">
+        <div class="af-billhead"><h2 class="af-title">Billing Information</h2><button class="af-btn af-btn-sec" type="button" data-add><span aria-hidden="true">+ </span>Add a New Payment Method</button></div>
+        <dl class="af-fields thirds">
+          <div class="af-field"><dt>Payment Method</dt><dd>${brandLogo(shownBrand)}Ending in ${esc(shownLast4)}</dd></div>
+          <div class="af-field"><dt>Card Expiration</dt><dd>${shownExp}</dd></div>
+          <div class="af-field"><dt>Next Billing Date</dt><dd>${short(d.paid ? RENEWS_NEXT : FAILED_ON)}</dd></div></dl></div></div>`;
+  const addr = (title, lines) => `<div class="af-card"><div class="af-int"><h3>${title}</h3><button class="af-btn-ter af-ter-pos" type="button">Edit</button>
+      <div class="af-gray">${lines.map(esc).join('<br>')}</div></div></div>`;
+  const addresses = `<div class="af-addr">${addr('Mailing Address', [s.subscriber.name, '1200 Pine St, Apt 4B', 'Portland, OR 97205'])}${addr('Billing Address', ['1200 Pine St', 'Apt 4B', 'Portland, OR 97205'])}</div>`;
+  const stage = d.paid && !adding
+    ? kit.next({ text: `That’s the end of today’s flow. Saving the card also charged the overdue ${money(PRICE)} renewal, but nothing on the page says so. The only signs are the new card and the next billing date.`,
+        links: [{ label: 'Back to the email >', to: '#/email?' + qs() }] })
+    : !d.paid && !d.ended && !adding
+      ? kit.note((g ? 'Gift giver view is inferred: Jane has no subscription of her own, so the page offers her one, and Billing Information appears because she has gifts. ' : '') + 'Nothing on this page says the renewal failed. The accounts site has no past-due, expired-card or failed-charge banner, and the “Don’t Lose Your Access” banner is switched off for everyone. Next Billing Date showing the failed date is inferred; the API value during dunning isn’t verified.')
+      : '';
+  el.innerHTML = shell(`<div class="af-page">${navRail}<main class="af-main"><button class="af-navbtn" type="button">Subscription <span aria-hidden="true">⌄</span></button>${details}${billing}${addresses}</main></div>`,
+    stage ? `<div class="af-stage">${stage}</div>` : '', { right: 'out', flush: true });
+  const add = el.querySelector('[data-add]');
+  if (add) add.addEventListener('click', () => kit.setParam('form', 'add', { push: true }));
+  const cancel = el.querySelector('[data-cancel]');
+  if (cancel) cancel.addEventListener('click', () => kit.setParam('form', null, { push: true }));
+  const f = el.querySelector('#af-add');
+  if (f) {
+    const cc = f.querySelector('#s-cc'), exp = f.querySelector('#s-exp');
+    const digits = (v) => v.replace(/\D/g, '');
+    const brandOf = (n) => /^3[47]/.test(n) ? 'Amex' : /^5[1-5]|^2[2-7]/.test(n) ? 'Mastercard' : /^4/.test(n) ? 'Visa' : /^6/.test(n) ? 'Discover' : null;
+    const badges = f.querySelector('.brands');
+    cc.addEventListener('input', () => { const n = digits(cc.value).slice(0, 16); cc.value = n.replace(/(\d{4})(?=\d)/g, '$1 '); const b = brandOf(n);
+      badges.classList.toggle('picked', !!b); badges.querySelectorAll('svg').forEach((c) => c.classList.toggle('on', c.dataset.b === b)); });
+    exp.addEventListener('input', () => { const n = digits(exp.value).slice(0, 4); exp.value = n.length > 2 ? n.slice(0, 2) + ' / ' + n.slice(2) : n; });
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const n = digits(cc.value), x = digits(exp.value);
+      const method = { type: 'card', brand: (n.length >= 4 && brandOf(n)) || 'Visa', last4: n.length >= 4 ? n.slice(-4) : '4242', exp: x.length === 4 ? `${x.slice(0, 2)}/20${x.slice(2)}` : '12/2029' };
+      // Stripe's own decline message, shown in red under the buttons
+      const ok = await kit.run(() => { justSaved = true; return kit.act('pay', method); }, 'Your card was declined.', { label: 'save a new card', trigger: e.submitter });
+      if (ok) setTimeout(() => { justSaved = false; kit.setParam('form', null, { push: true }); }, 750);
+    });
+  }
 }
 
 const stubPage = (title, body, links) => () => shell(`<div class="col-utility"><div class="box">
@@ -577,7 +935,7 @@ const stubPage = (title, body, links) => () => shell(`<div class="col-utility"><
 const pages = [
   { path: '/email', title: 'Dunning email', area: 'public', render: emailPage,
     purpose: 'Start here. The email for today’s dunning day; one button opens the update page.',
-    sideCardIntro: 'Set up the demo here. The email and the page update to match.', preconditions: PRE },
+    sideCardIntro: 'Set up the demo here. Experience switches between today’s email and flow and the proposed one.', preconditions: PRE_EMAIL },
   { path: '/update', title: 'Fix your payment', area: 'public', render: updatePage,
     purpose: 'The sign-in-free page on the accounts shell. Two layouts from the side card: All methods (stacked wallets, “OR USE”, the Card panel) or Card only (one utility card). Also its spent and ended states.',
     sideCardIntro: 'Set up the demo here. Payment page switches the layout; switching Subscription resets the demo data.', preconditions: PRE },
@@ -585,37 +943,34 @@ const pages = [
     purpose: 'Where an ended subscription goes. The reactivation flow is its own prototype.',
     render: stubPage('Resubscribe', 'This is where the reactivation flow takes over: one-page checkout with the expired-card repair and “You’re back.”',
       '') },
-  { path: '/signin', title: 'Sign in', area: 'public', purpose: 'The existing sign-in, for anyone who’d rather use their account.',
-    render: stubPage('Sign in', 'The existing accounts.theatlantic.com sign-in. After it, Subscription shows the same past-due banner.',
-      '<a class="link" href="#/account" data-dk-session="in">Skip to the signed-in page &gt;</a>') },
+  { path: '/login', title: 'Sign in (today)', area: 'public', render: loginPage, preconditions: PRE_ACCT,
+    purpose: 'Today’s sign-in, where the email’s button lands when signed out: email, then password, or a one-time email link.',
+    sideCardIntro: 'Today’s sign-in, as the accounts site ships it.' },
+  { path: '/subscription', title: 'Subscription (today)', area: 'public', render: subscriptionPage, preconditions: PRE_ACCT,
+    purpose: 'Today’s signed-in Subscription page: Subscription Details, Billing Information and the card-only “Add a New Payment Method” form. Signed out, it sends you to sign in.',
+    sideCardIntro: 'Today’s Subscription page, as the accounts site ships it.' },
   { path: '/cancel', title: 'Cancel', area: 'public', purpose: 'The quiet way out. Today’s cancel flow, unchanged.',
     render: stubPage('Cancel your subscription', 'The existing cancel flow. Offered as a plain link so nobody feels trapped on a payment page.') },
   { path: '/help', title: 'Help Center', area: 'public', purpose: 'Where “We’re happy to help” goes.',
     render: stubPage('Help Center', 'support.theatlantic.com, where Customer Care answers billing questions.') },
   { path: '/reading', title: 'Back to reading', area: 'public', purpose: 'Where “Continue reading” lands.',
     render: stubPage('Back to The Atlantic', 'theatlantic.com, where they were before the email.') },
-  { path: '/account', title: 'Subscription', area: 'app', render: accountPage,
-    purpose: 'The signed-in Subscription page, showing the same facts: past due, then paid.' },
 ];
 
-const nav = [
-  { path: '/account', label: 'Subscription' },
-  { path: '/newsletters', label: 'Newsletters', stub: 'Newsletters aren’t part of this prototype.' },
-  { path: '/settings', label: 'Account settings', stub: 'Account settings aren’t part of this prototype.' },
-];
+const nav = [];
 
 /* --- 8. Init ------------------------------------------------------------------ */
 const kit = DemoKit.init({
-  key: 'proto-dunning-update-v4',
+  key: 'proto-dunning-update-v5',
   today: TODAY,
   home: '/email',
-  project: { name: 'Fix your payment', description: 'Dunning emails link to a sign-in-free page on the accounts site: all payment methods, or a clean card-only page' },
+  project: { name: 'Fix your payment', description: 'Today’s dunning flow (email, sign-in, Subscription page, card form) beside the proposed sign-in-free page' },
   company: 'The Atlantic',
   contact: { name: 'Atlantic customer care', email: 'help@theatlantic.com' },
   footer: HELP,
   brand: 'The Atlantic',
   scenarios, axes, pages, paths, nav, derive, actions,
-  saves: ['pay with a wallet', 'pay by card'],
+  saves: ['pay with a wallet', 'pay by card', 'save a new card'],
   validate: (s) => s && s.sub && typeof s.sub.status === 'string' && s.old && s.subscriber,
   fonts: 'atlantic-accounts',
   mode: new URLSearchParams(location.search).has('sketch') ? 'sketch' : 'build',
