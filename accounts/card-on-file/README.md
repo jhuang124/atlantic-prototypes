@@ -7,9 +7,9 @@ Stripe runs on a test publishable key (pk_test), so no card can be charged.
 Nothing in this build points at The Atlantic's real systems: no accounts API,
 analytics, consent manager, error reporting, support widget or PayPal.
 
-- Source: theatlantic/accounts-frontend, branch `john/card-on-file-pages`, commit `9454c1f5898d16bd388e7bca5da8384b6d738dfd`
-- Built: 2026-10-23 15:34 EDT
-- Packaged: 2026-10-23 15:34 EDT
+- Source: theatlantic/accounts-frontend, branch `john/card-on-file-pages`, commit `bf001183752f96a3fef5ebb778f8a64103df63ce`
+- Built: 2026-10-23 15:57 EDT
+- Packaged: 2026-10-23 15:57 EDT
 - Built by: `scripts/pages/build.sh` (env in `.env.pages`), packaged by `scripts/pages/package.sh`
 - Base path: `/atlantic-prototypes/accounts/card-on-file/`
 
