@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.js": "/atlantic-prototypes/accounts/card-on-file/static/js/main.9439e4d9.js",
+    "main.js": "/atlantic-prototypes/accounts/card-on-file/static/js/main.f25556c4.js",
     "static/css/8409.95ea201f.chunk.css": "/atlantic-prototypes/accounts/card-on-file/static/css/8409.95ea201f.chunk.css",
-    "static/js/8409.0075944a.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/8409.0075944a.chunk.js",
+    "static/js/8409.48a10c22.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/8409.48a10c22.chunk.js",
     "polyfills.js": "/atlantic-prototypes/accounts/card-on-file/static/js/polyfills.8ff95405.chunk.js",
     "static/css/5487.c3d4e3e3.chunk.css": "/atlantic-prototypes/accounts/card-on-file/static/css/5487.c3d4e3e3.chunk.css",
     "static/js/5487.5009f5e5.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/5487.5009f5e5.chunk.js",
@@ -74,7 +74,7 @@
     "static/css/7881.b08351e0.chunk.css": "/atlantic-prototypes/accounts/card-on-file/static/css/7881.b08351e0.chunk.css",
     "static/js/7881.4bfc59b1.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/7881.4bfc59b1.chunk.js",
     "static/js/2195.60eb9fdf.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/2195.60eb9fdf.chunk.js",
-    "static/js/2304.27c4e98e.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/2304.27c4e98e.chunk.js",
+    "static/js/2304.ac9306df.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/2304.ac9306df.chunk.js",
     "static/css/8222.9592a8de.chunk.css": "/atlantic-prototypes/accounts/card-on-file/static/css/8222.9592a8de.chunk.css",
     "static/js/8222.0ce3aadb.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/8222.0ce3aadb.chunk.js",
     "static/js/7653.11114c52.chunk.js": "/atlantic-prototypes/accounts/card-on-file/static/js/7653.11114c52.chunk.js",
@@ -244,6 +244,6 @@
     "static/media/tooltip-caret.svg": "/atlantic-prototypes/accounts/card-on-file/static/media/tooltip-caret.e4631872785efb6132813c01f63aff9e.svg"
   },
   "entrypoints": [
-    "static/js/main.9439e4d9.js"
+    "static/js/main.f25556c4.js"
   ]
 }
