@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex, nofollow">
+  <title>The Atlantic</title>
+  <script>
+    // Single Page Apps for GitHub Pages, MIT License,
+    // https://github.com/rafgraph/spa-github-pages
+    // GitHub Pages answers any path it has no file for with this page. For a
+    // path inside the app, it redirects to the app's index.html with the
+    // requested path stashed in the query string; the restore snippet that
+    // scripts/pages/strip-index.mjs adds to index.html puts it back before
+    // React Router reads it.
+    //
+    // /atlantic-prototypes/accounts/card-on-file is filled in by scripts/pages/strip-index.mjs (CRA only
+    // templates index.html). pathSegmentsToKeep is the number of segments in
+    // that base path: /atlantic-prototypes/accounts/card-on-file -> 3, so
+    // /atlantic-prototypes/accounts/card-on-file/products/restart/ becomes
+    // /atlantic-prototypes/accounts/card-on-file/?/products/restart/
+    // Paths outside the base are left alone and get a plain not-found page.
+    var base = "/atlantic-prototypes/accounts/card-on-file";
+    var l = window.location;
+    var inApp = base.charAt(0) === "/" &&
+      (l.pathname === base || l.pathname.indexOf(base + "/") === 0);
+    if (inApp) {
+      var pathSegmentsToKeep = base.split("/").filter(Boolean).length;
+      l.replace(
+        l.protocol + "//" + l.hostname + (l.port ? ":" + l.port : "") +
+        l.pathname.split("/").slice(0, 1 + pathSegmentsToKeep).join("/") + "/?/" +
+        l.pathname.slice(1).split("/").slice(pathSegmentsToKeep).join("/").replace(/&/g, "~and~") +
+        (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+        l.hash
+      );
+    }
+  </script>
+  <style>
+    body { margin: 0; padding: 48px 24px; font-family: Georgia, serif; color: #171717; }
+    p { max-width: 520px; font-size: 18px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <p>Page not found.</p>
+</body>
+</html>

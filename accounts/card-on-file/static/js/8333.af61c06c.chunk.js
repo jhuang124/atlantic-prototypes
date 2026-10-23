@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkaccounts_frontend=self.webpackChunkaccounts_frontend||[]).push([[8333],{28333:(n,t,e)=>{e.r(t),e.d(t,{default:()=>f});var u=e(9950),c=e(29804),r=e(81805),s=e(44414);const f=function(){var n=(0,c.m)().setAccountsNavHidden;return(0,u.useEffect)((function(){return n(!0),function(){return n(!1)}}),[n]),(0,s.jsx)(r.Ay,{})}}}]);
