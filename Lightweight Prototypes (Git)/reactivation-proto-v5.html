@@ -103,6 +103,10 @@ a { color:inherit; text-decoration:none; }
 /* Red buttons need a ring that reads against red, not a blue-on-red mudpile. */
 .gate-btn:focus-visible, .enav-subscribe:focus-visible {
   outline:2px solid var(--black); outline-offset:2px; box-shadow:0 0 0 2px var(--white); }
+/* A programmatic focus (modal / nudge opening) matches :focus-visible when the
+   last input wasn't a click, so a scroll-triggered offer painted a heavy ring
+   that read as an error. Keep the ring for keyboard users only. */
+html:not(.kbd-nav) .gate-btn:focus-visible { outline:none; box-shadow:none; }
 /* Scroll targets must clear the sticky masthead. */
 #reactivation-gate, #plan-row, #plan-picker, #edit-payment, #s-exp { scroll-margin-top:96px; }
 
@@ -1770,6 +1774,49 @@ function closeOfferVisual() {
 // "Review plans" from any container: go to checkout with the picker open.
 function offerReviewPlans() { gateReviewPlans(); }
 
+// Deep links land immediately, then once more when web fonts, the hero image
+// and the load event are all in — unless the reader has already moved.
+function pageSettled() {
+  const hero = new Image();
+  hero.src = 'article-hero-v2.png';
+  const heroReady = hero.decode ? hero.decode().catch(() => {}) : Promise.resolve();
+  const loaded = document.readyState === 'complete' ? Promise.resolve()
+    : new Promise(r => window.addEventListener('load', r, { once: true }));
+  // document.fonts.ready resolves immediately if no face has been requested
+  // yet, which is the case at init. Ask again after load + a layout pass, when
+  // every face the page uses has been requested.
+  const fontsAfterLayout = loaded.then(() => new Promise(r => afterLayout(r)))
+    .then(() => (document.fonts && document.fonts.ready) || null);
+  const cap = new Promise(r => setTimeout(r, 6000));   // never wait forever on a stuck asset
+  return Promise.race([Promise.all([heroReady, loaded, fontsAfterLayout]), cap]);
+}
+
+// Input modality for the offer CTA focus ring (see .kbd-nav in the CSS).
+window.addEventListener('keydown', e => {
+  if (!e.metaKey && !e.ctrlKey && !e.altKey) document.documentElement.classList.add('kbd-nav');
+}, true);
+['pointerdown', 'wheel', 'touchstart'].forEach(t =>
+  window.addEventListener(t, () => document.documentElement.classList.remove('kbd-nav'), { passive: true, capture: true }));
+
+let readerMoved = false;
+['wheel', 'touchmove', 'keydown', 'pointerdown'].forEach(t =>
+  window.addEventListener(t, () => { readerMoved = true; }, { passive: true, capture: true }));
+
+function relandOffer() {
+  if (readerMoved || !isOfferShowing()) return;
+  if (state.offerStyle === 'wall') { landOnGate(true); return; }
+  if (state.offerStyle === 'sheet') { landAtSentinel(); state.savedScrollY = window.scrollY; return; }
+  const modal = document.getElementById('reactivation-modal');
+  if (modal.classList.contains('open')) {
+    // The page under the modal is position:fixed at -savedScrollY; move that.
+    unlockBody();
+    landAtSentinel();
+    state.savedScrollY = window.scrollY;
+    document.body.classList.add('modal-open');
+    document.body.style.top = (-state.savedScrollY) + 'px';
+  }
+}
+
 // ═══ SCROLL SHEET ═══
 function openSheet(focusIt) {
   const dock = document.getElementById('offer-dock');
@@ -1851,14 +1898,31 @@ function openGate(shouldScroll) {
 
   // Hiding the tail + footer collapses the document height, so measure AFTER
   // the class changes have been laid out, then land the gate deliberately.
-  requestAnimationFrame(() => {
-    const top = gate.getBoundingClientRect().top + window.scrollY;
-    const y = Math.max(0, top - (shouldScroll ? 96 : 132));
-    jumpTo(y);
+  afterLayout(() => {
+    landOnGate(shouldScroll);
     // Move focus to the gate so keyboard and screen-reader users are told the
     // article just stopped, instead of tabbing into content that vanished.
     gate.focus({ preventScroll: true });
   });
+}
+
+function landOnGate(shouldScroll) {
+  const gate = document.getElementById('reactivation-gate');
+  // The reveal slides the gate up 14px; measure where it will rest, not where
+  // the animation has it right now (that left it ~11px short on every load).
+  const t = getComputedStyle(gate).transform;
+  const inFlight = (t && t !== 'none' && window.DOMMatrix) ? new DOMMatrix(t).m42 : 0;
+  const top = gate.getBoundingClientRect().top + window.scrollY - inFlight;
+  jumpTo(Math.max(0, top - (shouldScroll ? 96 : 132)));
+}
+
+// Run after the next layout. rAF alone never fires in a hidden or background
+// tab, which left the wall mid-landing; the timeout is the floor.
+function afterLayout(fn) {
+  let done = false;
+  const run = () => { if (!done) { done = true; fn(); } };
+  requestAnimationFrame(run);
+  setTimeout(run, 50);
 }
 
 function dismissGate() {
@@ -2000,6 +2064,9 @@ document.addEventListener('keydown', e => {
 
 // ═══ INIT ═══
 (function init() {
+  // The URL decides where a deep link lands, not the browser's memory of a
+  // previous visit.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   const q = new URLSearchParams(location.search);
   const style = q.get('style');
   const scene = q.get('state');
@@ -2008,7 +2075,18 @@ document.addEventListener('keydown', e => {
   renderOfferCopy();
   showScene('article');
   setActiveSwitcher('article');
-  if (SCENES.includes(scene) && scene !== 'article') swScene(scene);
+  if (SCENES.includes(scene) && scene !== 'article') {
+    swScene(scene);
+    if (scene === 'offer') {
+      pageSettled().then(() => afterLayout(relandOffer));
+      // Belt and braces: a face that arrives late still moves the reading line.
+      if (document.fonts && document.fonts.addEventListener) {
+        const onFont = () => afterLayout(relandOffer);
+        document.fonts.addEventListener('loadingdone', onFont);
+        setTimeout(() => document.fonts.removeEventListener('loadingdone', onFont), 8000);
+      }
+    }
+  }
 })();
 </script>
 
