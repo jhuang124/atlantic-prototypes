@@ -740,6 +740,7 @@ const ENTRY = { key: 'source', label: 'Starts from', get fold() { return onEntry
   const k = kindOf(), again = onEntry() ? null : 'Changing either one restarts at the first screen.';
   return [{ value: `email-${k}`, label: 'Email', hint: again || 'The button in our email.' },
     { value: `article-${k}`, label: 'Article', hint: again || 'A callout that rises over a story, signed in.' }]; } };
+const SHOW_GIFT = false;   // gift giver hidden for the current demo: no Who pays control, no gift tours
 const WHO = { key: 'who', label: 'Who pays', get default() { return kit.state.scenario === 'gift' ? 'gift' : 'self'; },
   options: [{ value: 'self', label: 'Subscriber', hint: 'Jane pays for her own subscription.' },
     { value: 'gift', label: 'Gift giver', hint: 'Jane pays for Sam Whitaker’s gift.' }] };
@@ -758,7 +759,7 @@ const LAYOUT = { key: 'layout', label: 'Payment page', group: 'Display', row: tr
 // Reads `exp` from the URL, not expOf(): expOf() falls back to this page's controls, which call this.
 const payFormShown = () => kit.params().get('exp') !== 'today' && (kindOf() === 'expiring' ? !kit.state.upd : !kit.derived.paid && !kit.derived.ended);
 // Story controls. The grace period only means something while a failed payment is still unpaid.
-const story = (o = {}) => [o.today ? EXP_TODAY : EXP, ...(o.today || todayOnly() ? [] : [KIND, ENTRY]), ...(o.who === false ? [] : [WHO]),
+const story = (o = {}) => [...(o.today || todayOnly() ? [] : [ENTRY]), o.today ? EXP_TODAY : EXP, ...(o.today || todayOnly() ? [] : [KIND]), ...(o.who === false || !SHOW_GIFT ? [] : [WHO]),
   ...(o.when !== false && kindOf() === 'failed' && !kit.derived.paid ? [WHEN] : [])];
 // The email looks the same on any device, so Display starts on the screens it changes.
 // Sign-in looks the same for a gift and after cancellation, so those controls start after it.
@@ -770,6 +771,7 @@ const SCENE = {
   subscription: () => [...story({ today: true }), DEVICE],
 };
 function syncControls() {
+  if (!SHOW_GIFT && kit.state.scenario === 'gift') { setTimeout(() => kit.loadScenario('subscriber')); return true; }
   const q = kit.params(), who = q.get('who'), when = q.get('when'), source = q.get('source');
   if (!who && !when && !source) return false;
   setTimeout(() => {
@@ -1676,7 +1678,8 @@ const kit = DemoKit.init({
   contact: { name: 'Atlantic customer care', email: 'help@theatlantic.com' },
   footer: HELP,
   brand: 'The Atlantic',
-  scenarios, axes, pages, paths, nav, derive, actions,
+  scenarios, axes, pages, nav, derive, actions,
+  paths: SHOW_GIFT ? paths : paths.filter((p) => (p.start || {}).scenario !== 'gift'),
   saves: ['pay with a wallet', 'pay by card', 'save a card', 'save with a wallet', 'save a new card'],
   validate: (s) => s && s.sub && typeof s.sub.status === 'string' && s.old && s.subscriber,
   // Presenter layer. The Scene panel (side card) sets up the screen beside it; the pill opens
