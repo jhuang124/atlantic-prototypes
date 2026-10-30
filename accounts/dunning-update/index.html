@@ -590,15 +590,14 @@ const actions = {
 
 /* --- 6. Paths ---------------------------------------------------------------- */
 const paths = [
-  { id: 'one-tap', group: 'Start here', meta: 'Phone', label: 'The proposal: from the email to paid in one tap',
-    summary: 'Jane opens the email and pays with Apple Pay. No sign-in.',
-    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&layout=all' },
+  { id: 'one-tap', group: 'Start here', meta: 'Desktop', label: 'The proposal: from the email to paid, no sign-in',
+    summary: 'Jane opens the email and pays by card. No sign-in.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&layout=card' },
     steps: [
       'Email 3, the real template: “Don’t let your access expire. Please act now.” → “Update Your Payment”.',
       'The page, no sign-in: “Don’t miss a story”, then a card with the plan and $89.99 due.',
-      '“Payment Information”: one list of ways to pay: PayPal, Apple Pay, Google Pay, then Card, picked and open with its fields. One button under it: “Renew for $89.99”.',
-      'Select Apple Pay: the card fields fold away, a line says she’ll confirm with Face ID or Touch ID, and the button becomes the Apple Pay button. Tap it → the sheet: The Atlantic, $89.99, Visa •• 1881 → “Pay with Face ID”.',
-      'Confirmation: “Thank you, Jane.” and the Order Summary, paid with Apple Pay, next billing date October 13, 2027.',
+      '“Payment Information”: the card form, with the same fields as today (card number, expiration date, security code, country, ZIP) and one button, “Renew for $89.99”. Scene panel → Payment page → All methods adds PayPal, Apple Pay and Google Pay.',
+      '“Renew for $89.99” (no typing needed) → “Thank you, Jane.” and the Order Summary, paid with Visa ending 4242, next billing date October 13, 2027.',
       'Next in the demo → “Open the email again” → “Update Your Payment”: “You’re all set”, because the link is spent.',
     ] },
   { id: 'today', group: 'Today’s flow, for comparison', meta: 'Desktop', label: 'Today: sign in, then add a card',
@@ -659,7 +658,7 @@ const paths = [
       '“Save Card” → “Thank you, Jane.”: the new card is saved, nothing was charged, and the subscription still renews on December 4, 2026.',
       '“Return to Your Article” → the same story, and the callout is gone.',
     ] },
-  { id: 'expiring-gift', group: 'Card expiring, before anything fails', meta: 'Phone', label: 'The card-expiring email, for a gift',
+  { id: 'expiring-gift', group: 'Card expiring, before anything fails', meta: 'Desktop', label: 'The card-expiring email, for a gift',
     summary: 'The card that pays for Sam’s gift runs out before the gift renews. Jane saves a new one with Google Pay.',
     start: { scenario: 'gift', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&layout=all&src=email-expiring' },
     steps: [
@@ -673,7 +672,7 @@ const paths = [
 
 /* --- 7. Pages ---------------------------------------------------------------- */
 const deviceOf = () => kit.param('device') === 'iphone' ? 'iphone' : 'desktop';   // Desktop unless a path or the Scene panel says Phone
-const layoutOf = () => kit.param('layout') === 'card' ? 'card' : 'all';
+const layoutOf = () => kit.param('layout') === 'all' ? 'all' : 'card';   // Card only unless set to All methods
 const keep = () => qs();
 const WORDMARK = '<img class="wm" src="./assets/atlantic-logo.svg" alt="The Atlantic">';
 // The accounts shell (SiteHeader, Footer): Home · wordmark · Sign in/Sign out, warm paper body, footer.
@@ -752,7 +751,7 @@ const DEVICE = { key: 'device', label: 'Opened on', group: 'Display', row: true,
 const CALLOUT = { key: 'callout', label: 'Callout style', group: 'Display', row: true, default: 'sheet', options: [
   { value: 'sheet', label: 'Bottom sheet', hint: 'Rises from the bottom; the story stays readable.' },
   { value: 'popup', label: 'Pop-up', hint: 'A centered window over the story, with a close button.' }] };
-const LAYOUT = { key: 'layout', label: 'Payment page', group: 'Display', row: true, options: [
+const LAYOUT = { key: 'layout', label: 'Payment page', default: 'card', options: [
   { value: 'all', label: 'All methods', hint: 'PayPal, Apple Pay, Google Pay or a card.' },
   { value: 'card', label: 'Card only', hint: 'One card form, as most vendors do it.' }] };
 // The pay (or save) form is on screen: the only state where the layout and the error switch matter.
@@ -766,7 +765,7 @@ const story = (o = {}) => [...(o.today || todayOnly() ? [] : [ENTRY]), o.today ?
 const SCENE = {
   email: () => story(),
   article: () => [...story(), ...(todayOnly() ? [] : [CALLOUT]), DEVICE],
-  update: () => [...story(), DEVICE, ...(payFormShown() ? [LAYOUT] : [])],
+  update: () => [...(payFormShown() ? [LAYOUT] : []), ...story(), DEVICE],
   login: () => [...story({ today: true, who: false, when: false }), DEVICE],
   subscription: () => [...story({ today: true }), DEVICE],
 };
