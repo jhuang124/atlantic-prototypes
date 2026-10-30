@@ -353,6 +353,22 @@
    last paragraph at the end. The story fades into it (no scrim) and stays live and scrollable
    above it; nothing is trapped. Payment failed is the strong one; card expiring is a lighter heads-up. */
 .w-dock { position: sticky; bottom: 0; z-index: 35; margin: 56px -24px 0; }
+.w-pop-x, .w-pop-wm { display: none; }
+.w-dock.is-pop { position: fixed; inset: 0; margin: 0; display: grid; place-items: center; padding: 24px; background: rgb(0 0 0 / .45); }
+.w-dock.is-pop .w-call { width: min(560px, 100%); padding: 40px 48px 32px; border: 0; border-radius: 6px; box-shadow: 0 24px 60px rgb(0 0 0 / .25); text-align: center; }
+.w-dock.is-pop .w-call::before, .w-dock.is-pop .w-call-kick, .w-dock.is-pop .w-call-foot { display: none; }
+.w-dock.is-pop .w-pop-wm { display: block; height: 30px; width: auto; margin: 0 auto 24px; }
+.w-dock.is-pop .w-pop-x { display: block; position: absolute; top: 16px; right: 16px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: #2c2825; cursor: pointer; }
+.w-dock.is-pop .w-pop-x::before, .w-dock.is-pop .w-pop-x::after { content: ''; position: absolute; left: 6px; right: 6px; top: 11px; height: 2px; background: #fff; transform: rotate(45deg); }
+.w-dock.is-pop .w-pop-x::after { transform: rotate(-45deg); }
+.w-dock.is-pop h2 { font-weight: 600; font-size: 32px; }
+.w-dock.is-pop .w-call-body { margin: 0 auto 24px; font-size: 19px; }
+.w-dock.is-pop .w-call-acts { flex-direction: column; gap: 14px; }
+.w-dock.is-pop .w-call-btn { width: 100%; font-family: var(--font-sans); }
+.w-dock.is-pop[data-state="in"] .w-call { animation: wPopIn .22s cubic-bezier(.22,.61,.36,1) both; }
+.w-dock.is-pop[data-state="out"] { animation: wFade .2s reverse both; }
+@keyframes wPopIn { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+.acct.is-phone .w-dock.is-pop .w-call { padding: 36px 24px 24px; }
 .w-dock[data-state="waiting"] { visibility: hidden; }
 .w-call { position: relative; padding: 24px 28px 20px; background: #fff; border-top: 1px solid #e7e3db;
   box-shadow: 0 -1px 4px rgb(33 39 44 / .05), 0 -12px 28px rgb(33 39 44 / .07); }
@@ -721,6 +737,9 @@ const WHEN = { key: 'when', label: 'Payment status', get default() { return (kit
     { value: 'ended', label: 'Canceled', hint: 'The subscription was canceled for nonpayment.' }]; } };
 const DEVICE = { key: 'device', label: 'Opened on', group: 'Display', row: true, default: 'desktop',
   options: [{ value: 'desktop', label: 'Desktop' }, { value: 'iphone', label: 'Phone' }] };
+const CALLOUT = { key: 'callout', label: 'Callout style', group: 'Display', row: true, default: 'sheet', options: [
+  { value: 'sheet', label: 'Bottom sheet', hint: 'Rises from the bottom; the story stays readable.' },
+  { value: 'popup', label: 'Pop-up', hint: 'A centered window over the story, with a close button.' }] };
 const LAYOUT = { key: 'layout', label: 'Payment page', group: 'Display', row: true, options: [
   { value: 'all', label: 'All methods', hint: 'PayPal, Apple Pay, Google Pay or a card.' },
   { value: 'card', label: 'Card only', hint: 'One card form, as most vendors do it.' }] };
@@ -734,7 +753,7 @@ const story = (o = {}) => [o.today ? EXP_TODAY : EXP, ...(o.today || todayOnly()
 // Sign-in looks the same for a gift and after cancellation, so those controls start after it.
 const SCENE = {
   email: () => story(),
-  article: () => [...story(), DEVICE],
+  article: () => [...story(), ...(todayOnly() ? [] : [CALLOUT]), DEVICE],
   update: () => [...story(), DEVICE, ...(payFormShown() ? [LAYOUT] : [])],
   login: () => [...story({ today: true, who: false, when: false }), DEVICE],
   subscription: () => [...story({ today: true }), DEVICE],
@@ -1333,8 +1352,10 @@ function articlePage(el, { state: s, derived: d }) {
       links: [{ label: 'Show it again >', to: `#/article?${qs({ again: '1' })}` }] });
   } else {
     const c = calloutCopy(s, d, kind);
-    callout = `<div class="w-dock is-${kind}" data-state="waiting">
-      <aside class="w-call" aria-labelledby="call-h"><div class="w-call-in">
+    const pop = kit.param('callout') === 'popup';
+    callout = `<div class="w-dock is-${kind}${pop ? ' is-pop' : ''}" data-state="waiting">
+      <aside class="w-call" aria-labelledby="call-h"${pop ? ' role="dialog"' : ''}><div class="w-call-in">
+        ${pop ? '<button class="w-pop-x" type="button" data-later aria-label="Close"></button><img class="w-pop-wm" src="./assets/atlantic-logo.svg" alt="The Atlantic">' : ''}
         <p class="w-call-kick">${c.kick}</p>
         <h2 id="call-h">${c.title}</h2>
         <p class="w-call-body">${c.body}</p>
@@ -1381,7 +1402,7 @@ function articlePage(el, { state: s, derived: d }) {
   if (cta) cta.addEventListener('click', () => kit.navigate(`#/update?${qs()}`, { session: 'in', push: true }));
   const laterBtn = el.querySelector('[data-later]');
   if (laterBtn) {
-    laterBtn.addEventListener('click', () => dismissCallout(el));
+    el.querySelectorAll('[data-later]').forEach((b) => b.addEventListener('click', () => dismissCallout(el)));
     el.querySelector('.w-call').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); dismissCallout(el); } });
     riseCallout(el);
   }
