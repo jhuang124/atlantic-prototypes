@@ -522,9 +522,9 @@ const scenarios = [
 
 /* --- 3. Axes: the dunning clock ---------------------------------------------- */
 const axes = [
-  { key: 'day', label: 'Grace period', default: 'd7', keptOnSwitch: true, options: [
-    { value: 'd7', label: 'Day 7 of 30', description: 'October 20, day 7 of 30. The third email has gone out; access continues.' },
-    { value: 'ended', label: 'Ended', today: '2026-11-13', description: 'November 13. The subscription was canceled on November 12, so the page hands off to Resubscribe.' },
+  { key: 'day', label: 'Payment status', default: 'd7', keptOnSwitch: true, options: [
+    { value: 'd7', label: 'In payment failure', description: 'October 20. The third email has gone out; access continues for now.' },
+    { value: 'ended', label: 'Canceled', today: '2026-11-13', description: 'The subscription was canceled for nonpayment, so the page hands off to Resubscribe.' },
   ] },
 ];
 
@@ -547,9 +547,8 @@ function derive(s, today) {
   const short = gift
     ? `We couldn’t renew ${gift.first}’s gift because ${reason}.`
     : `We couldn’t renew your subscription because ${reason}.`;
-  const until = daysLeft <= 7
-    ? `<strong>${gift ? `${gift.first}’s access ends` : 'Your access ends'} ${F(CANCEL_ON)}, in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}.</strong>`
-    : `${gift ? `${gift.first}’s access continues` : 'Your access continues'} until ${F(CANCEL_ON)}.`;
+  // No date or countdown: the length of the grace period isn't confirmed, so the copy never states one
+  const until = gift ? `Update it to keep ${gift.first}’s access.` : 'Update it to keep your access.';
   const methodText = (m) => m ? (m.type === 'card' ? `${m.brand} ending ${m.last4}` : `${WALLETS[m.type].label} (${m.card})`) : oldLabel;
   return { short, until, day, paid, ended, daysLeft, emailNo, emailSentOn, subject: subjects[emailNo - 1], oldLabel, methodText,
     status: paid ? 'active' : ended ? 'cancelled' : 'past_due',
@@ -569,7 +568,7 @@ const paths = [
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all' },
     steps: [
       'Email 3, the real template: “Don’t let your access expire. Please act now.” → “Update Your Payment”.',
-      'The page at phone width, no sign-in: “Don’t miss a story”, then a card with the plan, $89.99 due, and “Access continues until November 12, 2026”.',
+      'The page at phone width, no sign-in: “Don’t miss a story”, then a card with the plan and $89.99 due.',
       '“Payment Information”: one list of ways to pay: PayPal, Apple Pay, Google Pay, then Card, picked and open with its fields. One button under it: “Renew for $89.99”.',
       'Select Apple Pay: the card fields fold away, a line says she’ll confirm with Face ID or Touch ID, and the button becomes the Apple Pay button. Tap it → the sheet: The Atlantic, $89.99, Visa •• 1881 → “Pay with Face ID”.',
       'Confirmation: “Thank you, Jane.” and the Order Summary, paid with Apple Pay, next billing date October 13, 2027.',
@@ -608,7 +607,7 @@ const paths = [
     summary: 'One card form and nothing else: the hosted-page pattern of Churn Buster and most recovery vendors.',
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/update?device=desktop&layout=card' },
     steps: [
-      'One centered card: “Update your card”, why the renewal failed, and the date access continues.',
+      'One centered card: “Update your card”, why the renewal failed, and how to keep access.',
       'Only the card form: Card number, Expiration date, Security code, Country, ZIP code, and “Renew for $89.99”. No wallets and no summary.',
       'Scene panel → Payment page → All methods: the same page with the summary and the list of methods (PayPal, Apple Pay, Google Pay, Card). Then back to Card only.',
       '“Renew for $89.99” → “Thank you, Jane.”, the same confirmation as the full page.',
@@ -619,7 +618,7 @@ const paths = [
     steps: [
       'Gift email 3, the real template: “Don’t let their access expire. Please act now.”',
       '“Update Your Payment” → “So Sam can keep enjoying The Atlantic”, with Sam Whitaker in the summary card.',
-      'Optional: Scene panel → Grace period → Ended, to see this page once the gift is canceled. Then back to Day 7 of 30.',
+      'Optional: Scene panel → Payment status → Canceled, to see this page once the gift is canceled. Then back to In payment failure.',
       'Select Google Pay, then the Google Pay button → the sheet with Mastercard •• 5100 → “Continue”.',
       '“Thank you, Jane.”: “Thank you for sharing The Atlantic, and for supporting independent journalism.”',
     ] },
@@ -629,7 +628,6 @@ const paths = [
     steps: [
       'The article, “Choose Your Overlord: Musk or Bezos?” by Josh Tyrangiel. A moment after it opens, or as soon as you scroll, a sheet rises from the bottom; the story stays readable above it.',
       'The callout: “Your payment method is expiring.” Visa ending 3220 expires at the end of November, before the renewal on December 4, 2026; nothing is due today. One button, “Update Payment Method”, and a quiet “Remind me later”.',
-      'Scene panel → Version → Today: the same story with no callout, because nothing on the site warns about an expiring card today. Then Version → Proposed.',
       '“Update Payment Method” → “Update your payment method”: the summary shows the card on file and the renewal date, then the list of methods with Card (last) open and “Save Card” under it. The prototype note asks whether wallets show when nothing is due.',
       '“Save Card” → “Thank you, Jane.”: the new card is saved, nothing was charged, and the subscription still renews on December 4, 2026.',
       '“Return to Your Article” → the same story, and the callout is gone.',
@@ -683,18 +681,20 @@ const SOURCES = [
 ];
 const SRC_BY = Object.fromEntries(SOURCES.map((x) => [x.value, x]));
 // Read the URL directly (not kit.param), because the side-card list itself depends on the source.
-const srcOf = () => { const v = kit.params().get('src'); return SRC_BY[v] ? v : kit.page && kit.page.path === '/article' ? 'article-failed' : 'email-failed'; };
+// Today has one entry point, the payment-failed email (Self or Gift); card expiring and the article are Proposed-only.
+const todayOnly = () => kit.params().get('exp') === 'today' || (kit.page && (kit.page.path === '/login' || kit.page.path === '/subscription'));
+const srcOf = () => { if (todayOnly()) return 'email-failed'; const v = kit.params().get('src'); return SRC_BY[v] ? v : kit.page && kit.page.path === '/article' ? 'article-failed' : 'email-failed'; };
 const kindOf = () => SRC_BY[srcOf()].kind;
 const fromArticle = () => SRC_BY[srcOf()].entry === '/article';
 const entryHref = (extra) => `#${SRC_BY[srcOf()].entry}?${qs(extra)}`;
 const savedNow = (s, d) => kindOf() === 'expiring' ? !!s.upd : d.paid;   // the moment after "Save" or "Renew"
 
 // Scene panel (the side card), one question per control, most important first: Version, What
-// happened, Starts from, Who pays, Grace period; then Display (Opened on, Payment page) and the
+// happened, Starts from, Who pays, Payment status; then Display (Opened on, Payment page) and the
 // payment-error switch. Each screen lists only the controls that change it (see SCENE).
 // Version, "Opened on" and "Payment page" are URL params; a screen from the other version hands
 // over to its counterpart for the same moment (see each page). What happened + Starts from (both
-// write `source`), Who pays and Grace period are one-shot params: a click writes one,
+// write `source`), Who pays and Payment status are one-shot params: a click writes one,
 // syncControls() applies it and clears it, and each control's default reads back.
 // No `exp` in the URL means Proposed, except on today's own screens.
 const EXP = { key: 'exp', label: 'Version', default: 'new', hero: true, options: [
@@ -707,7 +707,7 @@ const entryOf = () => SRC_BY[srcOf()].entry === '/article' ? 'article' : 'email'
 const onEntry = () => kit.page && (kit.page.path === '/email' || kit.page.path === '/article');
 const KIND = { key: 'source', label: 'What happened', get fold() { return onEntry() ? null : 'Situation'; }, get default() { return srcOf(); }, get options() {
   const e = entryOf();
-  return [{ value: `${e}-failed`, label: 'Payment failed', hint: 'The renewal failed. 30 days to fix it.' },
+  return [{ value: `${e}-failed`, label: 'Payment failed', hint: 'The renewal failed. Access continues for now.' },
     { value: `${e}-expiring`, label: 'Card expiring', hint: 'The card runs out before the renewal.' }]; } };
 const ENTRY = { key: 'source', label: 'Starts from', get fold() { return onEntry() ? null : 'Situation'; }, get default() { return srcOf(); }, get options() {
   const k = kindOf(), again = onEntry() ? null : 'Changing either one restarts at the first screen.';
@@ -716,9 +716,9 @@ const ENTRY = { key: 'source', label: 'Starts from', get fold() { return onEntry
 const WHO = { key: 'who', label: 'Who pays', get default() { return kit.state.scenario === 'gift' ? 'gift' : 'self'; },
   options: [{ value: 'self', label: 'Subscriber', hint: 'Jane pays for her own subscription.' },
     { value: 'gift', label: 'Gift giver', hint: 'Jane pays for Sam Whitaker’s gift.' }] };
-const WHEN = { key: 'when', label: 'Grace period', get default() { return (kit.state.axes || {}).day === 'ended' ? 'ended' : 'd7'; },
-  get options() { return [{ value: 'd7', label: 'Day 7 of 30', hint: `Oct 20. Access continues until ${F(CANCEL_ON, 'short')}.` },
-    { value: 'ended', label: 'Ended', hint: `Nov 13. Canceled the day before.` }]; } };
+const WHEN = { key: 'when', label: 'Payment status', get default() { return (kit.state.axes || {}).day === 'ended' ? 'ended' : 'd7'; },
+  get options() { return [{ value: 'd7', label: 'In payment failure', hint: 'The renewal failed; access continues for now.' },
+    { value: 'ended', label: 'Canceled', hint: 'The subscription was canceled for nonpayment.' }]; } };
 const DEVICE = { key: 'device', label: 'Opened on', group: 'Display', row: true, default: 'desktop',
   options: [{ value: 'desktop', label: 'Desktop' }, { value: 'iphone', label: 'Phone' }] };
 const LAYOUT = { key: 'layout', label: 'Payment page', group: 'Display', row: true, options: [
@@ -728,7 +728,7 @@ const LAYOUT = { key: 'layout', label: 'Payment page', group: 'Display', row: tr
 // Reads `exp` from the URL, not expOf(): expOf() falls back to this page's controls, which call this.
 const payFormShown = () => kit.params().get('exp') !== 'today' && (kindOf() === 'expiring' ? !kit.state.upd : !kit.derived.paid && !kit.derived.ended);
 // Story controls. The grace period only means something while a failed payment is still unpaid.
-const story = (o = {}) => [o.today ? EXP_TODAY : EXP, KIND, ENTRY, ...(o.who === false ? [] : [WHO]),
+const story = (o = {}) => [o.today ? EXP_TODAY : EXP, ...(o.today || todayOnly() ? [] : [KIND, ENTRY]), ...(o.who === false ? [] : [WHO]),
   ...(o.when !== false && kindOf() === 'failed' && !kit.derived.paid ? [WHEN] : [])];
 // The email looks the same on any device, so Display starts on the screens it changes.
 // Sign-in looks the same for a gift and after cancellation, so those controls start after it.
@@ -837,7 +837,7 @@ function emailPage(el, { state, derived: d }) {
   const today = expOf() === 'today' && !d.ended;
   if (today && !g) return todayEmail(el, s, d);
   const t = d.ended
-    ? { hed: 'Your subscription has been canceled', body: [`We weren’t able to process payment to renew your ${g ? 'gift ' : ''}subscription, so it was canceled on ${F(CANCEL_ON)}. Nothing is owed.`,
+    ? { hed: 'Your subscription has been canceled', body: [`We weren’t able to process payment to renew your ${g ? 'gift ' : ''}subscription, so it was canceled. Nothing is owed.`,
         'Thank you for your time as a subscriber and for your support. We hope to welcome you back in the future.'] }
     : g ? TEMPLATES.gift[d.emailNo - 1] : TEMPLATES.std[STD_MAP[d.emailNo - 1]];
   const subject = d.ended ? 'Your subscription has been canceled' : d.subject;
@@ -1031,7 +1031,7 @@ function updatePage(el, ctx) {
   }
   if (d.ended) {
     el.innerHTML = notice(`Your ${g ? 'gift ' : ''}subscription has been canceled`,
-      `We weren’t able to process payment before ${F(CANCEL_ON)}, so ${g ? `the gift subscription for ${esc(g.name)}` : 'your subscription'} was canceled. Nothing is owed. Thank you for your time ${g ? 'sharing The Atlantic' : 'as a subscriber'} and for your support. We hope to welcome you back.`,
+      `We weren’t able to process payment, so ${g ? `the gift subscription for ${esc(g.name)}` : 'your subscription'} was canceled. Nothing is owed. Thank you for your time ${g ? 'sharing The Atlantic' : 'as a subscriber'} and for your support. We hope to welcome you back.`,
       g ? 'Give a New Gift' : 'Resubscribe', '#/restart');
     return;
   }
@@ -1050,7 +1050,7 @@ function updatePage(el, ctx) {
     // All methods: what happened and what's at stake, then one list of methods, then one button.
     const pick = pickedMethod();
     const fields = [['Subscription', g ? 'Atlantic Digital gift' : 'Atlantic Digital'], g ? ['Gift for', esc(g.name)] : ['Subscriber since', String(s.subscriber.since)],
-      ['Amount due', money(PRICE)], ['Access continues until', F(CANCEL_ON)]];
+      ['Amount due', money(PRICE)]];
     el.innerHTML = shell(`<div class="col-checkout">
       <h1 class="pg-title">${esc(d.headline)}</h1>
       <p class="pg-dek">${d.short}</p>
@@ -1305,6 +1305,7 @@ function dismissCallout(el) {
 
 function articlePage(el, { state: s, derived: d }) {
   if (syncControls()) return;
+  if (kit.params().get('exp') === 'today') { later(() => kit.navigate(`#/email?${qs({ src: 'email-failed' })}`, { push: false })); return; }
   if (!fromArticle()) { later(() => kit.navigate(`#/article?${qs({ src: 'article-' + kindOf() })}`, { push: false })); return; }
   // A fresh visit (arriving from another screen, a tour, a reset) waits a beat before the sheet rises
   if (!document.querySelector('.acct.www') || calloutState !== s) calloutRise = 'wait';
@@ -1580,7 +1581,7 @@ const HEAD = {
       : d.ended ? 'Sent the day the subscription was canceled. Its button opens Resubscribe.'
       : today ? (s.gift ? 'The earlier gift email with today’s button, which opens the Subscription page.'
         : `Email ${Math.min(d.emailNo, TODAY_STD.length)} of ${TODAY_STD.length}, as sent today. Its button leads to sign-in.`)
-      : `Email ${d.emailNo} of ${s.gift ? 6 : 7}, day ${d.day} of 30. Its button opens the payment page, no sign-in.`;
+      : `Email ${d.emailNo} of ${s.gift ? 6 : 7}. Its button opens the payment page, no sign-in.`;
     return { title: 'The email', body };
   },
   // The article's headline, dek and byline are the November 2026 issue's; the body is placeholder text.
