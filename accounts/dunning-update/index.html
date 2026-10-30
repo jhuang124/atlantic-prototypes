@@ -312,17 +312,27 @@
 .acct.www .vp { background: #fff; }
 .w-nav { position: sticky; top: 0; z-index: 30; background: rgb(255 255 255 / .98); border-bottom: 1px solid #d8d8d8; }
 .w-nav::before { content: ''; display: block; height: 2px; background: #000; }
-.w-nav-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 9px 28px 8px; }
+.w-nav-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 14px 40px 13px; }
 .w-left, .w-right { display: flex; align-items: center; gap: 20px; }
 .w-right { justify-content: flex-end; gap: 22px; }
-.w-nav a { font: 11px/1 var(--font-sans); color: #2c2825; text-decoration: none; }
+.w-nav a { font: 14px/1 var(--font-sans); color: #2c2825; text-decoration: none; }
+.w-nav a.w-a { font: 400 40px/0.8 var(--font-serif); color: #E7131A; margin-right: 6px; }
+.w-rail { position: fixed; left: max(16px, calc(50% - 600px)); top: 52%; z-index: 20; display: flex; flex-direction: column; gap: 18px; padding: 16px 10px; background: #fff; border-radius: 28px; box-shadow: 0 2px 10px rgb(0 0 0 / .12); }
+.w-rail span { display: block; width: 22px; height: 22px; margin: 0 auto; position: relative; }
+.w-rail .r-save { width: 14px; height: 18px; border: 1.5px solid #2c2825; border-bottom: 0; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%); }
+.w-rail .r-gift { width: 18px; height: 16px; border: 1.5px solid #2c2825; border-radius: 2px; }
+.w-rail .r-gift::before { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1.5px solid #2c2825; }
+.w-rail .r-gift::after { content: ''; position: absolute; left: -2px; right: -2px; top: 4px; border-top: 1.5px solid #2c2825; }
+.w-rail .r-cmt { width: auto; height: auto; padding: 2px 8px; border: 1.5px solid #2c2825; border-radius: 9px; font: 600 11px/1.2 var(--font-sans); color: #2c2825; }
+.w-rail .r-cmt::after { content: ''; position: absolute; top: -3px; right: -3px; width: 7px; height: 7px; border-radius: 50%; background: #E7131A; }
+.acct.is-phone .w-rail { display: none; }
 .w-nav a:hover { color: #DD1001; }
 .w-menu { width: 15px; height: 12px; position: relative; border-top: 1px solid currentColor; border-bottom: 1px solid currentColor; }
 .w-menu::after { content: ''; position: absolute; left: 0; right: 0; top: 5px; border-top: 1px solid currentColor; }
 .w-search { width: 13px; height: 13px; border: 1px solid currentColor; border-radius: 50%; position: relative; }
 .w-search::after { content: ''; position: absolute; width: 5px; border-top: 1px solid currentColor; transform: rotate(45deg); right: -4px; bottom: -2px; }
-.w-wm img { display: block; height: 24px; width: auto; }
-.w-nav a.w-sub { font-weight: 600; color: #fff; background: #DD1001; border-radius: 3px; padding: 9px 17px; }
+.w-wm img { display: block; height: 32px; width: auto; }
+.w-nav a.w-sub { font-weight: 400; font-size: 15px; color: #fff; background: #B80F15; border-radius: 3px; padding: 12px 22px; }
 .w-nav a.w-sub:hover { color: #fff; background: #B1383C; }
 
 .w-art { padding: 64px 24px 0; }
@@ -342,7 +352,7 @@
 .w-listen i { width: 28px; height: 28px; border-radius: 50%; background: #2c2825; display: grid; place-items: center; }
 .w-listen i::after { content: ''; margin-left: 3px; border-left: 8px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
 .w-body { max-width: 660px; margin: 0 auto; }
-.w-body p { margin: 0 0 28px; font: 21px/1.55 var(--font-serif); color: #272321; }
+.w-body p { margin: 0 0 30px; font: 22px/1.6 var(--font-serif); color: #121212; }
 .w-body p.first::first-letter { float: left; font-size: 88px; line-height: .72; padding: 12px 12px 0 0; color: #000; }
 .w-body p.first::first-line { font-variant: small-caps; letter-spacing: .035em; }
 .w-body p.w-print { margin-top: 36px; padding-top: 16px; border-top: 1px solid #dedede; font: italic 16px/1.45 var(--font-serif); color: #6f6c69; }
@@ -416,7 +426,7 @@
 .w-foot a { display: block; margin: 8px 0; font: 10px/1.3 var(--font-sans); color: #bdbdbd; text-decoration: none; }
 .w-foot small { display: block; max-width: 1120px; margin: 22px auto 0; padding-top: 18px; border-top: 1px solid #3e3e3e; font: 8px/1.4 var(--font-mono); color: #888; }
 
-@container (max-width: 840px) { .w-left .w-txt, .w-right .w-saved { display: none; } }
+@container (max-width: 840px) { .w-left .w-txt, .w-right .w-saved, .w-left .w-search { display: none; } .w-nav a.w-a { font-size: 32px; } .w-rail { display: none; } }
 @container (max-width: 600px) {
   .w-nav-in { grid-template-columns: auto 1fr auto; gap: 14px; padding: 11px 16px; }
   .w-left .w-search { display: none; }
@@ -1366,11 +1376,12 @@ function articlePage(el, { state: s, derived: d }) {
   const navLink = (label, cls = '') => `<a class="${cls}" href="#/reading">${label}</a>`;
   el.innerHTML = `<div class="acct www${deviceOf() === 'desktop' ? '' : ' is-phone'}"><div class="vp">
     <header class="w-nav"><div class="w-nav-in">
-      <nav class="w-left" aria-label="Sections"><a class="w-menu" href="#/reading" aria-label="Open menu"></a><a class="w-search" href="#/reading" aria-label="Search"></a>
+      <nav class="w-left" aria-label="Sections"><a class="w-a" href="#/reading" aria-label="The Atlantic home">A</a><a class="w-menu" href="#/reading" aria-label="Open menu"></a><a class="w-search" href="#/reading" aria-label="Search"></a>
         ${navLink('Popular', 'w-txt')}${navLink('Latest', 'w-txt')}${navLink('Newsletters', 'w-txt')}</nav>
       <a class="w-wm" href="#/reading" aria-label="The Atlantic"><img src="./assets/atlantic-logo.svg" alt=""></a>
-      <div class="w-right">${navLink('Saved Stories', 'w-saved')}<a href="#/subscription?${qs({ exp: 'today' })}" data-dk-session="in">My Account</a>${g ? navLink('Subscribe', 'w-sub') : ''}</div>
+      <div class="w-right">${navLink('Saved Stories', 'w-saved')}<a href="#/subscription?${qs({ exp: 'today' })}" data-dk-session="in">My Account</a>${navLink('Give a Gift', 'w-sub')}</div>
     </div></header>
+    <div class="w-rail" aria-hidden="true"><span class="r-save"></span><span class="r-gift"></span><span class="r-cmt">15</span></div>
     <article class="w-art">
       <div class="w-head">
         <p class="w-rubric">Technology</p>
