@@ -10,11 +10,12 @@
    Product layer for the dunning update page. Anatomy follows the accounts site
    (Figma Trials 18118:287311 payment, 18118:287325 confirmation, 9346:283968
    add payment method): header Home · wordmark · Sign in, warm paper page, white
-   0-radius cards, filled graphite primary, stacked black wallets, "OR USE".
+   0-radius cards, filled graphite primary. The payment methods are one radio list
+   (the wallets, then the card, open by default) with one action button that follows it.
    ========================================================================== */
 :root { --primary: #2C2825; --primary-hover: #000; }
 .public .stage.has-side { display: block; max-width: none; }
-.public .stage.has-side > .demo-sidecard { position: fixed; top: 120px; right: 20px; width: 272px; z-index: 40; max-height: calc(100vh - 140px); overflow: auto; }
+.public .stage.has-side > .demo-sidecard { position: fixed; top: 80px; right: 20px; width: 296px; z-index: 40; max-height: calc(100vh - 92px); overflow: auto; overscroll-behavior: contain; }
 @media (max-width: 1239px) { .public .stage.has-side > .demo-sidecard { position: static; width: auto; max-width: 560px; margin: 152px auto 0; max-height: none; } }  /* 104 offsets .acct's bottom pull */
 
 /* Shell: the whole accounts page, edge to edge. Phone = the same page at 375. */
@@ -58,20 +59,55 @@
 .fld dt { font: 12px/16px var(--font-sans); color: var(--ink-soft); }
 .fld dd { margin: 4px 0 0; font: 18px/1.35 var(--font-sans); color: #000; }
 
-/* Wallets: full-width black, stacked (PayPal, Apple Pay, Google Pay) */
-.wallets { display: grid; gap: 8px; }
-.wallet { height: 44px; width: 100%; border: 0; border-radius: 4px; background: #000; color: #fff; cursor: pointer;
+/* Method list: one white card of radio rows (PayPal · Apple Pay · Google Pay · Card), the shape of
+   Stripe's Payment Element accordion. The picked row opens: the card's fields, or one line on what
+   happens next. Native radios, so arrow keys move the pick. */
+.pm-list { margin: 0; padding: 0; min-width: 0; border: 1px solid var(--hairline); background: var(--surface); }
+.pm-row + .pm-row { border-top: 1px solid var(--hairline); }
+.pm-head { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 12px 16px; cursor: pointer; }
+.pm-row:not(.is-on) .pm-head:hover { background: #FAF8F5; }
+.pm-radio { appearance: none; -webkit-appearance: none; flex: none; display: grid; place-items: center; width: 20px; height: 20px; margin: 0;
+  border: 1.5px solid var(--stone); border-radius: 50%; background: var(--surface); cursor: pointer; transition: border-color .15s; }
+.pm-radio::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); transform: scale(0); transition: transform .15s cubic-bezier(.22,.61,.36,1); }
+.pm-radio:checked { border-color: var(--primary); }
+.pm-radio:checked::before { transform: scale(1); }
+.pm-radio:focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.pm-tile { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 1px; width: 46px; height: 30px;
+  border: 1px solid var(--hairline); border-radius: 4px; background: var(--surface); color: #000; font: 500 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+.pm-tile svg { width: 13px; height: 13px; }
+.pm-tile.is-card svg { width: 20px; height: 20px; }
+.pm-tile.is-dark { background: #000; border-color: #000; color: #fff; }
+.pm-tile .pp { font-size: 10px; }
+.pm-name { flex: 1; min-width: 0; font: 16px/1.25 var(--font-sans); color: #000; }
+.pm-row.is-on .pm-name { font-weight: 600; }
+.pm-marks { display: flex; gap: 3px; transition: opacity .15s; }
+.pm-marks svg { width: 24px; height: 16px; }
+.pm-row.is-on .pm-marks { opacity: 0; }
+/* Open and close: rows grow to fit (grid 0fr → 1fr); a closed body is hidden from tab and readers */
+.pm-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .26s cubic-bezier(.22,.61,.36,1); }
+.pm-row.is-on .pm-body { grid-template-rows: 1fr; }
+.pm-body-in { min-height: 0; overflow: hidden; visibility: hidden; transition: visibility 0s .26s; }
+.pm-row.is-on .pm-body-in { visibility: visible; transition-delay: 0s; }
+.pm-pad { padding: 4px 16px 20px; }
+.pm-note { padding: 0 16px 18px 48px; font: 14px/1.5 var(--font-sans); color: var(--ink-soft); }
+/* The one action under the list follows the pick: the graphite primary for a card, the wallet's own button otherwise */
+.pm-consent { margin-top: 16px; font: 13px/1.45 var(--font-sans); color: var(--stone); }
+.pm-consent a { color: inherit; }
+.pay-submit > [hidden] { display: none; }
+.pay-submit .btn, .pay-submit .wallet { width: 100%; height: 48px; }
+.pay-submit [data-swap] { animation: pmSwap .2s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes pmSwap { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+.wallet { border: 0; border-radius: 4px; background: #000; color: #fff; cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 4px; font: 500 20px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
 .wallet:hover { background: #222; }
 .wallet:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
 .wallet svg { width: 18px; height: 18px; }
-.pp-w { font: italic 700 18px/1 Verdana, 'Helvetica Neue', sans-serif; letter-spacing: -.02em; color: #fff; }
-.or-use { display: flex; align-items: center; gap: 12px; margin: 20px 0; font: 12px/1 var(--font-sans); letter-spacing: .04em; text-transform: uppercase; color: #000; }
-.or-use::before, .or-use::after { content: ''; flex: 1; border-top: 1px solid var(--stone); }
+.wallet.is-paypal { background: #FFC439; }
+.wallet.is-paypal:hover { background: #F2B534; }
+.wallet.is-paypal .pp { font-size: 20px; }
+@media (prefers-reduced-motion: reduce) { .pm-body, .pm-body-in, .pm-radio, .pm-radio::before, .pm-marks { transition: none; } .pay-submit [data-swap] { animation: none; } }
 
-/* Card form: labeled fields (Arial 16 in 52px fields), brand badges, Stripe consent line */
-.card-panel { padding: 20px 16px; }
-.card-panel-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font: 500 14px/1 var(--font-sans); color: #000; }
+/* Card form: labeled fields (Arial 16 in 52px fields), brand badges */
 .pay-fields { display: grid; gap: 16px; }
 .pay-fields .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .pay-field { display: flex; flex-direction: column; gap: 8px; position: relative; }
@@ -83,10 +119,8 @@
 .brands { position: absolute; right: 12px; bottom: 18px; display: flex; gap: 4px; pointer-events: none; }
 .brands svg { display: block; transition: opacity .15s; }
 .brands.picked svg:not(.on) { opacity: .25; }
-.consent { margin-top: 16px; font: 14px/1.4 var(--font-sans); color: var(--stone); }
-.pay-submit { margin-top: 24px; }
-.pay-submit .btn { width: 100%; }
-.after-note { margin-top: 20px; font: 14px/1.5 var(--font-sans); color: var(--stone); text-align: center; }
+.pay-submit { margin-top: 12px; }
+.after-note { margin-top: 20px; font: 13px/1.5 var(--font-sans); color: var(--stone); text-align: center; }
 .after-note a { color: var(--stone); }
 
 /* Card-only page (recipe: one centered utility card) */
@@ -117,8 +151,8 @@
   .acct-header .wm { height: 22px; }
   .acct-body { padding: 24px 0 72px; }
   .col-checkout > :not(.box):not(form), .col-confirm, .col-utility > :not(.box) { padding-left: 16px; padding-right: 16px; }
-  .col-checkout form > :not(.box) { margin-left: 16px; margin-right: 16px; }
-  .col-checkout .box, .col-utility .box { border-left: 0; border-right: 0; }
+  .col-checkout form > :not(.box):not(.pm-list) { margin-left: 16px; margin-right: 16px; }
+  .col-checkout .box, .col-checkout .pm-list, .col-utility .box { border-left: 0; border-right: 0; }
   .pg-title, .cf-title { font-size: 32px; }
   .pg-dek { font-size: 16px; }
   .summary, .cf-grid { grid-template-columns: 1fr; }
@@ -269,6 +303,132 @@
 .acct-body.flush { padding: 0; }
 .af-stage { max-width: 687px; margin: 0 auto 48px; } .af-stage .demo-box { margin: 0; }
 @container (max-width: 767px) { .af-stage { margin: 0 16px 40px; } }
+
+/* ==========================================================================
+   theatlantic.com article: the www editorial page, where editorial idioms are
+   right (unlike the accounts pages). Masthead, rubric, hed, dek, byline, hero,
+   body, and the account callout as a sheet that rises over the story.
+   ========================================================================== */
+.acct.www .vp { background: #fff; }
+.w-nav { position: sticky; top: 0; z-index: 30; background: rgb(255 255 255 / .98); border-bottom: 1px solid #d8d8d8; }
+.w-nav::before { content: ''; display: block; height: 2px; background: #000; }
+.w-nav-in { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 20px; padding: 9px 28px 8px; }
+.w-left, .w-right { display: flex; align-items: center; gap: 20px; }
+.w-right { justify-content: flex-end; gap: 22px; }
+.w-nav a { font: 11px/1 var(--font-sans); color: #2c2825; text-decoration: none; }
+.w-nav a:hover { color: #DD1001; }
+.w-menu { width: 15px; height: 12px; position: relative; border-top: 1px solid currentColor; border-bottom: 1px solid currentColor; }
+.w-menu::after { content: ''; position: absolute; left: 0; right: 0; top: 5px; border-top: 1px solid currentColor; }
+.w-search { width: 13px; height: 13px; border: 1px solid currentColor; border-radius: 50%; position: relative; }
+.w-search::after { content: ''; position: absolute; width: 5px; border-top: 1px solid currentColor; transform: rotate(45deg); right: -4px; bottom: -2px; }
+.w-wm img { display: block; height: 24px; width: auto; }
+.w-nav a.w-sub { font-weight: 600; color: #fff; background: #DD1001; border-radius: 3px; padding: 9px 17px; }
+.w-nav a.w-sub:hover { color: #fff; background: #B1383C; }
+
+.w-art { padding: 64px 24px 0; }
+.w-head { max-width: 660px; margin: 0 auto 40px; }
+.w-rubric { margin: 0 0 24px; font: 500 10px/1 var(--font-mono); letter-spacing: .16em; text-transform: uppercase; color: #DD1001; }
+.w-hed { margin: 0 0 20px; font: 400 50px/1.03 var(--font-serif); letter-spacing: -.7px; color: #000; }
+.w-dek { margin: 0 0 20px; max-width: 610px; font: 21px/1.34 var(--font-serif); color: #2c2825; }
+.w-by { margin: 0; font: 17px/1.3 var(--font-serif); color: #2c2825; }
+.w-hero { max-width: 660px; margin: 0 auto; }
+.w-hero svg { display: block; width: 100%; height: auto; }
+.w-cap { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font: 9px/1.45 var(--font-mono); letter-spacing: .03em; color: #6f6c69; }
+.w-cap .credit { flex: none; letter-spacing: .06em; text-transform: uppercase; }
+.w-tools { max-width: 660px; margin: 0 auto 44px; padding: 20px 0 22px; border-bottom: 1px solid #dedede; display: flex; justify-content: space-between; align-items: center; gap: 18px;
+  font: 9px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: #6f6c69; }
+.w-share { display: flex; gap: 18px; }
+.w-listen { display: flex; align-items: center; gap: 10px; }
+.w-listen i { width: 28px; height: 28px; border-radius: 50%; background: #2c2825; display: grid; place-items: center; }
+.w-listen i::after { content: ''; margin-left: 3px; border-left: 8px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.w-body { max-width: 660px; margin: 0 auto; }
+.w-body p { margin: 0 0 28px; font: 21px/1.55 var(--font-serif); color: #272321; }
+.w-body p.first::first-letter { float: left; font-size: 88px; line-height: .72; padding: 12px 12px 0 0; color: #000; }
+.w-body p.first::first-line { font-variant: small-caps; letter-spacing: .035em; }
+.w-body p.w-print { margin-top: 36px; padding-top: 16px; border-top: 1px solid #dedede; font: italic 16px/1.45 var(--font-serif); color: #6f6c69; }
+
+/* The callout comes to the reader: a white sheet that rises from the bottom once they're into the
+   story, or a beat after the page opens (the reactivation prototype's scroll sheet). It's sticky
+   inside the article, so it docks to the bottom of the screen while they read and settles under the
+   last paragraph at the end. The story fades into it (no scrim) and stays live and scrollable
+   above it; nothing is trapped. Payment failed is the strong one; card expiring is a lighter heads-up. */
+.w-dock { position: sticky; bottom: 0; z-index: 35; margin: 56px -24px 0; }
+.w-dock[data-state="waiting"] { visibility: hidden; }
+.w-call { position: relative; padding: 24px 28px 20px; background: #fff; border-top: 1px solid #e7e3db;
+  box-shadow: 0 -1px 4px rgb(33 39 44 / .05), 0 -12px 28px rgb(33 39 44 / .07); }
+.w-call:focus { outline: none; }
+.w-call::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 72px; pointer-events: none;
+  background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / .3) 58%, rgb(255 255 255 / .88) 90%, #fff); }
+.w-call-in { max-width: 660px; margin: 0 auto; }
+.w-dock[data-state="in"] .w-call { animation: wSheetUp .36s cubic-bezier(.22,.61,.36,1) both; }
+.w-dock[data-state="in"] .w-call::before { animation: wFade .24s cubic-bezier(.22,.61,.36,1) both; }
+.w-dock[data-state="out"] .w-call { animation: wSheetDown .22s cubic-bezier(.55,.06,.68,.19) both; }
+@keyframes wSheetUp { from { opacity: .6; transform: translate3d(0, 100%, 0); } to { opacity: 1; transform: none; } }
+@keyframes wSheetDown { from { opacity: 1; transform: none; } to { opacity: 0; transform: translate3d(0, 100%, 0); } }
+@keyframes wFade { from { opacity: 0; } to { opacity: 1; } }
+.w-call-kick { margin: 0 0 10px; font: 500 11px/1.3 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #6f6c69; }
+.w-call h2 { margin: 0 0 10px; font: 400 30px/1.1 var(--font-serif); color: #000; }
+.w-call-body { margin: 0 0 18px; max-width: 58ch; font: 18px/1.45 var(--font-serif); color: #45423f; }
+.w-call-body strong { font-weight: 600; color: #2c2825; }
+.w-call-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
+.w-call-btn { min-height: 48px; padding: 12px 24px; border: 1px solid #000; border-radius: 4px; background: #000; color: #fff; font: 500 16px/1.1 var(--font-mono); cursor: pointer; }
+.w-call-btn:hover { background: #2c2825; border-color: #2c2825; }
+.w-call-btn:focus-visible, .w-call-later:focus-visible { outline: 2px solid #166999; outline-offset: 2px; }
+.w-call-later { border: 0; background: none; padding: 4px 0; font: 14px/1 var(--font-sans); color: #2c2825; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.w-call-foot { margin: 0; font: 500 10px/1.4 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: #6f6c69; }
+.w-call-foot b { font-weight: 500; color: #2c2825; text-transform: none; letter-spacing: .02em; }
+/* Payment failed: the rubric's red kicker says it matters. Card expiring: grey kicker, smaller head, outlined button. */
+.w-dock.is-failed .w-call-kick { color: #DD1001; }
+.w-dock.is-expiring .w-call h2 { font-size: 25px; }
+.w-dock.is-expiring .w-call-body { font-size: 17px; }
+.w-dock.is-expiring .w-call-btn { background: #fff; color: #000; }
+.w-dock.is-expiring .w-call-btn:hover { background: #000; color: #fff; }
+.w-art:focus { outline: none; }
+@media (prefers-reduced-motion: reduce) { .w-dock .w-call, .w-dock .w-call::before { animation: none !important; } }
+/* A real phone: clear the presenter pill in the corner */
+@media (max-width: 767px) { .acct.www .w-call { padding-bottom: 60px; } }
+
+.w-end { max-width: 660px; margin: 56px auto 72px; }
+.w-author { border-top: 2px solid #25211f; padding-top: 12px; }
+.w-author h2 { padding-bottom: 12px; border-bottom: 1px solid #777; font: 400 25px/1.1 var(--font-serif); text-transform: uppercase; color: #000; }
+.w-author p { margin: 16px 0 0; font: 16px/1.45 var(--font-serif); color: #2c2825; }
+.w-author a { color: inherit; }
+.w-stage { max-width: 660px; margin: 0 auto 56px; } .w-stage .demo-box { margin: 0 0 16px; }
+.w-foot { padding: 34px 28px 48px; background: #050505; color: #fff; }
+.w-foot-in { max-width: 1120px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 34px; }
+.w-foot h3 { margin: 0 0 12px; font: 500 9px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #fff; }
+.w-foot a { display: block; margin: 8px 0; font: 10px/1.3 var(--font-sans); color: #bdbdbd; text-decoration: none; }
+.w-foot small { display: block; max-width: 1120px; margin: 22px auto 0; padding-top: 18px; border-top: 1px solid #3e3e3e; font: 8px/1.4 var(--font-mono); color: #888; }
+
+@container (max-width: 840px) { .w-left .w-txt, .w-right .w-saved { display: none; } }
+@container (max-width: 600px) {
+  .w-nav-in { grid-template-columns: auto 1fr auto; gap: 14px; padding: 11px 16px; }
+  .w-left .w-search { display: none; }
+  .w-wm img { height: 20px; }
+  .w-art { padding: 32px 18px 0; }
+  .w-rubric { margin-bottom: 18px; }
+  .w-hed { font-size: 36px; letter-spacing: -.4px; }
+  .w-dek { font-size: 19px; }
+  .w-hero { margin: 0 -18px; } .w-cap { padding: 0 18px; flex-direction: column; gap: 3px; }
+  .w-tools { margin-bottom: 32px; }
+  .w-listen span { display: none; }
+  .w-body p { font-size: 18px; margin-bottom: 24px; }
+  .w-body p.first::first-letter { font-size: 62px; }
+  .w-dock { margin: 40px -18px 0; }
+  .w-call { padding: 20px 18px 16px; }
+  .w-call::before { height: 56px; }
+  .w-call-kick { font-size: 10px; margin-bottom: 8px; }
+  .w-call h2 { font-size: 24px; margin-bottom: 8px; }
+  .w-dock.is-expiring .w-call h2 { font-size: 21px; }
+  .w-call-body, .w-dock.is-expiring .w-call-body { font-size: 16px; margin-bottom: 14px; }
+  .w-call-acts { gap: 10px 20px; }
+  .w-call-btn { padding: 12px 18px; font-size: 15px; }
+  .w-call-foot { flex-basis: 100%; margin: 2px 0 0; }
+  .w-end { margin: 44px 0 56px; }
+  .w-stage { margin: 0 16px 40px; }
+  .w-foot { padding: 28px 18px 40px; }
+  .w-foot-in { grid-template-columns: 1fr 1fr; gap: 24px; }
+}
 </style>
 </head>
 <body>
@@ -279,8 +439,15 @@
    Dunning: fix your payment without signing in.
    A renewal charge failed. The dunning email's button opens a single-purpose
    page on accounts.theatlantic.com that charges the open invoice. Two layouts,
-   switched from the side card: All methods (PayPal, Apple Pay, Google Pay, then
-   a card) or Card only (one clean card, the hosted-update-page pattern).
+   switched from the Scene panel (the side card): All methods (one radio list:
+   PayPal, Apple Pay, Google Pay, then Card, open by default; one button that
+   follows the pick) or Card only (one clean card, the hosted-update-page
+   pattern). "What happened" and "Starts from" pick the entry point: the email or
+   an article callout, for a failed payment or for a card that expires before the
+   renewal (pre-dunning: nothing failed, nothing owed, the page just saves a card).
+   Version (Scene panel, every screen) flips between today and proposed.
+   Presenter layer: the Scene panel sets up the screen beside it; the "Tours &
+   screens" pill opens guided tours, Jump to a screen and Reset. One home each.
    Visual only: nothing is charged and no payment provider is called.
    Order: constants → scenarios → axes → derive → actions → paths → pages → init.
    ========================================================================== */
@@ -291,7 +458,14 @@ const FAILED_ON = '2026-10-13';       // day 0: the renewal charge failed
 const CANCEL_ON = '2026-11-12';       // day 30: the subscription is canceled
 const RENEWS_NEXT = '2027-10-13';     // a year from the original renewal date
 const PRICE = 89.99;
-const HELP = 'Questions? Visit our Help Center or call (855) 940-0585.';
+// Card expiring (pre-dunning), on the same frozen today: the Visa on file runs out at the end of
+// November, and the renewal falls after it, so it would fail if nothing changes.
+const XP_CARD = '11/2026';             // as the accounts site prints it
+const XP_CARD_END = 'the end of November';
+const XP_SENT = '2026-10-20';          // the card-expiring email and the callout: today
+const XP_RENEWS = '2026-12-04';        // the renewal the expiring card would miss
+const XP_TERM_START = '2025-12-04';
+const HELP ='Questions? Visit our Help Center or call (855) 940-0585.';
 const STD_DAYS = [2, 5, 7, 15, 20, 25, 29];
 const STD_SUBJECTS = ['Did your billing info change?', 'Issue With Your Subscription To The Atlantic', 'Don’t lose your access to The Atlantic',
   'Your subscription will be cancelled soon', 'Action Required - Your Atlantic subscription payment has failed', 'Your Atlantic subscription is ending',
@@ -319,29 +493,38 @@ const BRANDS = [
   ['Amex', '<rect width="30" height="20" rx="2" fill="#2E77BC"/><text x="15" y="13" text-anchor="middle" font-family="Arial" font-weight="700" font-size="7" fill="#fff">AMEX</text>'],
   ['Discover', '<rect x=".5" y=".5" width="29" height="19" rx="2" fill="#fff" stroke="#D9D9D9"/><text x="12" y="12.5" text-anchor="middle" font-family="Arial" font-weight="700" font-size="5.5" fill="#231F20">DISCOVER</text><circle cx="25" cy="10" r="2.6" fill="#F48120"/>'],
 ].map(([b, inner]) => `<svg data-b="${b}" viewBox="0 0 30 20" width="30" height="20" aria-hidden="true">${inner}</svg>`).join('');
+// Each wallet: its row in the method list (tile + note on what happens next), its branded action
+// button, and the sheet that button opens. Notes take the kind: payment failed or card expiring.
 const WALLETS = {
-  paypal: { label: 'PayPal', button: '<span class="pp-w">PayPal</span>', card: 'jane.m•••@example.com', sheet: 'paypal' },
-  apple_pay: { label: 'Apple Pay', button: APPLE + '<span>Pay</span>', card: 'Visa •• 1881', sheet: 'apple' },
-  google_pay: { label: 'Google Pay', button: GLOGO + '<span>Pay</span>', card: 'Mastercard •• 5100', sheet: 'gpay' },
+  paypal: { label: 'PayPal', button: PAYPAL, tile: PAYPAL, card: 'jane.m•••@example.com', sheet: 'paypal',
+    note: (xp) => xp ? 'You’ll approve future payments in a PayPal window, then come right back.'
+      : `You’ll approve the ${money(PRICE)} renewal in a PayPal window, then come right back.` },
+  apple_pay: { label: 'Apple Pay', button: APPLE + '<span>Pay</span>', tile: APPLE + '<span>Pay</span>', dark: true, card: 'Visa •• 1881', sheet: 'apple',
+    note: (xp) => xp ? 'You’ll confirm with Face ID or Touch ID.'
+      : `You’ll confirm the ${money(PRICE)} renewal with Face ID or Touch ID.` },
+  google_pay: { label: 'Google Pay', button: GLOGO + '<span>Pay</span>', tile: GLOGO + '<span>Pay</span>', card: 'Mastercard •• 5100', sheet: 'gpay',
+    note: (xp) => xp ? 'You’ll choose a card saved in Google Pay.'
+      : `You’ll choose a card saved in Google Pay and confirm the ${money(PRICE)} renewal.` },
 };
 
 /* --- 2. Scenarios: who failed, and why --------------------------------------- */
 const JANE = { first: 'Jane', name: 'Jane Morrison', email: 'jane.morrison@example.com', masked: 'j•••@example.com', since: 2021 };
+// sub: the failed renewal (payment-failed sources). upd: a card saved ahead of the renewal (card-expiring sources).
 const base = (extra) => Object.assign({ subscriber: JANE, plan: 'Atlantic Digital, annual', gift: null,
-  sub: { status: 'past_due', method: null, paidOn: null } }, extra);
+  sub: { status: 'past_due', method: null, paidOn: null }, upd: null }, extra);
 const scenarios = [
-  { id: 'subscriber', label: 'Subscriber', description: 'Jane’s Visa expired, so her $89.99 annual renewal failed. Access continues while she fixes it.',
+  { id: 'subscriber', label: 'Subscriber', description: 'Jane’s Visa expired, so her $89.99 annual renewal failed. Access continues while she fixes it. With a card-expiring Source, the same Visa expires before her December renewal instead.',
     build: () => base({ old: { type: 'card', brand: 'Visa', last4: '3220', reason: 'expired', decline: 'hard' } }) },
-  { id: 'gift', label: 'Gift giver', description: 'Same failure, but Jane pays for Sam Whitaker’s gift. Sam keeps reading and never sees the dunning.',
+  { id: 'gift', label: 'Gift giver', description: 'Same card, but Jane pays for Sam Whitaker’s gift. Sam keeps reading and never sees the dunning.',
     build: () => base({ plan: 'Atlantic Digital gift, annual', gift: { name: 'Sam Whitaker', first: 'Sam' },
       old: { type: 'card', brand: 'Visa', last4: '3220', reason: 'expired', decline: 'hard' } }) },
 ];
 
 /* --- 3. Axes: the dunning clock ---------------------------------------------- */
 const axes = [
-  { key: 'day', label: 'Dunning clock', default: 'd7', keptOnSwitch: true, options: [
-    { value: 'd7', label: 'Before cancellation', description: 'October 20, day 7 of 30. The third email has gone out; access continues.' },
-    { value: 'ended', label: 'After cancellation', today: '2026-11-13', description: 'November 13. The subscription was canceled on November 12, so the page hands off to Resubscribe.' },
+  { key: 'day', label: 'Grace period', default: 'd7', keptOnSwitch: true, options: [
+    { value: 'd7', label: 'Day 7 of 30', description: 'October 20, day 7 of 30. The third email has gone out; access continues.' },
+    { value: 'ended', label: 'Ended', today: '2026-11-13', description: 'November 13. The subscription was canceled on November 12, so the page hands off to Resubscribe.' },
   ] },
 ];
 
@@ -376,12 +559,24 @@ function derive(s, today) {
 /* --- 5. Actions -------------------------------------------------------------- */
 const actions = {
   pay: (s, method) => ({ ...s, sub: { status: 'active', method, paidOn: kit.days(0) } }),
+  save: (s, method) => ({ ...s, upd: { method, on: kit.days(0) } }),   // card expiring: nothing charged
 };
 
 /* --- 6. Paths ---------------------------------------------------------------- */
 const paths = [
-  { id: 'today', label: 'Today: from the email to a new card',
-    summary: 'How it works now. The email’s button goes to the signed-in Subscription page, so a signed-out subscriber signs in first, then adds a card on a page that never mentions the failed renewal.',
+  { id: 'one-tap', group: 'Start here', meta: 'Phone', label: 'The proposal: from the email to paid in one tap',
+    summary: 'Jane opens the email on her phone and pays with Apple Pay. No sign-in.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all' },
+    steps: [
+      'Email 3, the real template: “Don’t let your access expire. Please act now.” → “Update Your Payment”.',
+      'The page at phone width, no sign-in: “Don’t miss a story”, then a card with the plan, $89.99 due, and “Access continues until November 12, 2026”.',
+      '“Payment Information”: one list of ways to pay: PayPal, Apple Pay, Google Pay, then Card, picked and open with its fields. One button under it: “Renew for $89.99”.',
+      'Select Apple Pay: the card fields fold away, a line says she’ll confirm with Face ID or Touch ID, and the button becomes the Apple Pay button. Tap it → the sheet: The Atlantic, $89.99, Visa •• 1881 → “Pay with Face ID”.',
+      'Confirmation: “Thank you, Jane.” and the Order Summary, paid with Apple Pay, next billing date October 13, 2027.',
+      'Next in the demo → “Open the email again” → “Update Your Payment”: “You’re all set”, because the link is spent.',
+    ] },
+  { id: 'today', group: 'Today’s flow, for comparison', meta: 'Desktop', label: 'Today: sign in, then add a card',
+    summary: 'The same email today. Its button needs sign-in, and the card page never mentions the failed renewal.',
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&exp=today' },
     steps: [
       'Email 3, the live send: “To keep enjoying unlimited access, please act now.” → “Update Your Card Now”.',
@@ -391,58 +586,68 @@ const paths = [
       '“+ Add a New Payment Method” → the card form, card only, no wallets → “Save”.',
       '“Saved”, then Billing Information shows “Ending in 4242” and a next billing date of Oct 13, 2027. No message that the $89.99 renewal went through.',
     ] },
-  { id: 'today-link', label: 'Today: no password, so a one-time link',
-    summary: 'The same flow on a phone for a subscriber who doesn’t know their password: a second email before they can pay.',
-    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&exp=today' },
+  { id: 'today-link', group: 'Today’s flow, for comparison', meta: 'Desktop', label: 'Today: no password, so a one-time link',
+    summary: 'The same flow for a subscriber who doesn’t know their password: a second email before they can pay.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&exp=today' },
     steps: [
       'Email 3 → “Update Your Card Now” → the sign-in page.',
       'Under “Or use”: “A one-time email link” → “Use email to sign in” → “Next”.',
       '“Email sent!”: “This link will expire in 3 hours.”',
       'Next in the demo → “Open the sign-in link” → the Subscription page, then the same card form.',
     ] },
-  { id: 'one-tap', label: 'From the email to paid, in one tap',
-    summary: 'Subscriber on a phone, All methods page. Open the email, pay with Apple Pay, land on the confirmation.',
-    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all' },
-    steps: [
-      'Email 3, the real template: “Don’t let your access expire. Please act now.” → “Update Your Payment”.',
-      'The page at phone width, no sign-in: “Don’t miss a story”, then a card with the plan, $89.99 due, and “Access continues until November 12, 2026”.',
-      '“Payment Information”: PayPal, Apple Pay and Google Pay stacked full width; “OR USE”; the Card panel and “Renew for $89.99”.',
-      'Apple Pay → the sheet: The Atlantic, $89.99, Visa •• 1881 → “Pay with Face ID”.',
-      'Confirmation: “Thank you, Jane.” and the Order Summary, paid with Apple Pay, next billing date October 13, 2027.',
-      'Next in the demo → “Open the email again” → “Update Your Payment”: “You’re all set”, because the link is spent.',
-    ] },
-  { id: 'card', label: 'Paying by card, with a decline',
-    summary: 'Subscriber on desktop, All methods page. The error switch shows a decline, and the retry goes through.',
+  { id: 'card', group: 'More of the proposal', meta: 'Desktop', label: 'Paying by card, with a decline',
+    summary: 'The card form on desktop. A decline shows its error, and the retry goes through.',
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/update?device=desktop&layout=all' },
     steps: [
-      'Desktop: the accounts header (Home · The Atlantic · Sign in), “Don’t miss a story” and the summary card. The card fields are for show; no typing needed.',
-      'Demo → “Next save fails” on, then “Renew for $89.99”.',
+      'Desktop: the accounts header (Home · The Atlantic · Sign in), “Don’t miss a story” and the summary card, then the payment methods, with Card (last) picked and open. The card fields are for show; no typing needed.',
+      'Scene panel → “Show a payment error” on, then “Renew for $89.99”.',
       'Red alert above the button: “Your card was declined, and nothing was charged.”',
       '“Renew for $89.99” again → “Thank you, Jane.”, paid with Visa ending 4242.',
     ] },
-  { id: 'card-only', label: 'The card-only page',
-    summary: 'The hosted-update-page pattern (Churn Buster and most recovery vendors): one clean card with the card form and nothing else. Compare it with the full page from the side card.',
+  { id: 'card-only', group: 'More of the proposal', meta: 'Desktop', label: 'The card-only page',
+    summary: 'One card form and nothing else: the hosted-page pattern of Churn Buster and most recovery vendors.',
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/update?device=desktop&layout=card' },
     steps: [
       'One centered card: “Update your card”, why the renewal failed, and the date access continues.',
       'Only the card form: Credit Card, Expiration date, Security code, and “Renew for $89.99”. No wallets and no summary.',
-      'Side card → Payment page → All methods: the same page with the summary, the wallets and “OR USE”. Then back to Card only.',
+      'Scene panel → Payment page → All methods: the same page with the summary and the list of methods (PayPal, Apple Pay, Google Pay, Card). Then back to Card only.',
       '“Renew for $89.99” → “Thank you, Jane.”, the same confirmation as the full page.',
     ] },
-  { id: 'gift', label: 'Keeping a gift going',
-    summary: 'Gift giver on a phone, All methods page. Jane renews Sam’s gift with Google Pay.',
-    start: { scenario: 'gift', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all' },
+  { id: 'gift', group: 'More of the proposal', meta: 'Desktop', label: 'Renewing a gift',
+    summary: 'Jane pays for Sam’s gift. She renews it with Google Pay; Sam never sees a thing.',
+    start: { scenario: 'gift', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&layout=all' },
     steps: [
       'Gift email 3, the real template: “Don’t let their access expire. Please act now.”',
       '“Update Your Payment” → “So Sam can keep enjoying The Atlantic”, with Sam Whitaker in the summary card.',
-      'Google Pay → the sheet with Mastercard •• 5100 → “Continue”.',
+      'Optional: Scene panel → Grace period → Ended, to see this page once the gift is canceled. Then back to Day 7 of 30.',
+      'Select Google Pay, then the Google Pay button → the sheet with Mastercard •• 5100 → “Continue”.',
       '“Thank you, Jane.”: “Thank you for sharing The Atlantic, and for supporting independent journalism.”',
-      'Optional: Demo → Dunning clock → After cancellation, to see the page after the subscription ends.',
+    ] },
+  { id: 'expiring-article', group: 'Card expiring, before anything fails', meta: 'Desktop', label: 'From an article callout to a saved card',
+    summary: 'Jane, reading signed in, learns her card runs out before the renewal. She saves a new one; nothing is charged.',
+    start: { scenario: 'subscriber', session: 'in', axes: { day: 'd7' }, to: '#/article?device=desktop&layout=all&src=article-expiring' },
+    steps: [
+      'The article, “Choose Your Overlord: Musk or Bezos?” by Josh Tyrangiel. A moment after it opens, or as soon as you scroll, a sheet rises from the bottom; the story stays readable above it.',
+      'The callout: “Your payment method is expiring.” Visa ending 3220 expires at the end of November, before the renewal on December 4, 2026; nothing is due today. One button, “Update Payment Method”, and a quiet “Remind me later”.',
+      'Scene panel → Version → Today: the same story with no callout, because nothing on the site warns about an expiring card today. Then Version → Proposed.',
+      '“Update Payment Method” → “Update your payment method”: the summary shows the card on file and the renewal date, then the list of methods with Card (last) open and “Save Card” under it. The prototype note asks whether wallets show when nothing is due.',
+      '“Save Card” → “Thank you, Jane.”: the new card is saved, nothing was charged, and the subscription still renews on December 4, 2026.',
+      '“Return to Your Article” → the same story, and the callout is gone.',
+    ] },
+  { id: 'expiring-gift', group: 'Card expiring, before anything fails', meta: 'Phone', label: 'The card-expiring email, for a gift',
+    summary: 'The card that pays for Sam’s gift runs out before the gift renews. Jane saves a new one with Google Pay.',
+    start: { scenario: 'gift', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all&src=email-expiring' },
+    steps: [
+      'The card-expiring email: “Your payment method is expiring.” The card on file for Sam Whitaker’s gift, Visa ending 3220, expires before the gift renews on December 4, 2026. Nothing is charged today. → “Update Payment Method”.',
+      'The update page at phone width: “Update your payment method”, the summary with Sam Whitaker, the card on file and the renewal date. The card button reads “Save Card”.',
+      'Scene panel → Version → Today: the same moment today is the sign-in page, because today’s button goes to the signed-in Subscription page. Then Version → Proposed, back to the update page.',
+      'Select Google Pay, then the Google Pay button → the sheet: $0.00 due today, renews December 4, 2026 → “Continue”.',
+      '“Thank you, Jane.”: the new card for Sam’s gift is saved, nothing was charged, and the gift renews on December 4, 2026.',
     ] },
 ];
 
 /* --- 7. Pages ---------------------------------------------------------------- */
-const deviceOf = () => kit.param('device') === 'desktop' ? 'desktop' : 'iphone';
+const deviceOf = () => kit.param('device') === 'iphone' ? 'iphone' : 'desktop';   // Desktop unless a path or the Scene panel says Phone
 const layoutOf = () => kit.param('layout') === 'card' ? 'card' : 'all';
 const keep = () => qs();
 const WORDMARK = '<img class="wm" src="./assets/atlantic-logo.svg" alt="The Atlantic">';
@@ -450,15 +655,17 @@ const WORDMARK = '<img class="wm" src="./assets/atlantic-logo.svg" alt="The Atla
 // Sign-in pages leave both header slots empty and drop the footer's Sign In link.
 // Phone = the same page in a 375px viewport; container queries do the narrow layout.
 // `stage` is presenter chrome (NEXT IN THE DEMO); it sits under the content, above the footer.
+// Sign-in is a today screen (there's only one), so its links carry exp=today.
 const shell = (inner, stage = '', o = {}) => {
   const left = o.left === '' ? '<span class="left"></span>' : '<a class="left" href="#/reading">Home</a>';
-  const right = o.right === '' ? '<span class="right"></span>'
-    : o.right === 'out' ? '<a class="right" href="#/email" data-dk-signout>Sign out</a>' : `<a class="right" href="#/login?${qs({ step: 'email' })}">Sign in</a>`;
+  const r = o.right != null ? o.right : kit.state.session === 'in' ? 'out' : 'in';
+  const right = r === '' ? '<span class="right"></span>'
+    : r === 'out' ? '<a class="right" href="#/email" data-dk-signout>Sign out</a>' : `<a class="right" href="#/login?${qs({ step: 'email', exp: 'today' })}">Sign in</a>`;
   return `<div class="acct${deviceOf() === 'desktop' ? '' : ' is-phone'}"><div class="vp">
   <header class="acct-header">${left}${WORDMARK}${right}</header>
   <div class="acct-body${o.flush ? ' flush' : ''}">${inner}${stage}</div>
   <footer class="acct-foot"><div>
-      <nav>${o.footSignIn === false ? '' : `<a href="#/login?${qs({ step: 'email' })}">Sign In</a>`}<a href="#/help">Visit our Help Center</a><a href="#/help">Accounts &amp; subscription help</a></nav>
+      <nav>${o.footSignIn === false ? '' : `<a href="#/login?${qs({ step: 'email', exp: 'today' })}">Sign In</a>`}<a href="#/help">Visit our Help Center</a><a href="#/help">Accounts &amp; subscription help</a></nav>
       <p class="legal"><a href="#/help">Privacy Policy</a><span aria-hidden="true"></span><a href="#/help">Terms &amp; Conditions</a></p>
       <p class="captcha">This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply</p></div>
     <div class="foot-mark" aria-hidden="true"><span class="glyph">A</span><img src="./assets/atlantic-logo.svg" alt=""></div>
@@ -466,24 +673,84 @@ const shell = (inner, stage = '', o = {}) => {
 </div></div>`;
 };
 
-// Side-card controls. "Opened on" and "Payment page" are URL params; Subscription and Dunning
-// clock drive the demo state (scenario and clock axis): a click writes a one-shot param,
-// syncControls() applies it to state and clears it, and each control's default reads back from state.
-const EXP = { key: 'exp', label: 'Experience', options: [{ value: 'today', label: 'Today' }, { value: 'new', label: 'Proposed' }] };
-const PRE = [
-  { key: 'who', label: 'Subscription', get default() { return kit.state.scenario === 'gift' ? 'gift' : 'self'; },
-    options: [{ value: 'self', label: 'Self' }, { value: 'gift', label: 'Gift' }] },
-  { key: 'layout', label: 'Payment page', options: [{ value: 'all', label: 'All methods' }, { value: 'card', label: 'Card only' }] },
-  { key: 'when', label: 'Dunning clock', get default() { return (kit.state.axes || {}).day === 'ended' ? 'ended' : 'd7'; },
-    options: [{ value: 'd7', label: 'Before cancellation' }, { value: 'ended', label: 'After' }] },
-  { key: 'device', label: 'Opened on', options: [{ value: 'iphone', label: 'Phone' }, { value: 'desktop', label: 'Desktop' }] },
+// Source: where the subscriber starts. Each opens its own entry screen, and `src` rides along
+// through the flow. Card-expiring sources are pre-dunning: nothing failed, nothing is owed.
+const SOURCES = [
+  { value: 'email-failed', label: 'Email · payment failed', entry: '/email', kind: 'failed' },
+  { value: 'email-expiring', label: 'Email · card expiring', entry: '/email', kind: 'expiring' },
+  { value: 'article-failed', label: 'Article · payment failed', entry: '/article', kind: 'failed' },
+  { value: 'article-expiring', label: 'Article · card expiring', entry: '/article', kind: 'expiring' },
 ];
-const PRE_EMAIL = [EXP, ...PRE];
-const PRE_ACCT = PRE.filter((c) => c.key !== 'layout');
+const SRC_BY = Object.fromEntries(SOURCES.map((x) => [x.value, x]));
+// Read the URL directly (not kit.param), because the side-card list itself depends on the source.
+const srcOf = () => { const v = kit.params().get('src'); return SRC_BY[v] ? v : kit.page && kit.page.path === '/article' ? 'article-failed' : 'email-failed'; };
+const kindOf = () => SRC_BY[srcOf()].kind;
+const fromArticle = () => SRC_BY[srcOf()].entry === '/article';
+const entryHref = (extra) => `#${SRC_BY[srcOf()].entry}?${qs(extra)}`;
+const savedNow = (s, d) => kindOf() === 'expiring' ? !!s.upd : d.paid;   // the moment after "Save" or "Renew"
+
+// Scene panel (the side card), one question per control, most important first: Version, What
+// happened, Starts from, Who pays, Grace period; then Display (Opened on, Payment page) and the
+// payment-error switch. Each screen lists only the controls that change it (see SCENE).
+// Version, "Opened on" and "Payment page" are URL params; a screen from the other version hands
+// over to its counterpart for the same moment (see each page). What happened + Starts from (both
+// write `source`), Who pays and Grace period are one-shot params: a click writes one,
+// syncControls() applies it and clears it, and each control's default reads back.
+// No `exp` in the URL means Proposed, except on today's own screens.
+const EXP = { key: 'exp', label: 'Version', default: 'new', hero: true, options: [
+  { value: 'today', label: 'Today', tone: 'today', hint: 'What subscribers get now.' },
+  { value: 'new', label: 'Proposed', tone: 'proposed', hint: 'The sign-in-free flow we’re pitching.' }] };
+const EXP_TODAY = Object.assign({}, EXP, { default: 'today' });   // sign-in and Subscription are today's screens
+const entryOf = () => SRC_BY[srcOf()].entry === '/article' ? 'article' : 'email';
+// Past the first screen, What happened and Starts from fold into one "Situation" row: changing
+// either one starts the flow over at its first screen, so mid-flow they're rarely touched.
+const onEntry = () => kit.page && (kit.page.path === '/email' || kit.page.path === '/article');
+const KIND = { key: 'source', label: 'What happened', get fold() { return onEntry() ? null : 'Situation'; }, get default() { return srcOf(); }, get options() {
+  const e = entryOf();
+  return [{ value: `${e}-failed`, label: 'Payment failed', hint: 'The renewal failed. 30 days to fix it.' },
+    { value: `${e}-expiring`, label: 'Card expiring', hint: 'The card runs out before the renewal.' }]; } };
+const ENTRY = { key: 'source', label: 'Starts from', get fold() { return onEntry() ? null : 'Situation'; }, get default() { return srcOf(); }, get options() {
+  const k = kindOf(), again = onEntry() ? null : 'Changing either one restarts at the first screen.';
+  return [{ value: `email-${k}`, label: 'Email', hint: again || 'The button in our email.' },
+    { value: `article-${k}`, label: 'Article', hint: again || 'A callout that rises over a story, signed in.' }]; } };
+const WHO = { key: 'who', label: 'Who pays', get default() { return kit.state.scenario === 'gift' ? 'gift' : 'self'; },
+  options: [{ value: 'self', label: 'Subscriber', hint: 'Jane pays for her own subscription.' },
+    { value: 'gift', label: 'Gift giver', hint: 'Jane pays for Sam Whitaker’s gift.' }] };
+const WHEN = { key: 'when', label: 'Grace period', get default() { return (kit.state.axes || {}).day === 'ended' ? 'ended' : 'd7'; },
+  get options() { return [{ value: 'd7', label: 'Day 7 of 30', hint: `Oct 20. Access continues until ${F(CANCEL_ON, 'short')}.` },
+    { value: 'ended', label: 'Ended', hint: `Nov 13. Canceled the day before.` }]; } };
+const DEVICE = { key: 'device', label: 'Opened on', group: 'Display', row: true, default: 'desktop',
+  options: [{ value: 'desktop', label: 'Desktop' }, { value: 'iphone', label: 'Phone' }] };
+const LAYOUT = { key: 'layout', label: 'Payment page', group: 'Display', row: true, options: [
+  { value: 'all', label: 'All methods', hint: 'PayPal, Apple Pay, Google Pay or a card.' },
+  { value: 'card', label: 'Card only', hint: 'One card form, as most vendors do it.' }] };
+// The pay (or save) form is on screen: the only state where the layout and the error switch matter.
+// Reads `exp` from the URL, not expOf(): expOf() falls back to this page's controls, which call this.
+const payFormShown = () => kit.params().get('exp') !== 'today' && (kindOf() === 'expiring' ? !kit.state.upd : !kit.derived.paid && !kit.derived.ended);
+// Story controls. The grace period only means something while a failed payment is still unpaid.
+const story = (o = {}) => [o.today ? EXP_TODAY : EXP, KIND, ENTRY, ...(o.who === false ? [] : [WHO]),
+  ...(o.when !== false && kindOf() === 'failed' && !kit.derived.paid ? [WHEN] : [])];
+// The email looks the same on any device, so Display starts on the screens it changes.
+// Sign-in looks the same for a gift and after cancellation, so those controls start after it.
+const SCENE = {
+  email: () => story(),
+  article: () => [...story(), DEVICE],
+  update: () => [...story(), DEVICE, ...(payFormShown() ? [LAYOUT] : [])],
+  login: () => [...story({ today: true, who: false, when: false }), DEVICE],
+  subscription: () => [...story({ today: true }), DEVICE],
+};
 function syncControls() {
-  const q = kit.params(), who = q.get('who'), when = q.get('when');
-  if (!who && !when) return false;
+  const q = kit.params(), who = q.get('who'), when = q.get('when'), source = q.get('source');
+  if (!who && !when && !source) return false;
   setTimeout(() => {
+    if (source) {
+      // Open that source's entry screen, keeping the other settings. A finished flow starts over.
+      const to = SRC_BY[source] || SOURCES[0], s = kit.state;
+      calloutDismissed = false; calloutRise = 'now';
+      kit.navigate(`#${to.entry}?${qs({ src: to.value })}`, { push: false });
+      if (s.sub.status !== 'past_due' || s.upd) kit.loadScenario(s.scenario);
+      return;
+    }
     if (who) { kit.setParam('who', null); const id = who === 'gift' ? 'gift' : 'subscriber'; if (kit.state.scenario !== id) kit.loadScenario(id); }
     if (when) { kit.setParam('when', null); if ((kit.state.axes || {}).day !== when) kit.setAxis('day', when); }
   });
@@ -564,6 +831,8 @@ const STD_MAP = [0, 1, 2, 3, 4, 4, 5];   // 7 standard sends, 6 templates: sends
 
 function emailPage(el, { state, derived: d }) {
   if (syncControls()) return;
+  if (fromArticle()) { later(() => kit.navigate(`#/email?${qs({ src: 'email-' + kindOf() })}`, { push: false })); return; }
+  if (kindOf() === 'expiring') return expiringEmail(el, state);
   const s = state, g = s.gift;
   const today = expOf() === 'today' && !d.ended;
   if (today && !g) return todayEmail(el, s, d);
@@ -613,16 +882,121 @@ function todayEmail(el, s, d) {
   el.querySelector('[data-cta]').addEventListener('click', () => kit.navigate(`#/subscription?${qs()}`, { push: true }));
 }
 
+/* Card-expiring email (pre-dunning). No live send was captured, so this is written in the dunning
+   emails' voice, with the headline, button and legal line from the earlier card-expiration
+   prototype ("Your payment method is expiring.", "Update Payment Method"). One button. */
+function expiringEmail(el, s) {
+  const g = s.gift, today = expOf() === 'today';
+  const card = `${s.old.brand} ending ${s.old.last4}`;
+  const body = g
+    ? [`Last year, you gave ${g.name} a gift subscription to The Atlantic. Thank you for sharing our journalism.`,
+      `We’re writing to let you know that the card on file for ${g.first}’s gift, ${card}, expires at ${XP_CARD_END}, before the gift renews on ${F(XP_RENEWS)}.`,
+      `To make sure ${g.first} keeps enjoying The Atlantic’s ideas and insight without interruption, please take a moment to update your payment information. Nothing is charged today.`]
+    : ['Thank you for subscribing to The Atlantic, and for supporting our work.',
+      `We’re writing to let you know that your card on file, ${card}, expires at ${XP_CARD_END}, before your next renewal on ${F(XP_RENEWS)}.`,
+      'To make sure you keep enjoying The Atlantic’s ideas and insight without interruption, please take a moment to update your payment information. Nothing is charged today.'];
+  const after = `Your new payment method will be used for ${g ? 'the gift’s' : 'your'} next renewal and all future charges unless updated again. If you have any questions, please reach out to us. We’re happy to help.`;
+  el.innerHTML = `<div class="email-wrap"><article class="email">
+    <dl class="envelope"><dt>From</dt><dd>The Atlantic &lt;accounts@noreply.theatlantic.com&gt;</dd><dt>To</dt><dd>${esc(s.subscriber.email)}</dd>
+      <dt>Subject</dt><dd><strong>Your payment method is expiring</strong></dd>
+      <dt>Preview</dt><dd>${g ? `Update it before ${esc(g.first)}’s gift renews on ${F(XP_RENEWS)}.` : `Update it before your renewal on ${F(XP_RENEWS)}.`}</dd>
+      <dt>Sent</dt><dd>${F(XP_SENT)} · ${diff(XP_SENT, XP_RENEWS)} days before renewal</dd></dl>
+    <div class="email-body"><img class="wm wm-email" src="./assets/atlantic-logo.svg" alt="The Atlantic">
+      <h1>Your payment method is expiring.</h1>
+      ${body.map((p) => `<p>${esc(p)}</p>`).join('')}
+      <div class="actions" style="margin:24px 0"><button class="btn btn-black" type="button" data-cta>${today ? 'Update Your Card Now' : 'Update Payment Method'}</button></div>
+      <p>${esc(after)}</p>
+      <p>—The Team at The Atlantic</p>
+      ${today ? TODAY_FOOT : '<p class="email-foot">Responses to this email are not monitored. For customer-service inquiries or assistance with your account, please visit our Help Center.<br>The Atlantic ∙ 610 Water St. SW ∙ Washington, DC 20024</p>'}
+    </div></article></div>
+    ${kit.note(today
+      ? 'No live card-expiring send was captured, so whether one goes out today isn’t confirmed. This is the proposed copy with today’s button, which goes to the signed-in Subscription page.'
+      : `Before anything fails: nothing is owed yet. If the card isn’t updated, the renewal fails on ${F(XP_RENEWS)}, and the payment-failed emails take over.`)}`;
+  el.querySelector('[data-cta]').addEventListener('click', () =>
+    kit.navigate(today ? `#/subscription?${qs()}` : `#/update?${qs()}`, { push: true }));
+}
+
 /* The update page (public, link-entry). Steps: pay (default) → done. Spent and ended are derived. */
+// A plain message in one utility card: the spent link and the canceled subscription
+const notice = (title, body, cta, href) => shell(`<div class="col-utility"><div class="box util-card">
+  <h1 class="util-title">${title}</h1><p class="util-body">${body}</p>
+  <div class="pay-submit"><a class="btn" href="${href}">${cta}</a></div></div></div>`);
+// Where "back" goes: the story they were reading, or the site
+const backTo = () => fromArticle() ? ['Return to Your Article', `#/article?${qs()}`] : ['Back to TheAtlantic.com', '#/reading'];
+const cardFields = () => `<div class="pay-fields">
+    <div class="pay-field has-brands"><label for="cc">Credit Card</label>
+      <input class="pay-input" id="cc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234">
+      <span class="brands">${BRANDS}</span></div>
+    <div class="row">
+      <div class="pay-field"><label for="exp">Expiration date</label><input class="pay-input" id="exp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY"></div>
+      <div class="pay-field"><label for="cvc">Security code</label><input class="pay-input" id="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC"></div>
+    </div></div>`;
+
+/* All methods: one list, one button. PayPal, Apple Pay, Google Pay, then Card, which is picked and open
+   by default, its fields in the last row right above the button. Picking a wallet folds the
+   card away, shows one line on what happens next, and swaps the button for that wallet's own.
+   The pick survives re-renders of the same visit (Scene panel changes) and resets on a fresh one. */
+const METHODS = ['paypal', 'apple_pay', 'google_pay', 'card'];
+let payPick = { method: 'card', state: null };
+function pickedMethod() {
+  if (!document.querySelector('.pm-list') || payPick.state !== kit.state) payPick.method = 'card';
+  payPick.state = kit.state;
+  return payPick.method;
+}
+// The fine print, one short line by the button. It follows the pick.
+const PAYS_WITH = { card: 'this card', paypal: 'PayPal', apple_pay: 'Apple Pay', google_pay: 'Google Pay' };
+const consentLine = (m, kind) => kind === 'expiring'
+  ? `Nothing is due today. We’ll charge ${PAYS_WITH[m]} from ${F(XP_RENEWS)}, under our <a href="#/help">terms</a>.`
+  : `We’ll charge ${PAYS_WITH[m]} ${money(PRICE)} today and at each renewal, under our <a href="#/help">terms</a>.`;
+const helpNote = '<p class="after-note">No sign-in needed, and we’ll never ask for your password. Questions? <a href="#/help">Visit our Help Center</a> or call (855) 940-0585.</p>';
+function methodList(kind, pick) {
+  const xp = kind === 'expiring';
+  const row = (m) => {
+    const on = m === pick, W = WALLETS[m];
+    const tile = m === 'card' ? `<span class="pm-tile is-card" aria-hidden="true">${CARD_ICON}</span>`
+      : `<span class="pm-tile${W.dark ? ' is-dark' : ''}" aria-hidden="true">${W.tile}</span>`;
+    const body = m === 'card' ? `<div class="pm-pad">${cardFields()}</div>` : `<p class="pm-note">${W.note(xp)}</p>`;
+    return `<div class="pm-row${on ? ' is-on' : ''}" data-pm="${m}">
+      <label class="pm-head"><input class="pm-radio" type="radio" name="pm" value="${m}"${on ? ' checked' : ''}>${tile}
+        <span class="pm-name">${m === 'card' ? 'Card' : W.label}</span>${m === 'card' ? `<span class="pm-marks" aria-hidden="true">${BRANDS}</span>` : ''}</label>
+      <div class="pm-body"><div class="pm-body-in">${body}</div></div></div>`;
+  };
+  return `<fieldset class="pm-list"><legend class="sr-only">Payment method</legend>${METHODS.map(row).join('')}</fieldset>`;
+}
+// The action button for each method; only the picked one shows. Card submits the form.
+function methodActions(kind, pick, cardLabel) {
+  const verb = kind === 'expiring' ? 'Continue with' : 'Pay with';
+  return `<div class="actions pay-submit"><button class="btn" type="submit" data-pay="card"${pick === 'card' ? '' : ' hidden'}>${cardLabel}</button>${
+    Object.keys(WALLETS).map((w) => `<button class="wallet${w === 'paypal' ? ' is-paypal' : ''}" type="button" data-pay="${w}" data-wallet="${w}" aria-label="${verb} ${WALLETS[w].label}"${pick === w ? '' : ' hidden'}>${WALLETS[w].button}</button>`).join('')}</div>`;
+}
+function methodPicker(el, kind) {
+  const f = el.querySelector('#card');
+  f.querySelectorAll('[data-wallet]').forEach((b) => b.addEventListener('click', () => walletSheet(b.dataset.wallet, kind)));
+  f.querySelector('.pm-list').addEventListener('change', (e) => {
+    if (e.target.name !== 'pm') return;
+    const m = payPick.method = e.target.value;
+    f.querySelectorAll('.pm-row').forEach((r) => r.classList.toggle('is-on', r.dataset.pm === m));
+    f.querySelectorAll('[data-pay]').forEach((b) => { b.hidden = b.dataset.pay !== m; b.toggleAttribute('data-swap', b.dataset.pay === m); });
+    f.querySelector('[data-consent]').innerHTML = consentLine(m, kind);
+    f.querySelectorAll('[data-dk-fail]').forEach((n) => n.remove());   // a card decline doesn't belong to the new pick
+  });
+}
+
 function updatePage(el, ctx) {
   if (syncControls()) return;
   const { state: s, derived: d } = ctx;
   const step = kit.param('step') || 'pay';
   const g = s.gift;
-  // A plain message in one utility card: the spent link and the canceled subscription
-  const notice = (title, body, cta, href) => shell(`<div class="col-utility"><div class="box util-card">
-    <h1 class="util-title">${title}</h1><p class="util-body">${body}</p>
-    <div class="pay-submit"><a class="btn" href="${href}">${cta}</a></div></div></div>`);
+  // Today has no such page. Its counterpart for the same moment: the Subscription page once the card
+  // is in, or else where today's email button lands (Subscription when signed in, sign-in when not).
+  if (expOf() === 'today') {
+    const after = step === 'done' && savedNow(s, d);
+    later(() => kit.navigate(after || s.session === 'in' ? `#/subscription?${qs()}` : `#/login?${qs({ step: 'email' })}`,
+      { session: after ? 'in' : undefined, push: false }));
+    return;
+  }
+  if (kindOf() === 'expiring') return expiringUpdate(el, s, step);
+  const [backLabel, backHref] = backTo();
 
   if (step === 'done' && d.paid) {
     const m = s.sub.method;
@@ -638,14 +1012,17 @@ function updatePage(el, ctx) {
         <dl class="cf-grid">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl></section>
       <hr class="cf-rule">
       <p class="cf-care">Something not right? <a href="#/help">Contact Customer Care</a>.</p>
-      <div class="cf-actions"><a class="btn" href="#/reading">Back to TheAtlantic.com</a><a class="link" href="#/subscription?${qs()}" data-dk-session="in">See Your Account</a></div>
-    </div>`, kit.next({ text: 'The email link is spent now: opening it again shows the payment is up to date.',
-        links: [{ label: 'Open the email again >', to: `#/email?${keep()}` }, { label: 'See it in the account >', to: '#/subscription?' + qs(), session: 'in' }] }));
+      <div class="cf-actions"><a class="btn" href="${backHref}">${backLabel}</a><a class="link" href="#/subscription?${qs({ exp: 'today' })}" data-dk-session="in">See Your Account</a></div>
+    </div>`, kit.next(fromArticle()
+        ? { text: 'Back on the article, the callout is gone: there’s nothing left to fix.',
+          links: [{ label: 'Back to the article >', to: `#/article?${keep()}` }, { label: 'See it in the account >', to: '#/subscription?' + qs({ exp: 'today' }), session: 'in' }] }
+        : { text: 'The email link is spent now: opening it again shows the payment is up to date.',
+          links: [{ label: 'Open the email again >', to: `#/email?${keep()}` }, { label: 'See it in the account >', to: '#/subscription?' + qs({ exp: 'today' }), session: 'in' }] }));
     return;
   }
   if (d.paid) {
     el.innerHTML = notice('You’re all set', `We received your ${money(PRICE)} payment on ${F(s.sub.paidOn)}, and ${g ? `${esc(g.first)}’s gift subscription` : 'your subscription'} is renewed through ${F(RENEWS_NEXT)}. Thank you for supporting our work.`,
-      'Back to TheAtlantic.com', '#/reading');
+      backLabel, backHref);
     return;
   }
   if (d.ended) {
@@ -655,28 +1032,19 @@ function updatePage(el, ctx) {
     return;
   }
 
-  const cardFields = `<div class="pay-fields">
-      <div class="pay-field has-brands"><label for="cc">Credit Card</label>
-        <input class="pay-input" id="cc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234">
-        <span class="brands">${BRANDS}</span></div>
-      <div class="row">
-        <div class="pay-field"><label for="exp">Expiration date</label><input class="pay-input" id="exp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY"></div>
-        <div class="pay-field"><label for="cvc">Security code</label><input class="pay-input" id="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC"></div>
-      </div></div>
-    <p class="consent">By providing your card information, you allow The Atlantic Monthly Group LLC to charge your card for future payments in accordance with their terms.</p>`;
-  const submit = `<div class="actions pay-submit"><button class="btn" type="submit">Renew for ${money(PRICE)}</button></div>`;
-  const help = `<p class="after-note">No sign-in needed, and we’ll never ask for your password.<br>Questions? <a href="#/help">Visit our Help Center</a> or call (855) 940-0585.</p>`;
+  const cta = `Renew for ${money(PRICE)}`;
 
   if (layoutOf() === 'card') {
     // Card only: one centered utility card. Title, the reason, the card form, one button.
     el.innerHTML = shell(`<div class="col-utility"><div class="box util-card">
       <h1 class="util-title">Update your card</h1>
       <p class="util-body">${d.short} ${d.until}</p>
-      <form id="card" novalidate>${cardFields}${submit}</form>
+      <form id="card" novalidate>${cardFields()}<p class="pm-consent">${consentLine('card')}</p>${methodActions('failed', 'card', cta)}</form>
       <p class="util-meta">${g ? `Atlantic Digital gift for ${esc(g.name)}` : 'Atlantic Digital'}, ${money(PRICE)}/year. Renews ${F(RENEWS_NEXT)}.</p>
-    </div>${help}</div>`);
+    </div>${helpNote}</div>`);
   } else {
-    // All methods, laid out like checkout (CreditCardFormStripe.js): wallets stacked, “OR USE”, the Card panel.
+    // All methods: what happened and what's at stake, then one list of methods, then one button.
+    const pick = pickedMethod();
     const fields = [['Subscription', g ? 'Atlantic Digital gift' : 'Atlantic Digital'], g ? ['Gift for', esc(g.name)] : ['Subscriber since', String(s.subscriber.since)],
       ['Amount due', money(PRICE)], ['Access continues until', F(CANCEL_ON)]];
     el.innerHTML = shell(`<div class="col-checkout">
@@ -684,19 +1052,78 @@ function updatePage(el, ctx) {
       <p class="pg-dek">${d.short}</p>
       <dl class="box summary">${fields.map(([k, v]) => `<div class="fld"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
       <h2 class="sec-title">Payment Information</h2>
-      <div class="wallets" aria-label="Express payment">${Object.keys(WALLETS).map((w) => `<button type="button" class="wallet" data-wallet="${w}" aria-label="Pay with ${WALLETS[w].label}">${WALLETS[w].button}</button>`).join('')}</div>
-      <p class="or-use">Or use</p>
-      <form id="card" novalidate><div class="box card-panel"><p class="card-panel-head">${CARD_ICON}Card</p>${cardFields}</div>${submit}</form>
-      ${help}</div>`);
-    el.querySelectorAll('[data-wallet]').forEach((b) => b.addEventListener('click', () => walletSheet(b.dataset.wallet)));
+      <form id="card" novalidate>${methodList('failed', pick)}
+        <p class="pm-consent" data-consent>${consentLine(pick)}</p>${methodActions('failed', pick, cta)}</form>
+      ${helpNote}</div>`);
+    methodPicker(el, 'failed');
   }
   cardForm(el);
 }
 
+/* The update page for a card that's about to expire (pre-dunning). Nothing is due, so nothing is
+   charged: the page saves a payment method for the renewal and says the date stands. */
+function expiringUpdate(el, s, step) {
+  const g = s.gift, card = `${s.old.brand} ending ${s.old.last4}`;
+  const [backLabel, backHref] = backTo();
+  const plan = g ? `Atlantic Digital gift for ${esc(g.name)}` : 'Atlantic Digital';
+  if (step === 'done' && s.upd) {
+    const rows = [['Subscription plan', plan], ['Email', esc(s.subscriber.email)], ['Payment method', esc(kit.derived.methodText(s.upd.method))],
+      ['Charged today', 'Nothing'], ['Next billing date', F(XP_RENEWS)], ['Renewal rate', `${money(PRICE)}/year`]];
+    el.innerHTML = shell(`<div class="col-confirm">
+      <h1 class="cf-title">Thank you, ${esc(s.subscriber.first)}.</h1>
+      <p class="cf-body">${g
+        ? `The new payment method for ${esc(g.first)}’s gift is saved. Nothing was charged today, and the gift renews on ${F(XP_RENEWS)}, as planned. Thank you for sharing <i>The Atlantic</i>.`
+        : `Your new payment method is saved. Nothing was charged today, and your subscription renews on ${F(XP_RENEWS)}, as planned. Thank you for supporting our journalism.`}</p>
+      <hr class="cf-rule">
+      <section class="cf-sum" aria-labelledby="sum-h"><h2 id="sum-h">Summary</h2>
+        <dl class="cf-grid">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl></section>
+      <hr class="cf-rule">
+      <p class="cf-care">Something not right? <a href="#/help">Contact Customer Care</a>.</p>
+      <div class="cf-actions"><a class="btn" href="${backHref}">${backLabel}</a><a class="link" href="#/subscription?${qs({ exp: 'today' })}" data-dk-session="in">See Your Account</a></div>
+    </div>`, kit.next(fromArticle()
+        ? { text: 'Back on the article, the callout is gone: the card on file no longer expires before the renewal.',
+          links: [{ label: 'Back to the article >', to: `#/article?${qs()}` }, { label: 'See it in the account >', to: '#/subscription?' + qs({ exp: 'today' }), session: 'in' }] }
+        : { text: 'The email link is spent now: opening it again shows the new card is saved.',
+          links: [{ label: 'Open the email again >', to: `#/email?${qs()}` }, { label: 'See it in the account >', to: '#/subscription?' + qs({ exp: 'today' }), session: 'in' }] }));
+    return;
+  }
+  if (s.upd) {
+    el.innerHTML = notice('You’re all set', `Your ${esc(kit.derived.methodText(s.upd.method))} is saved, and ${g ? `${esc(g.first)}’s gift` : 'your subscription'} renews on ${F(XP_RENEWS)}. Nothing was charged.`,
+      backLabel, backHref);
+    return;
+  }
+
+  const why = g
+    ? `The ${card} that pays for ${esc(g.first)}’s gift expires at ${XP_CARD_END}, before the gift renews on ${F(XP_RENEWS)}. Update it now so ${esc(g.first)} keeps reading without a break. Nothing is charged today.`
+    : `Your ${card} expires at ${XP_CARD_END}, before your subscription renews on ${F(XP_RENEWS)}. Update it now so your access continues. Nothing is charged today.`;
+  if (layoutOf() === 'card') {
+    el.innerHTML = shell(`<div class="col-utility"><div class="box util-card">
+      <h1 class="util-title">Update your card</h1>
+      <p class="util-body">${why}</p>
+      <form id="card" novalidate>${cardFields()}<p class="pm-consent">${consentLine('card', 'expiring')}</p>${methodActions('expiring', 'card', 'Save Card')}</form>
+      <p class="util-meta">${plan}, ${money(PRICE)}/year. Renews ${F(XP_RENEWS)}.</p>
+    </div>${helpNote}</div>`);
+  } else {
+    const pick = pickedMethod();
+    const fields = [['Subscription', g ? 'Atlantic Digital gift' : 'Atlantic Digital'], g ? ['Gift for', esc(g.name)] : ['Subscriber since', String(s.subscriber.since)],
+      ['Card on file', `${card}, expires ${XP_CARD}`], ['Renews on', `${F(XP_RENEWS)}, ${money(PRICE)}`]];
+    el.innerHTML = shell(`<div class="col-checkout">
+      <h1 class="pg-title">Update your payment method</h1>
+      <p class="pg-dek">${why}</p>
+      <dl class="box summary">${fields.map(([k, v]) => `<div class="fld"><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
+      <h2 class="sec-title">Payment Information</h2>
+      <form id="card" novalidate>${methodList('expiring', pick)}
+        <p class="pm-consent" data-consent>${consentLine(pick, 'expiring')}</p>${methodActions('expiring', pick, 'Save Card')}</form>
+      ${helpNote}</div>`, kit.note('Wallets usually need an amount. Here nothing is due, so whether Apple Pay and Google Pay show for a card-only update is an open question. They stay on in this prototype, and their sheets show $0.00 today and the renewal.'));
+    methodPicker(el, 'expiring');
+  }
+  cardForm(el, 'expiring');
+}
+
 /* Mock card fields: formatting and brand detection only */
-function cardForm(el) {
-  // Visual only: no validation and no Stripe. Typing is optional; "Renew" always goes through.
-  // Show a decline with Demo → "Next save fails".
+function cardForm(el, kind) {
+  // Visual only: no validation and no Stripe. Typing is optional; "Renew" (or "Save Card") always goes through.
+  // Show a decline with Scene panel → "Show a payment error".
   const f = el.querySelector('#card');
   const cc = f.querySelector('#cc'), exp = f.querySelector('#exp'), cvc = f.querySelector('#cvc');
   const digits = (v) => v.replace(/\D/g, '');
@@ -713,11 +1140,16 @@ function cardForm(el) {
   cvc.addEventListener('input', () => { cvc.value = digits(cvc.value).slice(0, 4); });
   f.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // Enter on a wallet row submits too: that opens the wallet, the same as its button
+    const picked = f.querySelector('.pm-radio:checked');
+    if (picked && picked.value !== 'card') { walletSheet(picked.value, kind); return; }
     const n = digits(cc.value);
     const method = { type: 'card', brand: (n.length >= 4 && brandOf(n)) || 'Visa', last4: n.length >= 4 ? n.slice(-4) : '4242' };
-    const ok = await kit.run(() => kit.act('pay', method),
-      'Your card was declined, and nothing was charged. Please try another card or payment method.',
-      { label: 'pay by card', trigger: e.submitter });
+    const ok = kind === 'expiring'
+      ? await kit.run(() => kit.act('save', method), 'Your card was declined, and nothing was saved. Please try another card or payment method.',
+        { label: 'save a card', trigger: e.submitter })
+      : await kit.run(() => kit.act('pay', method), 'Your card was declined, and nothing was charged. Please try another card or payment method.',
+        { label: 'pay by card', trigger: e.submitter });
     if (ok) kit.setParam('step', 'done', { push: true });
   });
 }
@@ -727,25 +1159,32 @@ function overlay(cls, html, center) {
   scrim.className = 'sheet-scrim' + (center ? ' center' : '');
   scrim.innerHTML = `<div class="sheet ${cls}" role="dialog" aria-modal="true" data-dk-scope>${html}</div>`;
   document.body.appendChild(scrim);
-  const close = () => scrim.remove();
+  const opener = document.activeElement;   // focus goes back to the button that opened it
+  const close = () => { scrim.remove(); document.removeEventListener('keydown', onKey); if (opener && opener.isConnected) opener.focus(); };
   scrim.addEventListener('click', (e) => { if (e.target === scrim || e.target.closest('[data-close]')) close(); });
-  const onKey = (e) => { if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onKey); } };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
   document.addEventListener('keydown', onKey);
   setTimeout(() => { const b = scrim.querySelector('.sheet-pay'); if (b) b.focus(); });
   return { scrim, close };
 }
-function walletSheet(w) {
-  const W = WALLETS[w], amt = money(PRICE);
-  const lines = `<div class="sheet-card">
+function walletSheet(w, kind) {
+  const W = WALLETS[w], amt = money(PRICE), xp = kind === 'expiring';
+  // Card expiring: nothing is due, so the sheet shows $0.00 today and the renewal it's saved for
+  const lines = xp
+    ? `<div class="sheet-card">
+      <div class="sheet-line"><span>Card</span><span>${W.card}</span></div>
+      <div class="sheet-line"><span>Due today</span><span><b>The Atlantic</b> · $0.00</span></div>
+      <div class="sheet-line"><span>Renews</span><span>${F(XP_RENEWS)} · ${amt}</span></div></div>`
+    : `<div class="sheet-card">
       <div class="sheet-line"><span>Card</span><span>${W.card}</span></div>
       <div class="sheet-line"><span>Pay</span><span><b>The Atlantic</b> · ${amt}</span></div></div>`;
   const html = W.sheet === 'apple'
     ? `<div class="sheet-head"><span>${APPLE}Pay</span><button type="button" data-close>Cancel</button></div>${lines}
-       <div class="actions"><button type="button" class="sheet-pay">Pay with Face ID</button></div><p class="sheet-note">Double-click the side button in real life.</p>`
+       <div class="actions"><button type="button" class="sheet-pay">${xp ? 'Confirm' : 'Pay'} with Face ID</button></div><p class="sheet-note">Double-click the side button in real life.</p>`
     : W.sheet === 'paypal'
       ? `<div class="sheet-head"><span>${PAYPAL}</span><button type="button" data-close>✕</button></div>
          <p style="margin:0 0 12px">Hi, Jane</p>${lines.replace('<span>Card</span>', '<span>Account</span>')}
-         <div class="actions"><button type="button" class="sheet-pay">Pay Now</button></div>`
+         <div class="actions"><button type="button" class="sheet-pay">${xp ? 'Agree and Continue' : 'Pay Now'}</button></div>`
     : W.sheet === 'gpay'
       ? `<div class="sheet-head"><span>${GLOGO} Pay</span><button type="button" data-close>✕</button></div>${lines}
          <div class="actions"><button type="button" class="sheet-pay">Continue</button></div>`
@@ -753,11 +1192,194 @@ function walletSheet(w) {
          <div class="actions"><button type="button" class="sheet-pay">Pay ${amt}</button></div>`;
   const { scrim, close } = overlay(W.sheet === 'apple' ? '' : W.sheet, html, W.sheet !== 'apple');
   scrim.querySelector('.sheet-pay').addEventListener('click', async (e) => {
-    const ok = await kit.run(() => kit.act('pay', { type: w, card: W.card }),
-      `${W.label} couldn’t complete the payment, so nothing was charged. Try again, or pay with a card.`,
-      { label: 'pay with a wallet', trigger: e.currentTarget, delay: 900 });
+    const ok = xp
+      ? await kit.run(() => kit.act('save', { type: w, card: W.card }), `${W.label} couldn’t save the payment method, so nothing changed. Try again, or use a card.`,
+        { label: 'save with a wallet', trigger: e.currentTarget, delay: 900 })
+      : await kit.run(() => kit.act('pay', { type: w, card: W.card }), `${W.label} couldn’t complete the payment, so nothing was charged. Try again, or pay with a card.`,
+        { label: 'pay with a wallet', trigger: e.currentTarget, delay: 900 });
     if (ok) { close(); kit.setParam('step', 'done', { push: true }); }
   });
+}
+
+/* ==========================================================================
+   Article (theatlantic.com): a story the subscriber is reading, signed in.
+   A sheet rises over the story with a callout about their payment: payment
+   failed (access at risk, with the date) or card expiring (a heads-up before
+   the renewal). Today there is no such callout anywhere on the site.
+   Headline, dek and byline are the November 2026 issue's; the body is
+   placeholder text written for this prototype, with no quotes.
+   ========================================================================== */
+let calloutDismissed = false;   // "Remind me later": hidden for this visit only
+const ARTICLE_BODY = [
+  'For most of the space age, the question of who would run the economy above our heads had a tidy answer: governments would, together, slowly, and at enormous public expense. That arrangement is ending. The rockets that matter now belong to companies, and the companies belong, in large part, to two very rich men with very different temperaments.',
+  'The pitch from both camps is that launch is getting cheap enough to turn orbit into a place of business. Satellites by the thousand, factories that make what gravity spoils, a supply chain that runs to the Moon. Some of that is engineering. Some of it is marketing. All of it depends on who controls the ride up.',
+  'Which is the real subject here. A road is a public good until someone builds the only toll booth, and the booth’s owner decides who travels and at what price. Off-world, the road and the booth may turn out to be the same company, and the traffic laws were written for nations, not for firms.',
+  'There are worse problems to have than two ambitious builders competing to go farther, faster. But competition between two is a narrow kind of competition, and the history of infrastructure suggests that whoever lays the rails tends to keep a hand on the timetable for a very long time.',
+  'You don’t have to choose a billionaire to see the stakes. You only have to notice that the choice is being framed as one, and ask who gets a say before the framing hardens into fact.',
+];
+// The hero: an editorial illustration, drawn here so the package needs no image file
+function heroArt() {
+  let seed = 7;
+  const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const stars = Array.from({ length: 70 }, () => `<circle cx="${Math.round(rnd() * 1600)}" cy="${Math.round(rnd() * 600)}" r="${(rnd() * 2.2 + .6).toFixed(1)}" opacity="${(rnd() * .6 + .25).toFixed(2)}"/>`).join('');
+  return `<svg viewBox="0 0 1600 900" role="img" aria-label="Illustration: two launch trails rise from the curve of the Earth and cross on their way toward the Moon">
+    <defs>
+      <linearGradient id="h-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#07090f"/><stop offset=".65" stop-color="#121829"/><stop offset="1" stop-color="#22304d"/></linearGradient>
+      <radialGradient id="h-earth" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#3f73a3"/><stop offset=".22" stop-color="#1c3a5c"/><stop offset="1" stop-color="#08111f"/></radialGradient>
+      <radialGradient id="h-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ffb36b" stop-opacity=".8"/><stop offset="1" stop-color="#ffb36b" stop-opacity="0"/></radialGradient>
+      <radialGradient id="h-moon" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#f4eee1"/><stop offset="1" stop-color="#c9c0ad"/></radialGradient>
+    </defs>
+    <rect width="1600" height="900" fill="url(#h-sky)"/>
+    <g fill="#fff">${stars}</g>
+    <circle cx="1300" cy="180" r="74" fill="url(#h-moon)"/>
+    <g fill="#b3a993" opacity=".55"><circle cx="1278" cy="160" r="13"/><circle cx="1322" cy="204" r="9"/><circle cx="1312" cy="150" r="6"/><circle cx="1270" cy="210" r="5"/></g>
+    <ellipse cx="800" cy="610" rx="790" ry="190" fill="none" stroke="#efe6d2" stroke-opacity=".22" stroke-width="2" stroke-dasharray="4 16"/>
+    <circle cx="800" cy="2150" r="1500" fill="url(#h-earth)"/>
+    <circle cx="800" cy="2150" r="1503" fill="none" stroke="#9fd0ff" stroke-opacity=".55" stroke-width="5"/>
+    <circle cx="800" cy="2150" r="1520" fill="none" stroke="#9fd0ff" stroke-opacity=".12" stroke-width="22"/>
+    <circle cx="560" cy="669" r="70" fill="url(#h-glow)"/><circle cx="1040" cy="669" r="70" fill="url(#h-glow)"/>
+    <path d="M560 669 C 600 470, 840 300, 1196 214" fill="none" stroke="#e8743b" stroke-width="7" stroke-linecap="round"/>
+    <path d="M1040 669 C 1000 470, 760 300, 380 190" fill="none" stroke="#efe6d2" stroke-width="7" stroke-linecap="round"/>
+    <path d="M1196 214 l -26 -4 l 16 22 z" fill="#e8743b"/>
+    <path d="M380 190 l 26 -2 l -18 22 z" fill="#efe6d2"/>
+  </svg>`;
+}
+
+// The callout copy, sized for a sheet over the story: the card, the stakes and the date; the button
+// says the rest. Payment failed: access is at risk, with the date. Card expiring: a heads-up, nothing due.
+function calloutCopy(s, d, kind) {
+  const g = s.gift, card = `${s.old.brand} ending ${s.old.last4}`;
+  if (kind === 'expiring') return g
+    ? { kick: `Before ${esc(g.first)}’s gift renews`, title: 'Your payment method is expiring.', cta: 'Update Payment Method',
+      body: `The ${card} that pays for ${esc(g.name)}’s gift expires at ${XP_CARD_END}, before the gift renews on ${F(XP_RENEWS)}. Nothing is due today.` }
+    : { kick: 'Before your renewal', title: 'Your payment method is expiring.', cta: 'Update Payment Method',
+      body: `Your ${card} expires at ${XP_CARD_END}, before your subscription renews on ${F(XP_RENEWS)}. Nothing is due today.` };
+  return g
+    ? { kick: `About ${esc(g.first)}’s gift`, title: `We couldn’t renew ${esc(g.first)}’s gift.`, cta: 'Update Your Payment',
+      body: `Your ${card} has expired, so the ${money(PRICE)} renewal of ${esc(g.name)}’s gift didn’t go through. ${d.until}` }
+    : { kick: 'About your subscription', title: 'We couldn’t process your renewal.', cta: 'Update Your Payment',
+      body: `Your ${card} has expired, so your ${money(PRICE)} annual renewal didn’t go through. ${d.until}` };
+}
+// The sheet rises a beat after the story opens, or as soon as the reader scrolls into it. Once it's
+// up, re-renders from the Scene panel show it in place; a fresh visit, a new situation or "Show it
+// again" brings it up again. It never takes focus on its own: the reader keeps their place.
+let calloutRise = 'wait';   // 'wait' | 'now' | 'shown'
+let calloutState = null;
+function riseCallout(el) {
+  const dock = el.querySelector('.w-dock');
+  if (!dock) return;
+  if (calloutRise === 'shown') { dock.dataset.state = 'shown'; return; }
+  const into = () => window.scrollY > 160;
+  const rise = () => {
+    window.removeEventListener('scroll', onScroll);
+    if (!dock.isConnected || dock.dataset.state !== 'waiting') return;
+    dock.dataset.state = 'in';
+    calloutRise = 'shown';
+  };
+  const onScroll = () => { if (into()) rise(); };
+  setTimeout(() => {   // after the render settles: a new screen has scrolled back to the top by then
+    if (calloutRise === 'now' || into()) { rise(); return; }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    setTimeout(rise, 1200);
+  });
+}
+// "Remind me later" (or Esc inside the sheet): it slides away, and stays away for this visit
+function dismissCallout(el) {
+  const dock = el.querySelector('.w-dock');
+  const hadFocus = dock.contains(document.activeElement);
+  const done = () => {
+    calloutDismissed = true;
+    kit.render();
+    // Keyboard users land back in the story where they were, not at the top of the page
+    const art = hadFocus && document.querySelector('.w-art');
+    if (art) { art.tabIndex = -1; art.focus({ preventScroll: true }); }
+  };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { done(); return; }
+  dock.dataset.state = 'out';
+  setTimeout(done, 200);
+}
+
+function articlePage(el, { state: s, derived: d }) {
+  if (syncControls()) return;
+  if (!fromArticle()) { later(() => kit.navigate(`#/article?${qs({ src: 'article-' + kindOf() })}`, { push: false })); return; }
+  // A fresh visit (arriving from another screen, a tour, a reset) waits a beat before the sheet rises
+  if (!document.querySelector('.acct.www') || calloutState !== s) calloutRise = 'wait';
+  calloutState = s;
+  if (kit.params().get('again')) { calloutDismissed = false; calloutRise = 'now'; later(() => kit.setParam('again', null)); }
+  const g = s.gift, kind = kindOf(), today = expOf() === 'today';
+  const emailOf = (exp) => `#/email?${qs({ src: 'email-' + kind, exp })}`;
+  let callout = '', stage = '';
+  if (today) {
+    calloutRise = 'now';   // flipping back to Proposed brings the sheet straight up
+    stage = kit.note(kind === 'expiring'
+      ? 'Today: no on-site callout. Neither theatlantic.com nor the accounts site warns about a card that will expire before the renewal, and whether a card-expiring email goes out today isn’t confirmed. If the renewal then fails, the subscriber hears from the dunning emails.'
+      : 'Today: no on-site callout; the subscriber only hears from email. Neither theatlantic.com nor the accounts site shows a payment-failed message.')
+      + kit.next(kind === 'expiring'
+        ? { text: 'If a card-expiring email goes out today, that’s the only place the subscriber hears about it.', links: [{ label: 'See the email >', to: emailOf('today') }] }
+        : { text: 'The email is today’s only signal.', links: [{ label: 'See today’s email >', to: emailOf('today') }] });
+  } else if (savedNow(s, d)) {
+    stage = kit.next({ text: kind === 'expiring' ? 'The new card is saved, so there’s nothing to remind about: no callout.' : 'The renewal is paid, so there’s nothing to fix: no callout.',
+      links: [{ label: 'See it in the account >', to: '#/subscription?' + qs({ exp: 'today' }), session: 'in' }] });
+  } else if (kind === 'failed' && d.ended) {
+    stage = kit.next({ text: `After cancellation there’s no payment left to fix, so no callout. ${g ? `${esc(g.first)}’s gift has ended; a new gift starts from the gift page.` :'The reader meets the paywall instead, where the reactivation flow takes over.'}`,
+      links: [{ label: g ? 'Give a new gift >' : 'Open reactivation >', to: '#/restart' }] });
+  } else if (calloutDismissed) {
+    stage = kit.next({ text: 'Dismissed for this visit. It comes back on a later visit; how often is an open question.',
+      links: [{ label: 'Show it again >', to: `#/article?${qs({ again: '1' })}` }] });
+  } else {
+    const c = calloutCopy(s, d, kind);
+    callout = `<div class="w-dock is-${kind}" data-state="waiting">
+      <aside class="w-call" aria-labelledby="call-h"><div class="w-call-in">
+        <p class="w-call-kick">${c.kick}</p>
+        <h2 id="call-h">${c.title}</h2>
+        <p class="w-call-body">${c.body}</p>
+        <div class="w-call-acts"><button class="w-call-btn" type="button" data-cta>${c.cta}</button><button class="w-call-later" type="button" data-later>Remind me later</button>
+          <p class="w-call-foot">Signed in as <b>${esc(s.subscriber.email)}</b></p></div>
+      </div></aside></div>`;
+  }
+  const navLink = (label, cls = '') => `<a class="${cls}" href="#/reading">${label}</a>`;
+  el.innerHTML = `<div class="acct www${deviceOf() === 'desktop' ? '' : ' is-phone'}"><div class="vp">
+    <header class="w-nav"><div class="w-nav-in">
+      <nav class="w-left" aria-label="Sections"><a class="w-menu" href="#/reading" aria-label="Open menu"></a><a class="w-search" href="#/reading" aria-label="Search"></a>
+        ${navLink('Popular', 'w-txt')}${navLink('Latest', 'w-txt')}${navLink('Newsletters', 'w-txt')}</nav>
+      <a class="w-wm" href="#/reading" aria-label="The Atlantic"><img src="./assets/atlantic-logo.svg" alt=""></a>
+      <div class="w-right">${navLink('Saved Stories', 'w-saved')}<a href="#/subscription?${qs({ exp: 'today' })}" data-dk-session="in">My Account</a>${g ? navLink('Subscribe', 'w-sub') : ''}</div>
+    </div></header>
+    <article class="w-art">
+      <div class="w-head">
+        <p class="w-rubric">Technology</p>
+        <h1 class="w-hed">Choose Your Overlord: Musk or Bezos?</h1>
+        <p class="w-dek">The billionaires’ race to build—and control—a new off-world economy.</p>
+        <p class="w-by">By Josh Tyrangiel</p>
+      </div>
+      <figure class="w-hero">${heroArt()}
+        <figcaption class="w-cap"><span>Two launch programs, one destination, and a question of who sets the terms.</span><span class="credit">Illustration / The Atlantic</span></figcaption></figure>
+      <div class="w-tools"><span>October 14, 2026</span>
+        <span class="w-share"><span>Share</span><span>Save</span><span>Gift</span></span>
+        <span class="w-listen"><i aria-hidden="true"></i><span>Listen · 18 min</span></span></div>
+      <div class="w-body">
+        ${ARTICLE_BODY.map((p, i) => `<p${i ? '' : ' class="first"'}>${p}</p>`).join('')}
+        <p class="w-print">This article appears in the November 2026 print edition.</p>
+      </div>
+      ${callout}<div class="w-end"><section class="w-author"><h2>About the author</h2>
+        <p><b>Josh Tyrangiel</b></p><p><a href="#/reading">More by Josh Tyrangiel</a></p></section></div>
+    </article>
+    ${stage ? `<div class="w-stage">${stage}</div>` : ''}
+    <footer class="w-foot"><div class="w-foot-in">
+      <div><h3>Our Company</h3><a href="#/reading">About</a><a href="#/reading">Contact Us</a><a href="#/reading">Careers</a></div>
+      <div><h3>Subscription</h3><a href="#/subscription?${qs({ exp: 'today' })}" data-dk-session="in">Manage Subscription</a><a href="#/reading">Give a Gift</a><a href="#/help">Help Center</a></div>
+      <div><h3>Follow</h3><a href="#/reading">Newsletters</a><a href="#/reading">Podcasts</a><a href="#/reading">Apps</a></div>
+      <div><h3>Legal</h3><a href="#/help">Privacy Policy</a><a href="#/help">Terms and Conditions</a></div>
+    </div><small>TheAtlantic.com © 2026 The Atlantic Monthly Group. All Rights Reserved.</small></footer>
+  </div></div>`;
+  const cta = el.querySelector('[data-cta]');
+  if (cta) cta.addEventListener('click', () => kit.navigate(`#/update?${qs()}`, { session: 'in', push: true }));
+  const laterBtn = el.querySelector('[data-later]');
+  if (laterBtn) {
+    laterBtn.addEventListener('click', () => dismissCallout(el));
+    el.querySelector('.w-call').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.preventDefault(); dismissCallout(el); } });
+    riseCallout(el);
+  }
 }
 
 /* ==========================================================================
@@ -779,7 +1401,7 @@ const IC = {
 };
 const expOf = () => kit.param('exp') === 'today' ? 'today' : 'new';
 const qs = (extra) => {
-  const p = new URLSearchParams({ device: deviceOf(), layout: layoutOf(), exp: expOf() });
+  const p = new URLSearchParams({ device: deviceOf(), layout: layoutOf(), exp: expOf(), src: srcOf() });
   Object.entries(extra || {}).forEach(([k, v]) => p.set(k, v));
   return p.toString();
 };
@@ -788,6 +1410,8 @@ const later = (fn) => setTimeout(fn);   // navigate after the current render set
 /* /login: EmailLoginFlow. Steps: email → password, or the one-time link, or reset. */
 function loginPage(el, { state: s }) {
   if (syncControls()) return;
+  // Proposed needs no sign-in: its counterpart for this moment is the update page
+  if (expOf() === 'new') { later(() => kit.navigate(`#/update?${qs()}`, { push: false })); return; }
   if (s.session === 'in') { later(() => kit.navigate('#/subscription?' + qs(), { push: false })); return; }   // AuthRedirect
   const step = kit.param('step') || 'email';
   const go = (st) => kit.setParam('step', st, { push: true });
@@ -846,20 +1470,24 @@ function loginPage(el, { state: s }) {
 let justSaved = false;
 function subscriptionPage(el, { state: s, derived: d }) {
   if (syncControls()) return;
+  // Proposed counterpart for the same moment: the confirmation once the card is in, else the update page
+  if (expOf() === 'new') { later(() => kit.navigate(`#/update?${qs(savedNow(s, d) && kit.param('form') !== 'add' ? { step: 'done' } : {})}`, { push: false })); return; }
   if (s.session !== 'in') { later(() => kit.navigate('#/login?' + qs({ step: 'email' }), { push: false })); return; }   // AccountsApp: signed out → /login/?redirect=
-  const g = s.gift, m = s.sub.method;
+  // Card expiring: nothing has failed. Same page; the card on file runs out before the next billing date.
+  const xp = kindOf() === 'expiring', ended = !xp && d.ended, saved = savedNow(s, d);
+  const g = s.gift, m = xp ? s.upd && s.upd.method : s.sub.method;
   const adding = kit.param('form') === 'add';
   const navRail = `<nav class="af-nav" aria-label="Account"><ul>
       <li><a href="#/help">Account</a></li>
       <li><a href="#/subscription?${qs()}" aria-current="page">Subscription</a>
-        <ul>${d.ended || g ? '' : '<li><a href="#/help">Manage Subscription</a></li>'}<li><a href="#/help">Gift Subscriptions</a></li></ul></li>
+        <ul>${ended || g ? '' : '<li><a href="#/help">Manage Subscription</a></li>'}<li><a href="#/help">Gift Subscriptions</a></li></ul></li>
       <li><a href="#/help">Saved Stories</a></li><li><a href="#/help">Newsletters</a></li>
       <li><a href="#/help">Library</a><ul><li><a href="#/help">Audio Articles</a></li></ul></li>
       <li><a href="#/help">Help</a></li></ul></nav>`;
   // Subscription Details. Assumes the subscription still reports "active" during dunning (the app only knows active, trialing, expired, canceled).
-  const lastIssue = at(RENEWS_NEXT).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+  const lastIssue = at(xp ? XP_RENEWS : RENEWS_NEXT).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
   const short = (x) => DemoKit.fmt(x);
-  const details = d.ended
+  const details = ended
     ? `<div class="af-card"><div class="af-int"><h2 class="af-title">Restart your subscription today.</h2>
         <a class="af-btn af-action" href="#/restart">Explore Options</a><div style="height:24px"></div></div></div>`
     : g
@@ -870,13 +1498,14 @@ function subscriptionPage(el, { state: s, derived: d }) {
           <ul class="af-benefits">${['Unlimited access on any device', `12 magazine issues in PDF<em>&nbsp;(your last issue will be ${lastIssue})</em>`, '<em>The Atlantic</em>&nbsp;app for iOS and Android',
             'Narrated stories and podcasts', 'A digital archive, from 1857 to today', 'Gift articles to share with other readers', 'Subscriber events and discounts'].map((b) => `<li>${CHECK}<span>${b}</span></li>`).join('')}</ul>
           <a class="af-btn af-action" href="#/help">Manage</a></div>
-        <div class="af-int"><dl class="af-fields"><div class="af-field"><dt>Subscription Period</dt><dd>${short(FAILED_ON)}—${short(RENEWS_NEXT)}</dd></div>
+        <div class="af-int"><dl class="af-fields"><div class="af-field"><dt>Subscription Period</dt><dd>${xp ? `${short(XP_TERM_START)}—${short(XP_RENEWS)}` : `${short(FAILED_ON)}—${short(RENEWS_NEXT)}`}</dd></div>
           <div class="af-field"><dt>Renewal Rate</dt><dd>${money(PRICE)}/year</dd></div></dl></div></div>`;
   // Billing Information, or the add-card form in its place
   const card = m && m.type === 'card' ? m : null;
   const shownBrand = card ? card.brand : s.old.brand, shownLast4 = card ? card.last4 : s.old.last4;
-  const shownExp = card ? (card.exp || '12/2029') : '09/2026';
-  const billing = d.ended ? '' : adding
+  const shownExp = card ? (card.exp || '12/2029') : xp ? XP_CARD : '09/2026';
+  const nextBill = xp ? XP_RENEWS : d.paid ? RENEWS_NEXT : FAILED_ON;
+  const billing = ended ? '' : adding
     ? `<div class="af-card"><div class="af-int"><h2 class="af-title">Add a New Payment Method</h2>
         <form id="af-add" class="af-scope" novalidate>
           <div class="spe"><div class="spe-grid">
@@ -893,15 +1522,21 @@ function subscriptionPage(el, { state: s, derived: d }) {
         <dl class="af-fields thirds">
           <div class="af-field"><dt>Payment Method</dt><dd>${brandLogo(shownBrand)}Ending in ${esc(shownLast4)}</dd></div>
           <div class="af-field"><dt>Card Expiration</dt><dd>${shownExp}</dd></div>
-          <div class="af-field"><dt>Next Billing Date</dt><dd>${short(d.paid ? RENEWS_NEXT : FAILED_ON)}</dd></div></dl></div></div>`;
+          <div class="af-field"><dt>Next Billing Date</dt><dd>${short(nextBill)}</dd></div></dl></div></div>`;
   const addr = (title, lines) => `<div class="af-card"><div class="af-int"><h3>${title}</h3><button class="af-btn-ter af-ter-pos" type="button">Edit</button>
       <div class="af-gray">${lines.map(esc).join('<br>')}</div></div></div>`;
   const addresses = `<div class="af-addr">${addr('Mailing Address', [s.subscriber.name, '1200 Pine St, Apt 4B', 'Portland, OR 97205'])}${addr('Billing Address', ['1200 Pine St', 'Apt 4B', 'Portland, OR 97205'])}</div>`;
-  const stage = d.paid && !adding
-    ? kit.next({ text: `That’s the end of today’s flow. Saving the card also charged the overdue ${money(PRICE)} renewal, but nothing on the page says so. The only signs are the new card and the next billing date.`,
-        links: [{ label: 'Back to the email >', to: '#/email?' + qs() }] })
-    : !d.paid && !d.ended && !adding
-      ? kit.note((g ? 'Gift giver view is inferred: Jane has no subscription of her own, so the page offers her one, and Billing Information appears because she has gifts. ' : '') + 'Nothing on this page says the renewal failed. The accounts site has no past-due, expired-card or failed-charge banner, and the “Don’t Lose Your Access” banner is switched off for everyone. Next Billing Date showing the failed date is inferred; the API value during dunning isn’t verified.')
+  const giftInferred = g ? 'Gift giver view is inferred: Jane has no subscription of her own, so the page offers her one, and Billing Information appears because she has gifts. ' : '';
+  const backLink = { label: fromArticle() ? 'Back to the article >' : 'Back to the email >', to: entryHref() };
+  const stage = saved && !adding
+    ? kit.next({ text: xp
+        ? `That’s the end of today’s flow. The new card is saved for the ${F(XP_RENEWS)} renewal and nothing was charged, but the page says only “Saved”.`
+        : `That’s the end of today’s flow. Saving the card also charged the overdue ${money(PRICE)} renewal, but nothing on the page says so. The only signs are the new card and the next billing date.`,
+        links: [backLink] })
+    : !saved && !ended && !adding
+      ? kit.note(giftInferred + (xp
+        ? `Nothing on this page says the card runs out before the renewal: Card Expiration ${XP_CARD} sits beside a Next Billing Date of ${short(XP_RENEWS)}, with no warning. The accounts site has no expiring-card banner.`
+        : 'Nothing on this page says the renewal failed. The accounts site has no past-due, expired-card or failed-charge banner, and the “Don’t Lose Your Access” banner is switched off for everyone. Next Billing Date showing the failed date is inferred; the API value during dunning isn’t verified.'))
       : '';
   el.innerHTML = shell(`<div class="af-page">${navRail}<main class="af-main"><button class="af-navbtn" type="button">Subscription <span aria-hidden="true">⌄</span></button>${details}${billing}${addresses}</main></div>`,
     stage ? `<div class="af-stage">${stage}</div>` : '', { right: 'out', flush: true });
@@ -923,7 +1558,7 @@ function subscriptionPage(el, { state: s, derived: d }) {
       const n = digits(cc.value), x = digits(exp.value);
       const method = { type: 'card', brand: (n.length >= 4 && brandOf(n)) || 'Visa', last4: n.length >= 4 ? n.slice(-4) : '4242', exp: x.length === 4 ? `${x.slice(0, 2)}/20${x.slice(2)}` : '12/2029' };
       // Stripe's own decline message, shown in red under the buttons
-      const ok = await kit.run(() => { justSaved = true; return kit.act('pay', method); }, 'Your card was declined.', { label: 'save a new card', trigger: e.submitter });
+      const ok = await kit.run(() => { justSaved = true; return kit.act(xp ? 'save' : 'pay', method); }, 'Your card was declined.', { label: 'save a new card', trigger: e.submitter });
       if (ok) setTimeout(() => { justSaved = false; kit.setParam('form', null, { push: true }); }, 750);
     });
   }
@@ -932,28 +1567,62 @@ function subscriptionPage(el, { state: s, derived: d }) {
 const stubPage = (title, body, links) => () => shell(`<div class="col-utility"><div class="box">
   <h1 class="util-title">${title}</h1><p class="util-body">${body}</p>
   ${links ? `<p class="util-body">${links}</p>` : ''}<span class="stub-tag">Not built in this prototype</span></div></div>`);
+// Scene panel head: the screen's name and one line on what it is, for the version and state on screen
+const HEAD = {
+  email: ({ state: s, derived: d }) => {
+    const today = expOf() === 'today';
+    const body = kindOf() === 'expiring'
+      ? (today ? 'Proposed copy with today’s button, which opens the Subscription page.' : `Sent ${diff(XP_SENT, XP_RENEWS)} days before the renewal. Its button opens the payment page.`)
+      : d.ended ? 'Sent the day the subscription was canceled. Its button opens Resubscribe.'
+      : today ? (s.gift ? 'The earlier gift email with today’s button, which opens the Subscription page.'
+        : `Email ${Math.min(d.emailNo, TODAY_STD.length)} of ${TODAY_STD.length}, as sent today. Its button leads to sign-in.`)
+      : `Email ${d.emailNo} of ${s.gift ? 6 : 7}, day ${d.day} of 30. Its button opens the payment page, no sign-in.`;
+    return { title: 'The email', body };
+  },
+  // The article's headline, dek and byline are the November 2026 issue's; the body is placeholder text.
+  article: ({ state: s, derived: d }) => ({ title: 'The article', body: (expOf() === 'today' ? 'Today: no callout anywhere on the site.'
+    : savedNow(s, d) ? 'Payment sorted, so no callout.'
+    : kindOf() === 'failed' && d.ended ? 'After cancellation: no callout.'
+    : 'Signed in; the callout rises as you read.') + ' Real headline, placeholder body.' }),
+  update: ({ state: s, derived: d }) => {
+    const xp = kindOf() === 'expiring', saved = xp ? !!s.upd : d.paid, done = kit.param('step') === 'done' && saved;
+    const body = done ? (xp ? 'The confirmation, right after saving the card.' : 'The confirmation, right after paying.')
+      : saved ? 'The same link opened again: it’s spent, so there’s nothing left to do.'
+      : !xp && d.ended ? 'After cancellation, the page hands off to Resubscribe.'
+      : xp ? 'No sign-in. It saves a card and charges nothing.'
+      : layoutOf() === 'card' ? 'No sign-in. One card form, then a confirmation.' : 'No sign-in. Pay any way, then a confirmation.';
+    return { title: 'Payment page', body };
+  },
+  login: () => ({ title: 'Sign in (today)', body: 'Where the email’s button lands when signed out. Then the Subscription page.' }),
+  subscription: () => ({ title: 'Subscription page (today)', body: 'Today’s signed-in account page, where the card gets updated.' }),
+};
 const pages = [
-  { path: '/email', title: 'Dunning email', area: 'public', render: emailPage,
-    purpose: 'Start here. The email for today’s dunning day; one button opens the update page.',
-    sideCardIntro: 'Set up the demo here. Experience switches between today’s email and flow and the proposed one.', preconditions: PRE_EMAIL },
-  { path: '/update', title: 'Fix your payment', area: 'public', render: updatePage,
-    purpose: 'The sign-in-free page on the accounts shell. Two layouts from the side card: All methods (stacked wallets, “OR USE”, the Card panel) or Card only (one utility card). Also its spent and ended states.',
-    sideCardIntro: 'Set up the demo here. Payment page switches the layout; switching Subscription resets the demo data.', preconditions: PRE },
-  { path: '/restart', title: 'Restart (reactivation)', area: 'public',
-    purpose: 'Where an ended subscription goes. The reactivation flow is its own prototype.',
+  { path: '/email', title: 'The email', area: 'public', render: emailPage, jumpGroup: 'Where it starts',
+    purpose: 'The email for the current day, or the card-expiring email. Its button starts the flow.',
+    sideCardHead: HEAD.email, get preconditions() { return SCENE.email(); } },
+  { path: '/article', title: 'The article', area: 'public', render: articlePage, jumpGroup: 'Where it starts',
+    purpose: 'A story on theatlantic.com with a payment callout that rises as you read. Today: no callout.',
+    sideCardHead: HEAD.article,
+    get preconditions() { return SCENE.article(); } },
+  { path: '/update', title: 'Payment page', area: 'public', render: updatePage, jumpGroup: 'Proposed',
+    purpose: 'The sign-in-free page: pay, or save a card, then the confirmation.',
+    sideCardHead: HEAD.update, sideCardError: () => payFormShown(), get preconditions() { return SCENE.update(); } },
+  { path: '/login', title: 'Sign in (today)', area: 'public', render: loginPage, jumpGroup: 'Today',
+    purpose: 'Where today’s email button lands when signed out: email, then password or a one-time link.',
+    sideCardHead: HEAD.login, get preconditions() { return SCENE.login(); } },
+  { path: '/subscription', title: 'Subscription page (today)', area: 'public', render: subscriptionPage, jumpGroup: 'Today', jumpSession: 'in',
+    purpose: 'Today’s account page with the card-only form. Opens signed in.',
+    sideCardHead: HEAD.subscription, sideCardError: () => !(kindOf() === 'failed' && kit.derived.ended),
+    get preconditions() { return SCENE.subscription(); } },
+  { path: '/restart', title: 'Resubscribe', area: 'public', jumpGroup: 'Placeholders (not built)',
+    purpose: 'Where a canceled subscription goes. Reactivation is its own prototype.',
     render: stubPage('Resubscribe', 'This is where the reactivation flow takes over: one-page checkout with the expired-card repair and “You’re back.”',
       '') },
-  { path: '/login', title: 'Sign in (today)', area: 'public', render: loginPage, preconditions: PRE_ACCT,
-    purpose: 'Today’s sign-in, where the email’s button lands when signed out: email, then password, or a one-time email link.',
-    sideCardIntro: 'Today’s sign-in, as the accounts site ships it.' },
-  { path: '/subscription', title: 'Subscription (today)', area: 'public', render: subscriptionPage, preconditions: PRE_ACCT,
-    purpose: 'Today’s signed-in Subscription page: Subscription Details, Billing Information and the card-only “Add a New Payment Method” form. Signed out, it sends you to sign in.',
-    sideCardIntro: 'Today’s Subscription page, as the accounts site ships it.' },
-  { path: '/cancel', title: 'Cancel', area: 'public', purpose: 'The quiet way out. Today’s cancel flow, unchanged.',
+  { path: '/cancel', title: 'Cancel', area: 'public', jumpGroup: 'Placeholders (not built)', purpose: 'The quiet way out. Today’s cancel flow, unchanged.',
     render: stubPage('Cancel your subscription', 'The existing cancel flow. Offered as a plain link so nobody feels trapped on a payment page.') },
-  { path: '/help', title: 'Help Center', area: 'public', purpose: 'Where “We’re happy to help” goes.',
+  { path: '/help', title: 'Help Center', area: 'public', jumpGroup: 'Placeholders (not built)', purpose: 'Where “We’re happy to help” goes.',
     render: stubPage('Help Center', 'support.theatlantic.com, where Customer Care answers billing questions.') },
-  { path: '/reading', title: 'Back to reading', area: 'public', purpose: 'Where “Continue reading” lands.',
+  { path: '/reading', title: 'Back to reading', area: 'public', jumpGroup: 'Placeholders (not built)', purpose: 'Where “Back to TheAtlantic.com” lands.',
     render: stubPage('Back to The Atlantic', 'theatlantic.com, where they were before the email.') },
 ];
 
@@ -964,14 +1633,31 @@ const kit = DemoKit.init({
   key: 'proto-dunning-update-v5',
   today: TODAY,
   home: '/email',
-  project: { name: 'Fix your payment', description: 'Today’s dunning flow (email, sign-in, Subscription page, card form) beside the proposed sign-in-free page' },
+  project: { name: 'Fix your payment', description: 'Today’s failed-payment flow (email, sign-in, Subscription page, card form) beside the proposed sign-in-free page, from the email or an article callout, for a failed payment or a card about to expire' },
   company: 'The Atlantic',
   contact: { name: 'Atlantic customer care', email: 'help@theatlantic.com' },
   footer: HELP,
   brand: 'The Atlantic',
   scenarios, axes, pages, paths, nav, derive, actions,
-  saves: ['pay with a wallet', 'pay by card', 'save a new card'],
+  saves: ['pay with a wallet', 'pay by card', 'save a card', 'save with a wallet', 'save a new card'],
   validate: (s) => s && s.sub && typeof s.sub.status === 'string' && s.old && s.subscriber,
+  // Presenter layer. The Scene panel (side card) sets up the screen beside it; the pill opens
+  // guided tours, Jump to a screen and Reset. Each control lives in one of the two, never both.
+  pill: 'Tours & screens',
+  sideCardName: 'Scene',
+  intro: { title: 'A clickable prototype, not the product',
+    body: 'It compares today’s failed-payment flow with a proposed sign-in-free page. Set the scene in the dark Scene panel on each screen, or open <b>Tours &amp; screens</b> for a guided walkthrough.',
+    action: 'Open the tours' },
+  panel: { title: 'Tours & screens', scenario: false, axes: false, errors: false,
+    intro: 'Not part of the product. A tour sets up the scene and walks one flow step by step; the dark Scene panel on each screen changes what’s on it. Nothing is charged, and everyone in it is made up.',
+    labels: { paths: 'Guided tours', pathsAside: 'Start sets everything up', jump: 'Jump to a screen' },
+    resetHint: 'Clears payments and saved cards so the flow starts fresh. Scene settings stay.' },
+  errorSwitch: { title: 'Show a payment error', hint: 'Next payment or save fails.' },
+  status: ({ page }) => {
+    const v = page.preconditions ? expOf() : null;
+    return [['Version', v ? (v === 'today' ? 'Today' : 'Proposed') : '—', v ? (v === 'today' ? 'today' : 'proposed') : null],
+      ['Screen', page.title], ['Sign-in', kit.state.session === 'in' ? 'Signed in' : 'Signed out']];
+  },
   fonts: 'atlantic-accounts',
   mode: new URLSearchParams(location.search).has('sketch') ? 'sketch' : 'build',
 });

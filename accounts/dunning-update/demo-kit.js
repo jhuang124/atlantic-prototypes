@@ -11,6 +11,14 @@
    model, and references/demo-kit.md for the panel anatomy and fixed copy.
 
    Changelog
+   1.2.0-dunning (2026-10-30) Local to this package: presenter-UX options.
+   - Side card: page.sideCardHead (screen title + one line), precondition hero/group/hint,
+     option hint/tone, page.sideCardError (the error switch beside the screen),
+     cfg.sideCardName names the card in its eyebrow.
+   - Drawer: cfg.panel { title, intro, scenario, axes, errors, labels, resetHint },
+     cfg.status(ctx), cfg.pill, cfg.errorSwitch { title, hint }; grouped paths (group, meta);
+     Jump to groups by page.jumpGroup; page.jumpSession signs in or out on the jump.
+   - cfg.intro: a dismissible first-visit card above the pill.
    1.1.0 (2026-10-16)
    - Route params. Page paths take `:id` segments ('/members/:id'). The value
      is on kit.params().id, ctx.params.id and kit.param('id'); hash-query
@@ -365,6 +373,7 @@
       if (st.session) s = Object.assign({}, s, { session: st.session });
       armed = false;
       commit(s);
+      dismissIntro();
       closeDrawer(false);
       navigate(st.to || homePath(), { push: true });
     }
@@ -521,29 +530,70 @@
       renderChrome();
     }
 
-    // Segmented control shared by panel and side card
+    // Segmented control shared by panel and side card. An option's `tone` lands on data-tone.
     function seg(legend, options, current, attr) {
       const cols = options.length <= 3 ? options.length : 2;
       return `<fieldset class="demo-seg"><legend class="sr-only">${esc(legend)}</legend>
         <div class="demo-seg-track" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">
-        ${options.map((o) => `<button type="button" aria-pressed="${o.value === current}" ${attr(o)}>${esc(o.label)}</button>`).join('')}
+        ${options.map((o) => `<button type="button" aria-pressed="${o.value === current}"${o.tone ? ` data-tone="${esc(o.tone)}"` : ''} ${attr(o)}>${esc(o.label)}</button>`).join('')}
         </div></fieldset>`;
     }
 
+    // Error-arm switch, shared by the drawer and side cards that opt in (page.sideCardError)
+    const errCopy = Object.assign({ title: 'Next save fails', hint: null }, cfg.errorSwitch);
+    function armSwitch(id, extraAttr) {
+      return `<label class="demo-switch-row" for="${id}"><span><span class="ttl">${esc(errCopy.title)}</span><span class="demo-soft">${esc(errCopy.hint || savesSentence())}</span></span>
+        <button type="button" id="${id}" class="demo-switch" role="switch" aria-label="${esc(errCopy.title)}" aria-checked="${armed}" ${extraAttr}></button></label>`;
+    }
+
+    /* Side card: "set the scene" for the screen beside it.
+       page.sideCardHead (string | fn(ctx) → { title, body }) replaces the "Scenario" heading.
+       Preconditions may carry: hero (the main comparison, drawn larger), group (a subheading
+       such as "Display", shown where the group starts), row (label beside the control),
+       fold (consecutive preconditions with the same fold label collapse into one summary
+       row that opens to show them), hint (string | fn(ctx)); options may carry hint (shown
+       while selected, wins over the precondition's) and tone. */
     function sideCard(page, ctx) {
       const p = ctx.params;
-      const extra = typeof page.sideCardNote === 'function' ? page.sideCardNote(ctx) : page.sideCardNote;
-      return `<aside class="demo-sidecard" aria-label="Presenter only: scenario">
-        <p class="demo-eyebrow"><span class="demo-dot"></span>Presenter only</p>
-        <h2>Scenario</h2>
-        ${page.sideCardIntro ? `<p class="demo-soft">${page.sideCardIntro}</p>` : ''}
+      const val = (v) => (typeof v === 'function' ? v(ctx) : v);
+      const head = val(page.sideCardHead);
+      const intro = val(page.sideCardIntro);
+      const extra = val(page.sideCardNote);
+      const errorHere = val(page.sideCardError);
+      const pres = page.preconditions.map((pre) => {
+        const cur = p.get(pre.key) || (pre.default != null ? pre.default : pre.options[0].value);
+        return { pre, cur, opt: pre.options.find((o) => o.value === cur) };
+      });
+      const field = ({ pre, cur, opt }) => {
+        const hint = (opt && opt.hint) || val(pre.hint);
+        return `<div class="demo-field${pre.hero ? ' is-hero' : ''}${pre.row ? ' is-row' : ''}"><p class="demo-eyebrow">${esc(pre.label)}</p>
+          ${seg(pre.label, pre.options, cur, (o) => `data-dk-param="${esc(pre.key)}" data-v="${esc(o.value)}"`)}
+          ${hint ? `<p class="demo-hint">${hint}</p>` : ''}</div>`;
+      };
+      let group = null, html = '';
+      for (let i = 0; i < pres.length; i++) {
+        const { pre } = pres[i];
+        if (pre.group && pre.group !== group) html += `<p class="demo-group">${esc(pre.group)}</p>`;
+        group = pre.group || group;
+        if (!pre.fold) { html += field(pres[i]); continue; }
+        const run = [];
+        while (i < pres.length && pres[i].pre.fold === pre.fold) run.push(pres[i++]);
+        i--;
+        html += `<details class="demo-fold"><summary><span class="demo-eyebrow">${esc(pre.fold)}</span>
+          <span class="v">${esc(run.map((r) => (r.opt ? r.opt.label : r.cur)).join(' · '))}</span><span class="chg">Change</span></summary>
+          <div class="demo-fold-body">${run.map(field).join('')}</div></details>`;
+      }
+      const fields = html;
+      const title = head && typeof head === 'object' ? head.title : head;
+      return `<aside class="demo-sidecard" aria-label="Presenter only: ${esc(cfg.sideCardName || 'scenario')}">
+        <p class="demo-eyebrow"><span class="demo-dot"></span>${esc(cfg.sideCardName ? cfg.sideCardName + ' · presenter only' : 'Presenter only')}</p>
+        ${title ? `<div class="demo-sidecard-head"><h2>${esc(title)}</h2>${head.body ? `<p class="demo-soft">${head.body}</p>` : ''}</div>` : '<h2>Scenario</h2>'}
+        ${intro ? `<p class="demo-soft">${intro}</p>` : ''}
         ${page.sideCardWarning ? `<p class="demo-warn">${page.sideCardWarning}</p>` : ''}
-        ${extra ? `<p class="demo-soft">${extra}</p>` : ''}
-        ${page.preconditions.map((pre) => {
-          const cur = p.get(pre.key) || (pre.default != null ? pre.default : pre.options[0].value);
-          return `<div class="demo-field"><p class="demo-eyebrow">${esc(pre.label)}</p>
-            ${seg(pre.label, pre.options, cur, (o) => `data-dk-param="${esc(pre.key)}" data-v="${esc(o.value)}"`)}</div>`;
-        }).join('')}
+        ${title ? '' : extra ? `<p class="demo-soft">${extra}</p>` : ''}
+        ${fields}
+        ${errorHere ? `<div class="demo-field demo-field-arm">${armSwitch('dk-arm-side', 'data-dk-arm')}</div>` : ''}
+        ${title && extra ? `<p class="demo-foot">${extra}</p>` : ''}
       </aside>`;
     }
 
@@ -625,6 +675,19 @@
       return `<section class="demo-section"><div class="demo-section-head"><h3>${esc(title)}</h3>${aside ? `<span>${esc(aside)}</span>` : ''}</div>${inner}</section>`;
     }
 
+    /* Drawer options (cfg.panel), all optional:
+         title     heading and pill aria-label (default "Demo controls")
+         intro     HTML that replaces the default disclaimer under the header
+         scenario  false hides the Scenario section and shows a plain "Start over" reset instead
+         axes      false hides the axis sections (when a side card owns them)
+         errors    false hides "Error states" (when side cards carry the switch)
+         labels    { paths, jump } section titles
+       cfg.status(ctx) → [[label, value, tone?], ...] replaces Session / Scenario / Page.
+       Paths may carry `group` (consecutive paths share a subheading; the first group is the
+       lead) and `meta` (shown before the step count). Pages may carry `jumpGroup` (Jump to
+       groups by it, in page order) and `jumpSession` ('in' | 'out', set when jumping there). */
+    const panel = Object.assign({ title: 'Demo controls', intro: null, scenario: true, axes: true, errors: true, labels: {} }, cfg.panel);
+
     function panelHtml() {
       const sc = scenarioById(state.scenario);
       const desc = project.description ? ' ' + project.description.replace(/\.?$/, '.') : '';
@@ -633,10 +696,11 @@
       // Sketch mode: the first path only; axes hidden; Whose side only if that path names a persona
       const shownPaths = sketch ? paths.slice(0, 1) : paths;
       const firstPersona = !!(paths[0] && paths[0].start && paths[0].start.persona);
-      const pathCards = shownPaths.map((p, i) => {
+      const pathCard = (p, i) => {
         const st = p.start || {};
         const loads = st.scenario ? scenarioById(st.scenario) : null;
         const isActive = p.id === activePath;
+        const meta = [p.meta, `${p.steps.length} steps`].filter(Boolean).join(' · ');
         return `<li class="demo-path" data-active="${isActive}">
           <details data-path="${esc(p.id)}"${openPaths.has(p.id) ? ' open' : ''}>
             <summary data-k="sum-${esc(p.id)}"><span class="num">${pad(i + 1)}</span>
@@ -644,10 +708,24 @@
               <span class="chev" aria-hidden="true">▾</span></summary>
             <ol class="demo-steps">${p.steps.map((s, j) => `<li><span>${j + 1}</span><div>${esc(s)}</div></li>`).join('')}</ol>
           </details>
-          <div class="demo-path-foot"><span>${p.steps.length} steps${loads ? ' · loads ' + esc(loads.label) : ''}</span>
-            <button type="button" class="demo-btn" data-op="start" data-id="${esc(p.id)}" data-k="start-${esc(p.id)}" aria-label="Start: ${esc(p.label)}">${loads ? 'Reset &amp; start' : 'Start'} <span aria-hidden="true">→</span></button></div>
+          <div class="demo-path-foot"><span>${p.group ? esc(meta) : `${p.steps.length} steps${loads ? ' · loads ' + esc(loads.label) : ''}`}</span>
+            <button type="button" class="demo-btn" data-op="start" data-id="${esc(p.id)}" data-k="start-${esc(p.id)}" aria-label="Start: ${esc(p.label)}">${loads && !p.group ? 'Reset &amp; start' : 'Start'} <span aria-hidden="true">→</span></button></div>
         </li>`;
+      };
+      // Grouped paths: one list per run of the same `group`, numbered straight through
+      const runs = [];
+      shownPaths.forEach((p, i) => {
+        const last = runs[runs.length - 1];
+        if (last && last.group === (p.group || null)) last.items.push([p, i]);
+        else runs.push({ group: p.group || null, items: [[p, i]] });
+      });
+      const pathCards = runs.map((r, k) => {
+        const list = `<ol class="demo-paths">${r.items.map(([p, i]) => pathCard(p, i)).join('')}</ol>`;
+        return r.group ? `<div class="demo-path-group${k === 0 ? ' is-lead' : ''}"><h4>${esc(r.group)}</h4>${list}</div>` : list;
       }).join('');
+
+      const resetSec = section('Start over', '', `<div class="demo-scope"><span>${esc(panel.resetHint || 'Clears payments and saved cards. Other settings stay.')}</span>
+          <button type="button" class="demo-btn demo-btn-quiet" data-op="reset" data-k="reset"><span aria-hidden="true">↺</span> Reset demo data</button></div>`);
 
       const scenarioSec = section('Scenario', '', `
         ${seg('Scenario', scenarios.map((s) => ({ value: s.id, label: s.label })), state.scenario, (o) => `data-op="scenario" data-v="${esc(o.value)}" data-k="sc-${esc(o.value)}"`)}
@@ -668,35 +746,39 @@
         ${seg('Whose side', personas.map((p) => ({ value: p.id, label: p.label })), state.persona, (o) => `data-op="persona" data-v="${esc(o.value)}" data-k="pe-${esc(o.value)}"`)}
         <p class="demo-soft">${esc(typeof cfg.personaNote === 'function' ? cfg.personaNote(state, derived) : (cfg.personaNote || (personaById(state.persona) || {}).description || ''))}</p>`) : '';
 
-      const errorSec = section('Error states', '', `
-        <label class="demo-switch-row" for="demo-fail-next"><span><span class="ttl">Next save fails</span><span class="demo-soft">${esc(savesSentence())}</span></span>
-          <button type="button" id="demo-fail-next" class="demo-switch" role="switch" aria-label="Next save fails" aria-checked="${armed}" data-op="arm" data-k="arm"></button></label>`);
+      const errorSec = section('Error states', '', armSwitch('demo-fail-next', 'data-op="arm" data-k="arm"'));
 
       // Pattern pages ('/members/:id') are listed only when they give an `example` path to open
       const jumpPath = (p) => isPattern(p.path) ? (typeof p.example === 'function' ? p.example(ctxFor(p)) : p.example) : p.path;
-      const jumpSec = section('Jump to', '', AREAS.map(([area, label]) => {
-        const list = pages.filter((p) => p.area === area && !p.hidden && jumpPath(p));
+      const jumpable = pages.filter((p) => !p.hidden && jumpPath(p));
+      const areaLabel = (p) => (AREAS.find(([a]) => a === p.area) || [])[1] || 'Other';
+      const jumpGroups = jumpable.some((p) => p.jumpGroup)
+        ? [...new Set(jumpable.map((p) => p.jumpGroup || areaLabel(p)))].map((label) => [label, jumpable.filter((p) => (p.jumpGroup || areaLabel(p)) === label)])
+        : AREAS.map(([area, label]) => [label, jumpable.filter((p) => p.area === area)]);
+      const jumpSec = section(panel.labels.jump || 'Jump to', '', jumpGroups.map(([label, list]) => {
         if (!list.length) return '';
-        return `<div class="demo-jump-group"><span>${label}</span><ul>${list.map((p) => `<li>
+        return `<div class="demo-jump-group"><span>${esc(label)}</span><ul>${list.map((p) => `<li>
           <button type="button" class="demo-jump" data-op="jump" data-path="${esc(jumpPath(p))}" data-k="j-${esc(p.path)}"${currentPage && currentPage.path === p.path ? ' aria-current="page"' : ''}>
             <span class="txt"><span class="ttl">${esc(p.title)}</span><span class="pur">${esc(p.purpose || '')}</span></span><span class="here">Here</span></button></li>`).join('')}</ul></div>`;
       }).join(''));
 
+      const status = typeof cfg.status === 'function' && currentPage
+        ? cfg.status(ctxFor(currentPage))
+        : [['Session', sessionLabel()], ['Scenario', sc.label], ['Page', currentPage ? currentPage.title : '']];
+
       return `
         <header class="demo-head">
           <div class="demo-head-top"><div><p class="demo-eyebrow"><span class="demo-dot"></span>Presenter only</p>
-            <h2 class="demo-title" id="demo-title">Demo controls</h2></div>
+            <h2 class="demo-title" id="demo-title">${esc(panel.title)}</h2></div>
             <button type="button" class="demo-close" data-op="close" data-k="close" aria-label="Close">×</button></div>
           <dl class="demo-status">
-            <div><dt>Session</dt><dd>${esc(sessionLabel())}</dd></div>
-            <div><dt>Scenario</dt><dd>${esc(sc.label)}</dd></div>
-            <div><dt>Page</dt><dd>${esc(currentPage ? currentPage.title : '')}</dd></div>
+            ${status.map(([k, v, tone]) => `<div><dt>${esc(k)}</dt><dd${tone ? ` data-tone="${esc(tone)}"` : ''}>${esc(v)}</dd></div>`).join('')}
           </dl>
         </header>
         <div class="demo-body">
-          <p class="demo-disclaimer" id="demo-desc">Not part of the product. Data is saved in this browser.${esc(desc)} All companies, people and emails are made up.</p>
-          ${section('Demo paths', sketch ? 'Sketch · first path only' : 'Scripted walkthroughs', `<ol class="demo-paths">${pathCards}</ol>`)}
-          ${scenarioSec}${sketch ? '' : axisSecs}${personaSec}${errorSec}${jumpSec}
+          <p class="demo-disclaimer" id="demo-desc">${panel.intro || `Not part of the product. Data is saved in this browser.${esc(desc)} All companies, people and emails are made up.`}</p>
+          ${section(panel.labels.paths || 'Demo paths', sketch ? 'Sketch · first path only' : (panel.labels.pathsAside != null ? panel.labels.pathsAside : 'Scripted walkthroughs'), pathCards)}
+          ${panel.scenario ? scenarioSec : ''}${sketch || !panel.axes ? '' : axisSecs}${personaSec}${panel.errors ? errorSec : ''}${jumpSec}${panel.scenario ? '' : resetSec}
         </div>`;
     }
 
@@ -715,9 +797,11 @@
     }
     function renderChrome() {
       if (pill) { pill.dataset.armed = String(armed); pill.setAttribute('aria-expanded', String(drawerOpen)); }
+      document.querySelectorAll('[data-dk-arm]').forEach((b) => b.setAttribute('aria-checked', String(armed)));
       renderPanel();
     }
     function openDrawer() {
+      dismissIntro();
       drawerOpen = true;
       drawer.hidden = false; scrim.hidden = false;
       renderChrome();
@@ -738,13 +822,13 @@
       if (op === 'close') closeDrawer();
       else if (op === 'start') startPath(b.dataset.id);
       else if (op === 'scenario') loadScenario(v);
-      else if (op === 'reset') { resetData(); toast('Demo data reset to ' + scenarioById(state.scenario).label + '.'); }
+      else if (op === 'reset') { resetData(); toast(panel.scenario ? 'Demo data reset to ' + scenarioById(state.scenario).label + '.' : 'Demo data reset.'); }
       else if (op === 'axis') setAxis(b.dataset.key, v);
       else if (op === 'persona') setPersona(v);
       else if (op === 'arm') { e.preventDefault(); armed = !armed; renderChrome(); }
       else if (op === 'jump') {
         const page = resolve(b.dataset.path);
-        const session = page.area === 'app' ? 'in' : page.area === 'public' ? 'out' : undefined;
+        const session = page.jumpSession || (page.area === 'app' ? 'in' : page.area === 'public' ? 'out' : undefined);
         closeDrawer(false);
         navigate('#' + b.dataset.path, { session, push: true });   // the example path for pattern pages, not '/x/:id'
       }
@@ -754,9 +838,9 @@
       pill = document.createElement('button');
       pill.type = 'button';
       pill.className = 'demo-pill';
-      pill.setAttribute('aria-label', 'Demo controls');
+      pill.setAttribute('aria-label', panel.title);
       pill.setAttribute('aria-haspopup', 'dialog');
-      pill.innerHTML = '<span class="demo-dot" aria-hidden="true"></span>Demo';
+      pill.innerHTML = `<span class="demo-dot" aria-hidden="true"></span>${esc(cfg.pill || 'Demo')}`;
       pill.addEventListener('click', () => (drawerOpen ? closeDrawer() : openDrawer()));
 
       scrim = document.createElement('div');
@@ -785,6 +869,38 @@
       toastRegion.setAttribute('aria-live', 'polite');
 
       document.body.append(toastRegion, pill, scrim, drawer);
+      mountIntro();
+    }
+
+    /* First-visit orientation (cfg.intro = { title, body, action }): a small card above the
+       pill. "action" opens the drawer with the first path expanded; either button, opening
+       the drawer, or starting a path dismisses it for good (stored per browser). */
+    const INTRO_KEY = KEY + '-intro-seen';
+    let intro = null;
+    function mountIntro() {
+      if (!cfg.intro) return;
+      try { if (localStorage.getItem(INTRO_KEY)) return; } catch (e) { /* show it */ }
+      intro = document.createElement('aside');
+      intro.className = 'demo-intro';
+      intro.setAttribute('aria-label', 'About this prototype');
+      intro.innerHTML = `<p class="demo-eyebrow"><span class="demo-dot"></span>Presenter only</p>
+        <p class="demo-intro-title">${esc(cfg.intro.title)}</p><p class="demo-soft">${cfg.intro.body}</p>
+        <div class="demo-intro-acts"><button type="button" class="demo-btn" data-intro="open">${esc(cfg.intro.action || 'Open the tours')}</button>
+          <button type="button" class="demo-btn demo-btn-quiet" data-intro="close">Got it</button></div>`;
+      intro.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-intro]');
+        if (!b) return;
+        dismissIntro();
+        if (b.dataset.intro === 'open') { if (paths[0]) openPaths.add(paths[0].id); openDrawer(); }
+        else pill.focus();
+      });
+      document.body.append(intro);
+    }
+    function dismissIntro() {
+      if (!intro) return;
+      intro.remove();
+      intro = null;
+      try { localStorage.setItem(INTRO_KEY, '1'); } catch (e) { /* memory only */ }
     }
 
     /* ------------------------------------------------------------------------
@@ -802,6 +918,9 @@
         navigate('#' + homePath(), { session: 'out', push: true });
       } else if (t.matches('[data-dk-param]')) {
         setParam(t.dataset.dkParam, t.dataset.v, { push: false });
+      } else if (t.matches('[data-dk-arm]')) {
+        armed = !armed;
+        renderChrome();
       } else if (t.matches('.nav-toggle')) {
         navOpen = !navOpen;
         const nav = t.closest('.sidebar');

@@ -416,3 +416,65 @@ textarea.input { height: auto; min-height: 96px; padding: 12px 16px; }
 
 /* v1.1.0: inline code in presenter copy (light-mode note) */
 .demo-drawer code, .demo-sidecard code, .demo-box code { font: 12px/1 var(--font-demo-mono); color: var(--demo-text); background: var(--demo-raised); padding: 2px 5px; border-radius: 4px; }
+
+/* v1.2.0-dunning: side card anatomy, grouped tours, first-visit card (local to this package) */
+:root { --demo-today: #8cc4ff; }   /* "Today" in the presenter chrome; "Proposed" uses the lime accent */
+.demo-intro { font-family: var(--font-demo); -webkit-font-smoothing: antialiased; }
+
+/* Side card: screen head, the hero comparison, one-line hints, a Display group */
+.demo-sidecard { gap: 10px; }
+.demo-sidecard-head { display: flex; flex-direction: column; gap: 4px; margin-top: -4px; }
+.demo-sidecard-head h2 { margin: 0; font: 600 17px/1.25 var(--font-demo); letter-spacing: -.01em; }
+.demo-sidecard .demo-field { gap: 5px; }
+.demo-sidecard .demo-seg-track button { min-height: 30px; }
+.demo-hint { margin: 0; font-size: 12px; line-height: 17px; color: var(--demo-soft); }
+.demo-field.is-hero { gap: 7px; padding: 10px 12px 12px; margin: 0 -6px; border-radius: 12px; background: var(--demo-raised); box-shadow: 0 0 0 1px var(--demo-line); }
+.demo-field.is-hero .demo-seg-track { background: var(--demo-base); }
+.demo-field.is-hero .demo-seg-track button { min-height: 36px; font-size: 14px; }
+.demo-field.is-hero .demo-hint { color: var(--demo-text); }
+.demo-seg-track button[aria-pressed="true"][data-tone="proposed"] { background: var(--demo-accent); color: #0c0c0d; }
+.demo-seg-track button[aria-pressed="true"][data-tone="today"] { background: var(--demo-today); color: #0c0c0d; }
+.demo-group { margin: 0 0 -4px; padding-top: 12px; border-top: 1px solid var(--demo-line); font: 600 12px/1.2 var(--font-demo); color: var(--demo-text); }
+/* Row: label beside the control, hint underneath */
+.demo-field.is-row { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 4px 8px; }
+.demo-field.is-row .demo-eyebrow { line-height: 14px; }
+.demo-field.is-row .demo-hint { grid-column: 1 / -1; }
+.demo-field.is-row .demo-seg-track { padding: 3px; }
+.demo-field.is-row .demo-seg-track button { min-height: 26px; padding: 4px 6px; font-size: 12px; }
+/* Fold: a summary row for controls that restart the flow; opens to show them */
+.demo-fold { border-radius: 12px; background: var(--demo-raised); box-shadow: 0 0 0 1px var(--demo-line); }
+.demo-fold > summary { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 3px 8px; padding: 8px 12px; cursor: pointer; }
+.demo-fold > summary::-webkit-details-marker { display: none; }
+.demo-fold > summary .demo-eyebrow { grid-column: 1; }
+.demo-fold .v { grid-column: 1; min-width: 0; font-size: 13px; line-height: 18px; color: var(--demo-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.demo-fold .chg { grid-column: 2; grid-row: 1 / span 2; font-size: 12px; color: var(--demo-soft); border-bottom: 1px solid var(--demo-line); }
+.demo-fold > summary:hover .chg { color: var(--demo-text); }
+.demo-fold[open] .chg { visibility: hidden; }
+.demo-fold-body { display: flex; flex-direction: column; gap: 10px; padding: 2px 12px 12px; }
+.demo-fold-body .demo-seg-track { background: var(--demo-base); }
+.demo-field-arm .demo-switch-row { padding: 10px 12px; align-items: center; }
+.demo-field-arm .demo-switch-row .ttl { font-size: 13px; line-height: 18px; margin-bottom: 0; }
+.demo-field-arm .demo-switch { margin-top: 0; }
+.demo-field-arm .demo-soft { font-size: 12px; line-height: 17px; }
+.demo-foot { margin: 0; padding-top: 12px; border-top: 1px solid var(--demo-line); font-size: 12px; line-height: 17px; color: var(--demo-muted); }
+
+/* Drawer: status tones, grouped tours */
+.demo-status dd[data-tone="proposed"] { color: var(--demo-accent); }
+.demo-status dd[data-tone="today"] { color: var(--demo-today); }
+.demo-path-group + .demo-path-group { margin-top: 12px; }
+.demo-path-group h4 { margin: 0 0 8px; font: 600 12px/1.3 var(--font-demo); color: var(--demo-soft); }
+.demo-path-group.is-lead h4 { color: var(--demo-accent); }
+.demo-path-group.is-lead .demo-path:not([data-active="true"]) { box-shadow: 0 0 0 1px rgb(212 247 74 / .3); }
+
+/* First-visit card above the pill */
+.demo-intro {
+  position: fixed; left: 16px; bottom: 64px; z-index: 75; width: min(300px, calc(100% - 32px));
+  display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 14px;
+  background: var(--demo-base); color: var(--demo-text); font-size: 13px; line-height: 19px;
+  box-shadow: var(--demo-shadow), 0 0 0 1px rgb(255 255 255 / .12);
+}
+.demo-intro::after { content: ''; position: absolute; left: 30px; bottom: -6px; width: 12px; height: 12px; background: var(--demo-base); transform: rotate(45deg); box-shadow: 1px 1px 0 rgb(255 255 255 / .12); }
+.demo-intro-title { margin: 0; font: 600 15px/1.3 var(--font-demo); }
+.demo-intro-acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.demo-intro :focus-visible { outline: 2px solid var(--demo-accent); outline-offset: 2px; }
+@media (max-width: 767px) { .demo-intro { left: 12px; bottom: 58px; width: calc(100% - 24px); } }
