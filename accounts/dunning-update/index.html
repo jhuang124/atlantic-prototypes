@@ -20,6 +20,7 @@
 
 /* Shell: the whole accounts page, edge to edge. Phone = the same page at 375. */
 .acct { margin: -64px calc(50% - 50vw) -104px; background: var(--page); }
+@media (max-width: 767px) { .acct { margin-top: -32px; } }   /* the kit's .public top padding drops to 32 here */
 .acct.is-phone { background: #E9E7E2; padding: 32px 0 0; }
 .vp { container-type: inline-size; background: var(--page); min-height: 100vh; display: flex; flex-direction: column; }
 .is-phone .vp { width: 375px; max-width: 100%; margin: 0 auto; border: 1px solid var(--hairline); border-bottom: 0; }
@@ -590,11 +591,11 @@ const actions = {
 /* --- 6. Paths ---------------------------------------------------------------- */
 const paths = [
   { id: 'one-tap', group: 'Start here', meta: 'Phone', label: 'The proposal: from the email to paid in one tap',
-    summary: 'Jane opens the email on her phone and pays with Apple Pay. No sign-in.',
-    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all' },
+    summary: 'Jane opens the email and pays with Apple Pay. No sign-in.',
+    start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&layout=all' },
     steps: [
       'Email 3, the real template: “Don’t let your access expire. Please act now.” → “Update Your Payment”.',
-      'The page at phone width, no sign-in: “Don’t miss a story”, then a card with the plan and $89.99 due.',
+      'The page, no sign-in: “Don’t miss a story”, then a card with the plan and $89.99 due.',
       '“Payment Information”: one list of ways to pay: PayPal, Apple Pay, Google Pay, then Card, picked and open with its fields. One button under it: “Renew for $89.99”.',
       'Select Apple Pay: the card fields fold away, a line says she’ll confirm with Face ID or Touch ID, and the button becomes the Apple Pay button. Tap it → the sheet: The Atlantic, $89.99, Visa •• 1881 → “Pay with Face ID”.',
       'Confirmation: “Thank you, Jane.” and the Order Summary, paid with Apple Pay, next billing date October 13, 2027.',
@@ -660,10 +661,10 @@ const paths = [
     ] },
   { id: 'expiring-gift', group: 'Card expiring, before anything fails', meta: 'Phone', label: 'The card-expiring email, for a gift',
     summary: 'The card that pays for Sam’s gift runs out before the gift renews. Jane saves a new one with Google Pay.',
-    start: { scenario: 'gift', session: 'out', axes: { day: 'd7' }, to: '#/email?device=iphone&layout=all&src=email-expiring' },
+    start: { scenario: 'gift', session: 'out', axes: { day: 'd7' }, to: '#/email?device=desktop&layout=all&src=email-expiring' },
     steps: [
       'The card-expiring email: “Your payment method is expiring.” The card on file for Sam Whitaker’s gift, Visa ending 3220, expires before the gift renews on December 4, 2026. Nothing is charged today. → “Update Payment Method”.',
-      'The update page at phone width: “Update your payment method”, the summary with Sam Whitaker, the card on file and the renewal date. The card button reads “Save Card”.',
+      'The update page: “Update your payment method”, the summary with Sam Whitaker, the card on file and the renewal date. The card button reads “Save Card”.',
       'Scene panel → Version → Today: the same moment today is the sign-in page, because today’s button goes to the signed-in Subscription page. Then Version → Proposed, back to the update page.',
       'Select Google Pay, then the Google Pay button → the sheet: $0.00 due today, renews December 4, 2026 → “Continue”.',
       '“Thank you, Jane.”: the new card for Sam’s gift is saved, nothing was charged, and the gift renews on December 4, 2026.',
@@ -1698,6 +1699,20 @@ const kit = DemoKit.init({
   fonts: 'atlantic-accounts',
   mode: new URLSearchParams(location.search).has('sketch') ? 'sketch' : 'build',
 });
+
+/* Desktop means desktop: in a narrow window (or the app's browser pane) the Desktop view keeps its
+   1280px layout and scales down to fit, instead of reflowing to the phone layout. Phone is unaffected. */
+const DESK_W = 1280;
+function fitDesktop() {
+  document.querySelectorAll('.acct:not(.is-phone) > .vp').forEach((v) => {
+    const w = v.parentElement.clientWidth;
+    if (w && w < DESK_W) { v.style.width = DESK_W + 'px'; v.style.zoom = (w / DESK_W).toFixed(4); }
+    else { v.style.width = ''; v.style.zoom = ''; }
+  });
+}
+new MutationObserver(fitDesktop).observe(document.getElementById('app'), { childList: true, subtree: true });
+addEventListener('resize', fitDesktop);
+fitDesktop();
 </script>
 </body>
 </html>
