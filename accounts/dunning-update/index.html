@@ -889,7 +889,7 @@ function emailPage(el, { state, derived: d }) {
       <p class="email-foot">Responses to this email are not monitored. For customer-service inquiries or assistance with your account, please visit our Help Center.<br>The Atlantic ∙ 610 Water St. SW ∙ Washington, DC 20024</p>
     </div></article></div>`;
   el.querySelectorAll('[data-cta]').forEach((b) => b.addEventListener('click', () =>
-    kit.navigate(d.ended ? '#/restart' : today ? `#/subscription?${qs()}` : `#/update?${keep()}`, { push: true })));
+    kit.navigate(d.ended ? '#/restart' : today ? `#/subscription?${qs()}` : `#/update?${keep()}`, today && !d.ended ? { push: true, session: 'out' } : { push: true })));
   if (today) el.insertAdjacentHTML('beforeend', kit.note('Gift sends since the September email move weren’t captured. This is the earlier gift copy with today’s button, which goes to the signed-in Subscription page.'));
 }
 
@@ -911,7 +911,7 @@ function todayEmail(el, s, d) {
       ${TODAY_FOOT}
     </div></article></div>
     ${kit.note('A live send from October 2026, after the move to the new email platform. The button’s target sits behind a tracking link; the same emails’ text links and the earlier template point to accounts.theatlantic.com/accounts/subscription/, so the button goes there. The send schedule since the move isn’t documented.')}`;
-  el.querySelector('[data-cta]').addEventListener('click', () => kit.navigate(`#/subscription?${qs()}`, { push: true }));
+  el.querySelector('[data-cta]').addEventListener('click', () => kit.navigate(`#/subscription?${qs()}`, { push: true, session: 'out' }));
 }
 
 /* Card-expiring email (pre-dunning). No live send was captured, so this is written in the dunning
@@ -945,7 +945,7 @@ function expiringEmail(el, s) {
       ? 'No live card-expiring send was captured, so whether one goes out today isn’t confirmed. This is the proposed copy with today’s button, which goes to the signed-in Subscription page.'
       : `Before anything fails: nothing is owed yet. If the card isn’t updated, the renewal fails on ${F(XP_RENEWS)}, and the payment-failed emails take over.`)}`;
   el.querySelector('[data-cta]').addEventListener('click', () =>
-    kit.navigate(today ? `#/subscription?${qs()}` : `#/update?${qs()}`, { push: true }));
+    kit.navigate(today ? `#/subscription?${qs()}` : `#/update?${qs()}`, today ? { push: true, session: 'out' } : { push: true }));
 }
 
 /* The update page (public, link-entry). Steps: pay (default) → done. Spent and ended are derived. */
