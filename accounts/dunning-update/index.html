@@ -609,7 +609,7 @@ const paths = [
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/update?device=desktop&layout=card' },
     steps: [
       'One centered card: “Update your card”, why the renewal failed, and the date access continues.',
-      'Only the card form: Credit Card, Expiration date, Security code, and “Renew for $89.99”. No wallets and no summary.',
+      'Only the card form: Card number, Expiration date, Security code, Country, ZIP code, and “Renew for $89.99”. No wallets and no summary.',
       'Scene panel → Payment page → All methods: the same page with the summary and the list of methods (PayPal, Apple Pay, Google Pay, Card). Then back to Card only.',
       '“Renew for $89.99” → “Thank you, Jane.”, the same confirmation as the full page.',
     ] },
@@ -924,12 +924,16 @@ const notice = (title, body, cta, href) => shell(`<div class="col-utility"><div 
 // Where "back" goes: the story they were reading, or the site
 const backTo = () => fromArticle() ? ['Return to Your Article', `#/article?${qs()}`] : ['Back to TheAtlantic.com', '#/reading'];
 const cardFields = () => `<div class="pay-fields">
-    <div class="pay-field has-brands"><label for="cc">Credit Card</label>
+    <div class="pay-field has-brands"><label for="cc">Card number</label>
       <input class="pay-input" id="cc" inputmode="numeric" autocomplete="cc-number" placeholder="1234 1234 1234 1234">
       <span class="brands">${BRANDS}</span></div>
     <div class="row">
       <div class="pay-field"><label for="exp">Expiration date</label><input class="pay-input" id="exp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM / YY"></div>
       <div class="pay-field"><label for="cvc">Security code</label><input class="pay-input" id="cvc" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC"></div>
+    </div>
+    <div class="row">
+      <div class="pay-field"><label for="country">Country</label><select class="pay-input" id="country" autocomplete="country-name"><option>United States</option><option>Canada</option><option>United Kingdom</option></select></div>
+      <div class="pay-field"><label for="zip">ZIP code</label><input class="pay-input" id="zip" inputmode="numeric" autocomplete="postal-code" placeholder="12345"></div>
     </div></div>`;
 
 /* All methods: one list, one button. PayPal, Apple Pay, Google Pay, then Card, which is picked and open
