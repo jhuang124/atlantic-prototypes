@@ -11,6 +11,9 @@
    panel.md for the drawer anatomy and fixed copy.
 
    Changelog
+   1.4.1 (2026-11-01) Nothing moves on hover. A control's "what this changes" line shows in a
+   fixed caption strip at the foot of This screen instead of opening under the control; tour
+   steps open on click, not hover.
    1.4.0 (2026-11-01) Three tabs. The 1.3.0 drawer ran ~6 screens tall; each tab now
    does one job and fits one screen: This screen (default), Tours (one row each, steps
    only for the running tour), Screens (titles only, purpose on hover, Reset, Builder
@@ -790,7 +793,8 @@
             ${tabs.map(([id, label]) => `<button type="button" role="tab" class="demo-tab" data-op="tab" data-v="${id}" data-k="tab-${id}" aria-selected="${drawerTab === id}">${esc(label)}</button>`).join('')}
           </div>
         </header>
-        <div class="demo-body" role="tabpanel" data-tab="${drawerTab}">${body}</div>`;
+        <div class="demo-body" role="tabpanel" data-tab="${drawerTab}">${body}</div>
+        ${drawerTab === 'screen' ? `<p class="demo-hintbar" aria-hidden="true">${esc(HINT_IDLE)}</p>` : ''}`;
     }
 
     let renderingPanel = false;
@@ -830,7 +834,31 @@
       if (returnFocus !== false) pill.focus();
     }
 
+    /* The caption strip under This screen: pointing at (or tabbing to) a control shows what it
+       changes, in a fixed-height strip, so nothing in the panel moves. Leaving waits a beat before
+       going back to idle, so sweeping across controls reads as one steady caption. */
+    const HINT_IDLE = 'Point at a control to see what it changes.';
+    let hintTimer = null;
+    function hintFor(el) {
+      const host = el && el.closest('.demo-field, .demo-switch-row');
+      if (!host) return null;
+      const t = host.querySelector('.demo-hint, .demo-switch-row .demo-soft');
+      return t && t.textContent.trim() ? t.textContent.trim() : null;
+    }
+    function showHint(text) {
+      const bar = drawer && drawer.querySelector('.demo-hintbar');
+      if (!bar) return;
+      clearTimeout(hintTimer);
+      const next = text || HINT_IDLE;
+      if (bar.textContent === next) return;
+      bar.textContent = next;
+      bar.classList.toggle('is-idle', !text);
+    }
+    function onHintOver(e) { const t = hintFor(e.target); if (t) showHint(t); else { clearTimeout(hintTimer); hintTimer = setTimeout(() => showHint(null), 180); } }
+
     function onPanelClick(e) {
+      const step = e.target.closest('.demo-steps li');
+      if (step) { step.classList.toggle('is-open'); return; }
       const b = e.target.closest('[data-op]');
       if (!b) return;
       const op = b.dataset.op, v = b.dataset.v;
@@ -879,6 +907,9 @@
       drawer.setAttribute('aria-modal', 'true');
       drawer.setAttribute('aria-labelledby', 'demo-title');
       drawer.addEventListener('click', onPanelClick);
+      drawer.addEventListener('pointerover', onHintOver);
+      drawer.addEventListener('focusin', onHintOver);
+      drawer.addEventListener('pointerleave', () => { clearTimeout(hintTimer); hintTimer = setTimeout(() => showHint(null), 180); });
       drawer.addEventListener('toggle', (e) => {
         if (!renderingPanel && e.target.matches('details.demo-builder')) { builderOpen = e.target.open; return; }
         if (renderingPanel || !e.target.matches('details[data-path]')) return;
@@ -1109,5 +1140,5 @@
     return kit;
   }
 
-  window.DemoKit = { init, esc, fmt, iso, version: '1.4.0' };
+  window.DemoKit = { init, esc, fmt, iso, version: '1.4.1' };
 })();
