@@ -466,15 +466,15 @@
    Dunning: fix your payment without signing in.
    A renewal charge failed. The dunning email's button opens a single-purpose
    page on accounts.theatlantic.com that charges the open invoice. Two layouts,
-   switched from the Scene panel (the side card): All methods (one radio list:
+   switched from the drawer's This screen: All methods (one radio list:
    PayPal, Apple Pay, Google Pay, then Card, open by default; one button that
    follows the pick) or Card only (one clean card, the hosted-update-page
    pattern). "What happened" and "Starts from" pick the entry point: the email or
    an article callout, for a failed payment or for a card that expires before the
    renewal (pre-dunning: nothing failed, nothing owed, the page just saves a card).
-   Version (Scene panel, every screen) flips between today and proposed.
-   Presenter layer: the Scene panel sets up the screen beside it; the "Tours &
-   screens" pill opens guided tours, Jump to a screen and Reset. One home each.
+   Version (This screen, every screen) flips between today and proposed.
+   Presenter layer: one drawer from the "Tours & screens" pill (kit 1.3.0):
+   guided tours, This screen, Screens and Reset. Nothing sits beside the page.
    Visual only: nothing is charged and no payment provider is called.
    Order: constants → scenarios → axes → derive → actions → paths → pages → init.
    ========================================================================== */
@@ -596,7 +596,7 @@ const paths = [
     steps: [
       'Email 3, the real template: “Don’t let your access expire. Please act now.” → “Update Your Payment”.',
       'The page, no sign-in: “Don’t miss a story”, then a card with the plan and $89.99 due.',
-      '“Payment Information”: the card form, with the same fields as today (card number, expiration date, security code, country, ZIP) and one button, “Renew for $89.99”. Scene panel → Payment page → All methods adds PayPal, Apple Pay and Google Pay.',
+      '“Payment Information”: the card form, with the same fields as today (card number, expiration date, security code, country, ZIP) and one button, “Renew for $89.99”. This screen → Payment page → All methods adds PayPal, Apple Pay and Google Pay.',
       '“Renew for $89.99” (no typing needed) → “Thank you, Jane.” and the Order Summary, paid with Visa ending 4242, next billing date October 13, 2027.',
       'Next in the demo → “Open the email again” → “Update Your Payment”: “You’re all set”, because the link is spent.',
     ] },
@@ -625,7 +625,7 @@ const paths = [
     start: { scenario: 'subscriber', session: 'out', axes: { day: 'd7' }, to: '#/update?device=desktop&layout=all' },
     steps: [
       'Desktop: the accounts header (Home · The Atlantic · Sign in), “Don’t miss a story” and the summary card, then the payment methods, with Card (last) picked and open. The card fields are for show; no typing needed.',
-      'Scene panel → “Show a payment error” on, then “Renew for $89.99”.',
+      'This screen → “Show a payment error” on, then “Renew for $89.99”.',
       'Red alert above the button: “Your card was declined, and nothing was charged.”',
       '“Renew for $89.99” again → “Thank you, Jane.”, paid with Visa ending 4242.',
     ] },
@@ -635,7 +635,7 @@ const paths = [
     steps: [
       'One centered card: “Update your card”, why the renewal failed, and how to keep access.',
       'Only the card form: Card number, Expiration date, Security code, Country, ZIP code, and “Renew for $89.99”. No wallets and no summary.',
-      'Scene panel → Payment page → All methods: the same page with the summary and the list of methods (PayPal, Apple Pay, Google Pay, Card). Then back to Card only.',
+      'This screen → Payment page → All methods: the same page with the summary and the list of methods (PayPal, Apple Pay, Google Pay, Card). Then back to Card only.',
       '“Renew for $89.99” → “Thank you, Jane.”, the same confirmation as the full page.',
     ] },
   { id: 'gift', group: 'More of the proposal', meta: 'Desktop', label: 'Renewing a gift',
@@ -644,7 +644,7 @@ const paths = [
     steps: [
       'Gift email 3, the real template: “Don’t let their access expire. Please act now.”',
       '“Update Your Payment” → “So Sam can keep enjoying The Atlantic”, with Sam Whitaker in the summary card.',
-      'Optional: Scene panel → Payment status → Canceled, to see this page once the gift is canceled. Then back to In payment failure.',
+      'Optional: This screen → Payment status → Canceled, to see this page once the gift is canceled. Then back to In payment failure.',
       'Select Google Pay, then the Google Pay button → the sheet with Mastercard •• 5100 → “Continue”.',
       '“Thank you, Jane.”: “Thank you for sharing The Atlantic, and for supporting independent journalism.”',
     ] },
@@ -664,14 +664,14 @@ const paths = [
     steps: [
       'The card-expiring email: “Your payment method is expiring.” The card on file for Sam Whitaker’s gift, Visa ending 3220, expires before the gift renews on December 4, 2026. Nothing is charged today. → “Update Payment Method”.',
       'The update page: “Update your payment method”, the summary with Sam Whitaker, the card on file and the renewal date. The card button reads “Save Card”.',
-      'Scene panel → Version → Today: the same moment today is the sign-in page, because today’s button goes to the signed-in Subscription page. Then Version → Proposed, back to the update page.',
+      'This screen → Version → Today: the same moment today is the sign-in page, because today’s button goes to the signed-in Subscription page. Then Version → Proposed, back to the update page.',
       'Select Google Pay, then the Google Pay button → the sheet: $0.00 due today, renews December 4, 2026 → “Continue”.',
       '“Thank you, Jane.”: the new card for Sam’s gift is saved, nothing was charged, and the gift renews on December 4, 2026.',
     ] },
 ];
 
 /* --- 7. Pages ---------------------------------------------------------------- */
-const deviceOf = () => kit.param('device') === 'iphone' ? 'iphone' : 'desktop';   // Desktop unless a path or the Scene panel says Phone
+const deviceOf = () => kit.param('device') === 'iphone' ? 'iphone' : 'desktop';   // Desktop unless a path or This screen says Phone
 const layoutOf = () => kit.param('layout') === 'all' ? 'all' : 'card';   // Card only unless set to All methods
 const keep = () => qs();
 const WORDMARK = '<img class="wm" src="./assets/atlantic-logo.svg" alt="The Atlantic">';
@@ -715,9 +715,9 @@ const fromArticle = () => SRC_BY[srcOf()].entry === '/article';
 const entryHref = (extra) => `#${SRC_BY[srcOf()].entry}?${qs(extra)}`;
 const savedNow = (s, d) => kindOf() === 'expiring' ? !!s.upd : d.paid;   // the moment after "Save" or "Renew"
 
-// Scene panel (the side card), one question per control, most important first: Version, What
-// happened, Starts from, Who pays, Payment status; then Display (Opened on, Payment page) and the
-// payment-error switch. Each screen lists only the controls that change it (see SCENE).
+// "This screen" (the drawer section, kit 1.3.0), one question per control, most important first:
+// Version, the Payment page switch while the form is up, Starts from, What happened, Who pays,
+// Payment status; then Display (Opened on) and the payment-error switch. Each screen lists only the controls that change it (see SCENE).
 // Version, "Opened on" and "Payment page" are URL params; a screen from the other version hands
 // over to its counterpart for the same moment (see each page). What happened + Starts from (both
 // write `source`), Who pays and Payment status are one-shot params: a click writes one,
@@ -728,15 +728,16 @@ const EXP = { key: 'exp', label: 'Version', default: 'new', hero: true, options:
   { value: 'new', label: 'Proposed', tone: 'proposed', hint: 'The sign-in-free flow we’re pitching.' }] };
 const EXP_TODAY = Object.assign({}, EXP, { default: 'today' });   // sign-in and Subscription are today's screens
 const entryOf = () => SRC_BY[srcOf()].entry === '/article' ? 'article' : 'email';
-// Past the first screen, What happened and Starts from fold into one "Situation" row: changing
-// either one starts the flow over at its first screen, so mid-flow they're rarely touched.
+// Starts from and What happened are two plain rows (2026-11-01: the shared "Situation" fold read as
+// two identical rows). Past the first screen their hint says changing either one starts over.
 const onEntry = () => kit.page && (kit.page.path === '/email' || kit.page.path === '/article');
-const KIND = { key: 'source', label: 'What happened', get fold() { return onEntry() ? null : 'Situation'; }, get default() { return srcOf(); }, get options() {
+const KIND = { key: 'source', label: 'What happened', get default() { return srcOf(); }, get options() {
   const e = entryOf();
-  return [{ value: `${e}-failed`, label: 'Payment failed', hint: 'The renewal failed. Access continues for now.' },
-    { value: `${e}-expiring`, label: 'Card expiring', hint: 'The card runs out before the renewal.' }]; } };
-const ENTRY = { key: 'source', label: 'Starts from', get fold() { return onEntry() ? null : 'Situation'; }, get default() { return srcOf(); }, get options() {
-  const k = kindOf(), again = onEntry() ? null : 'Changing either one restarts at the first screen.';
+  const again = onEntry() ? '' : ' Changing it starts over at the first screen.';
+  return [{ value: `${e}-failed`, label: 'Payment failed', hint: 'The renewal failed. Access continues for now.' + again },
+    { value: `${e}-expiring`, label: 'Card expiring', hint: 'The card runs out before the renewal.' + again }]; } };
+const ENTRY = { key: 'source', label: 'Starts from', get default() { return srcOf(); }, get options() {
+  const k = kindOf(), again = onEntry() ? null : 'Changing it starts over at the first screen.';
   return [{ value: `email-${k}`, label: 'Email', hint: again || 'The button in our email.' },
     { value: `article-${k}`, label: 'Article', hint: again || 'A callout that rises over a story, signed in.' }]; } };
 const SHOW_GIFT = false;   // gift giver hidden for the current demo: no Who pays control, no gift tours
@@ -758,14 +759,14 @@ const LAYOUT = { key: 'layout', label: 'Payment page', default: 'card', options:
 // Reads `exp` from the URL, not expOf(): expOf() falls back to this page's controls, which call this.
 const payFormShown = () => kit.params().get('exp') !== 'today' && (kindOf() === 'expiring' ? !kit.state.upd : !kit.derived.paid && !kit.derived.ended);
 // Story controls. The grace period only means something while a failed payment is still unpaid.
-const story = (o = {}) => [...(o.today || todayOnly() ? [] : [ENTRY]), o.today ? EXP_TODAY : EXP, ...(o.today || todayOnly() ? [] : [KIND]), ...(o.who === false || !SHOW_GIFT ? [] : [WHO]),
+const story = (o = {}) => [o.today ? EXP_TODAY : EXP, ...(o.today || todayOnly() ? [] : [ENTRY, KIND]), ...(o.who === false || !SHOW_GIFT ? [] : [WHO]),
   ...(o.when !== false && kindOf() === 'failed' && !kit.derived.paid ? [WHEN] : [])];
 // The email looks the same on any device, so Display starts on the screens it changes.
 // Sign-in looks the same for a gift and after cancellation, so those controls start after it.
 const SCENE = {
   email: () => story(),
   article: () => [...story(), ...(todayOnly() ? [] : [CALLOUT]), DEVICE],
-  update: () => [...(payFormShown() ? [LAYOUT] : []), ...story(), DEVICE],
+  update: () => { const [ver, ...rest] = story(); return [ver, ...(payFormShown() ? [LAYOUT] : []), ...rest, DEVICE]; },
   login: () => [...story({ today: true, who: false, when: false }), DEVICE],
   subscription: () => [...story({ today: true }), DEVICE],
 };
@@ -970,7 +971,7 @@ const cardFields = () => `<div class="pay-fields">
 /* All methods: one list, one button. PayPal, Apple Pay, Google Pay, then Card, which is picked and open
    by default, its fields in the last row right above the button. Picking a wallet folds the
    card away, shows one line on what happens next, and swaps the button for that wallet's own.
-   The pick survives re-renders of the same visit (Scene panel changes) and resets on a fresh one. */
+   The pick survives re-renders of the same visit (This screen changes) and resets on a fresh one. */
 const METHODS = ['paypal', 'apple_pay', 'google_pay', 'card'];
 let payPick = { method: 'card', state: null };
 function pickedMethod() {
@@ -1158,7 +1159,7 @@ function expiringUpdate(el, s, step) {
 /* Mock card fields: formatting and brand detection only */
 function cardForm(el, kind) {
   // Visual only: no validation and no Stripe. Typing is optional; "Renew" (or "Save Card") always goes through.
-  // Show a decline with Scene panel → "Show a payment error".
+  // Show a decline with This screen → "Show a payment error".
   const f = el.querySelector('#card');
   const cc = f.querySelector('#cc'), exp = f.querySelector('#exp'), cvc = f.querySelector('#cvc');
   const digits = (v) => v.replace(/\D/g, '');
@@ -1296,7 +1297,7 @@ function calloutCopy(s, d, kind) {
       body: `Your ${card} has expired, so your ${money(PRICE)} annual renewal didn’t go through. ${d.until}` };
 }
 // The sheet rises a beat after the story opens, or as soon as the reader scrolls into it. Once it's
-// up, re-renders from the Scene panel show it in place; a fresh visit, a new situation or "Show it
+// up, re-renders from This screen show it in place; a fresh visit, a new situation or "Show it
 // again" brings it up again. It never takes focus on its own: the reader keeps their place.
 let calloutRise = 'wait';   // 'wait' | 'now' | 'shown'
 let calloutState = null;
@@ -1606,7 +1607,7 @@ function subscriptionPage(el, { state: s, derived: d }) {
 const stubPage = (title, body, links) => () => shell(`<div class="col-utility"><div class="box">
   <h1 class="util-title">${title}</h1><p class="util-body">${body}</p>
   ${links ? `<p class="util-body">${links}</p>` : ''}<span class="stub-tag">Not built in this prototype</span></div></div>`);
-// Scene panel head: the screen's name and one line on what it is, for the version and state on screen
+// This screen's head (in the drawer): the screen's name and one line on what it is, for the version and state on screen
 const HEAD = {
   email: ({ state: s, derived: d }) => {
     const today = expOf() === 'today';
@@ -1681,17 +1682,16 @@ const kit = DemoKit.init({
   paths: SHOW_GIFT ? paths : paths.filter((p) => (p.start || {}).scenario !== 'gift'),
   saves: ['pay with a wallet', 'pay by card', 'save a card', 'save with a wallet', 'save a new card'],
   validate: (s) => s && s.sub && typeof s.sub.status === 'string' && s.old && s.subscriber,
-  // Presenter layer. The Scene panel (side card) sets up the screen beside it; the pill opens
-  // guided tours, Jump to a screen and Reset. Each control lives in one of the two, never both.
+  // Presenter layer: one drawer (kit 1.3.0), opened from the pill. Guided tours, then This screen
+  // (the controls for the page you're on), then Screens and Reset. Nothing beside the page.
   pill: 'Tours & screens',
-  sideCardName: 'Scene',
   intro: { title: 'A clickable prototype, not the product',
-    body: 'It compares today’s failed-payment flow with a proposed sign-in-free page. Set the scene in the dark Scene panel on each screen, or open <b>Tours &amp; screens</b> for a guided walkthrough.',
+    body: 'It compares today’s failed-payment flow with a proposed sign-in-free page. Open <b>Tours &amp; screens</b> for a guided walkthrough, or to change what’s on the screen you’re looking at.',
     action: 'Open the tours' },
   panel: { title: 'Tours & screens', scenario: false, axes: false, errors: false,
-    intro: 'Not part of the product. A tour sets up the scene and walks one flow step by step; the dark Scene panel on each screen changes what’s on it. Nothing is charged, and everyone in it is made up.',
-    labels: { paths: 'Guided tours', pathsAside: 'Start sets everything up', jump: 'Jump to a screen' },
-    resetHint: 'Clears payments and saved cards so the flow starts fresh. Scene settings stay.' },
+    intro: 'Not part of the product. A tour sets everything up and walks one flow step by step; This screen changes what’s on the page you’re looking at. Nothing is charged, and everyone in it is made up.',
+    labels: { paths: 'Guided tours', pathsAside: 'Start sets everything up', jump: 'Screens' },
+    resetHint: 'Clears payments and saved cards so the flow starts fresh. Version and display settings stay.' },
   errorSwitch: { title: 'Show a payment error', hint: 'Next payment or save fails.' },
   status: ({ page }) => {
     const v = page.preconditions ? expOf() : null;

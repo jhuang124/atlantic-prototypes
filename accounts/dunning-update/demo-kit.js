@@ -7,11 +7,20 @@
                                 personas, pages, paths, derive, actions, shell,
                                 nav, brand, saves, tokens })
 
-   See ~/.claude/skills/demo-prototype/references/architecture.md for the
-   model, and references/demo-kit.md for the panel anatomy and fixed copy.
+   See ~/.claude/skills/atlantic-prototype/single-file.md for the model, and
+   panel.md for the drawer anatomy and fixed copy.
 
    Changelog
-   1.2.0-dunning (2026-10-30) Local to this package: presenter-UX options.
+   1.3.0 (2026-11-01) One drawer.
+   - No side card. A page's preconditions render in the drawer as "This screen",
+     right after the tours, with the same fields (hero, group, row, fold, hint,
+     sideCardError). The page stays full width.
+   - The pill names the screen's hero choice ("Proposed · Tours & screens").
+   - Builder tools: a collapsed section at the bottom (design system, raw
+     state, clear everything). Reset sits with Jump to.
+   - Deep link to a tour: #/any?dk-tour=<path id> starts it the same way the
+     drawer's Start does.
+   1.2.0 (2026-10-30) Presenter-UX options, from the dunning prototype.
    - Side card: page.sideCardHead (screen title + one line), precondition hero/group/hint,
      option hint/tone, page.sideCardError (the error switch beside the screen),
      cfg.sideCardName names the card in its eyebrow.
@@ -86,13 +95,14 @@
   const safeDecode = (s) => { try { return decodeURIComponent(s); } catch (e) { return s; } };
   const RESERVED_PARAM_KEYS = ['get', 'set', 'has', 'delete', 'append', 'entries', 'keys', 'values', 'forEach', 'toString', 'sort', 'size', 'getAll'];
 
-  /* The Atlantic faces as shipped in ~/.claude/skills/atlantic-accounts/fonts (woff2 only).
-     One file covers a weight range so semibold headings and medium buttons resolve to it. */
+  /* The Atlantic faces as shipped in ~/.claude/skills/atlantic-prototype/assets/fonts (woff2 only).
+     A file may cover a weight range so semibold headings resolve to it; Graphik has a real Medium. */
   const ATLANTIC_FACES = [
     { family: 'AGaramondPro', file: 'AGaramondPro-Regular.woff2', weight: '400 500', style: 'normal' },
     { family: 'AGaramondPro', file: 'AGaramondPro-Italic.woff2', weight: '400 500', style: 'italic' },
     { family: 'AGaramondPro', file: 'AGaramondPro-Semibold.woff2', weight: '600 700', style: 'normal' },
-    { family: 'Graphik', file: 'Graphik-Regular.woff2', weight: '400 500', style: 'normal' },
+    { family: 'Graphik', file: 'Graphik-Regular.woff2', weight: '400', style: 'normal' },
+    { family: 'Graphik', file: 'Graphik-Medium.woff2', weight: '500', style: 'normal' },
     { family: 'Graphik', file: 'Graphik-Semibold.woff2', weight: '600 700', style: 'normal' },
     { family: 'LogicMonospace', file: 'LogicMonospace-Medium.woff2', weight: '400 700', style: 'normal' },
   ];
@@ -515,10 +525,8 @@
         console.error('DemoKit: page "' + page.path + '" failed to render', err);
         main.innerHTML = `<h1 class="t-heading">${esc(page.title)}</h1><div class="alert" style="margin-top:20px">This page hit an error while rendering. Details are in the console.</div>`;
       }
-      const side = page.preconditions && page.preconditions.length ? sideCard(page, ctx) : '';
-      stage.className = 'stage' + (side ? ' has-side' : '');
+      stage.className = 'stage';
       stage.appendChild(main);
-      if (side) stage.insertAdjacentHTML('beforeend', side);
       slot.replaceChildren(stage);
 
       if (pathChanged) {
@@ -546,28 +554,39 @@
         <button type="button" id="${id}" class="demo-switch" role="switch" aria-label="${esc(errCopy.title)}" aria-checked="${armed}" ${extraAttr}></button></label>`;
     }
 
-    /* Side card: "set the scene" for the screen beside it.
-       page.sideCardHead (string | fn(ctx) → { title, body }) replaces the "Scenario" heading.
+    /* "This screen": the controls that set the scene for the current page, in the drawer.
+       page.sideCardHead (string | fn(ctx) → { title, body }) names the section.
        Preconditions may carry: hero (the main comparison, drawn larger), group (a subheading
        such as "Display", shown where the group starts), row (label beside the control),
        fold (consecutive preconditions with the same fold label collapse into one summary
        row that opens to show them), hint (string | fn(ctx)); options may carry hint (shown
-       while selected, wins over the precondition's) and tone. */
-    function sideCard(page, ctx) {
+       while selected, wins over the precondition's) and tone. page.sideCardError puts the
+       error switch here too. Every control writes a hash param, so a link opens the same
+       screen in the same state. */
+    function screenFields(page, ctx) {
       const p = ctx.params;
+      return page.preconditions.map((pre) => {
+        const cur = p.get(pre.key) || (pre.default != null ? pre.default : pre.options[0].value);
+        return { pre, cur, opt: pre.options.find((o) => o.value === cur) };
+      });
+    }
+    function heroChoice(page) {
+      if (!page || !page.preconditions || !page.preconditions.length) return '';
+      const f = screenFields(page, ctxFor(page)).find((x) => x.pre.hero);
+      return f && f.opt ? f.opt.label : '';
+    }
+    function screenSection(page, ctx) {
+      if (!page || !page.preconditions || !page.preconditions.length) return '';
       const val = (v) => (typeof v === 'function' ? v(ctx) : v);
       const head = val(page.sideCardHead);
       const intro = val(page.sideCardIntro);
       const extra = val(page.sideCardNote);
       const errorHere = val(page.sideCardError);
-      const pres = page.preconditions.map((pre) => {
-        const cur = p.get(pre.key) || (pre.default != null ? pre.default : pre.options[0].value);
-        return { pre, cur, opt: pre.options.find((o) => o.value === cur) };
-      });
+      const pres = screenFields(page, ctx);
       const field = ({ pre, cur, opt }) => {
         const hint = (opt && opt.hint) || val(pre.hint);
         return `<div class="demo-field${pre.hero ? ' is-hero' : ''}${pre.row ? ' is-row' : ''}"><p class="demo-eyebrow">${esc(pre.label)}</p>
-          ${seg(pre.label, pre.options, cur, (o) => `data-dk-param="${esc(pre.key)}" data-v="${esc(o.value)}"`)}
+          ${seg(pre.label, pre.options, cur, (o) => `data-op="param" data-key="${esc(pre.key)}" data-v="${esc(o.value)}" data-k="pa-${esc(pre.key)}-${esc(o.value)}"`)}
           ${hint ? `<p class="demo-hint">${hint}</p>` : ''}</div>`;
       };
       let group = null, html = '';
@@ -583,18 +602,16 @@
           <span class="v">${esc(run.map((r) => (r.opt ? r.opt.label : r.cur)).join(' · '))}</span><span class="chg">Change</span></summary>
           <div class="demo-fold-body">${run.map(field).join('')}</div></details>`;
       }
-      const fields = html;
       const title = head && typeof head === 'object' ? head.title : head;
-      return `<aside class="demo-sidecard" aria-label="Presenter only: ${esc(cfg.sideCardName || 'scenario')}">
-        <p class="demo-eyebrow"><span class="demo-dot"></span>${esc(cfg.sideCardName ? cfg.sideCardName + ' · presenter only' : 'Presenter only')}</p>
-        ${title ? `<div class="demo-sidecard-head"><h2>${esc(title)}</h2>${head.body ? `<p class="demo-soft">${head.body}</p>` : ''}</div>` : '<h2>Scenario</h2>'}
+      return `<section class="demo-section demo-screen" aria-label="This screen">
+        <div class="demo-section-head"><h3>This screen</h3>${title ? `<span>${esc(title)}</span>` : ''}</div>
+        ${head && head.body ? `<p class="demo-soft">${head.body}</p>` : ''}
         ${intro ? `<p class="demo-soft">${intro}</p>` : ''}
         ${page.sideCardWarning ? `<p class="demo-warn">${page.sideCardWarning}</p>` : ''}
-        ${title ? '' : extra ? `<p class="demo-soft">${extra}</p>` : ''}
-        ${fields}
-        ${errorHere ? `<div class="demo-field demo-field-arm">${armSwitch('dk-arm-side', 'data-dk-arm')}</div>` : ''}
-        ${title && extra ? `<p class="demo-foot">${extra}</p>` : ''}
-      </aside>`;
+        ${html}
+        ${errorHere ? `<div class="demo-field demo-field-arm">${armSwitch('dk-arm-screen', 'data-op="arm" data-k="arm-screen"')}</div>` : ''}
+        ${extra ? `<p class="demo-foot">${extra}</p>` : ''}
+      </section>`;
     }
 
     /* ------------------------------------------------------------------------
@@ -660,7 +677,7 @@
     /* ------------------------------------------------------------------------
        9. Presenter panel: pill + drawer
        ------------------------------------------------------------------------ */
-    let pill = null, drawer = null, scrim = null, drawerOpen = false;
+    let pill = null, drawer = null, scrim = null, drawerOpen = false, builderOpen = false;
 
     function sessionLabel() {
       if (state.session !== 'in') return 'Signed out';
@@ -686,7 +703,7 @@
        Paths may carry `group` (consecutive paths share a subheading; the first group is the
        lead) and `meta` (shown before the step count). Pages may carry `jumpGroup` (Jump to
        groups by it, in page order) and `jumpSession` ('in' | 'out', set when jumping there). */
-    const panel = Object.assign({ title: 'Demo controls', intro: null, scenario: true, axes: true, errors: true, labels: {} }, cfg.panel);
+    const panel = Object.assign({ title: project.name || 'Demo controls', intro: null, scenario: true, axes: true, errors: true, labels: {} }, cfg.panel);
 
     function panelHtml() {
       const sc = scenarioById(state.scenario);
@@ -724,10 +741,10 @@
         return r.group ? `<div class="demo-path-group${k === 0 ? ' is-lead' : ''}"><h4>${esc(r.group)}</h4>${list}</div>` : list;
       }).join('');
 
-      const resetSec = section('Start over', '', `<div class="demo-scope"><span>${esc(panel.resetHint || 'Clears payments and saved cards. Other settings stay.')}</span>
-          <button type="button" class="demo-btn demo-btn-quiet" data-op="reset" data-k="reset"><span aria-hidden="true">↺</span> Reset demo data</button></div>`);
+      const resetRow = `<div class="demo-scope"><span>${esc(panel.resetHint || 'Puts the demo data back to how it started. Other settings stay.')}</span>
+          <button type="button" class="demo-btn demo-btn-quiet" data-op="reset" data-k="reset"><span aria-hidden="true">↺</span> Reset</button></div>`;
 
-      const scenarioSec = section('Scenario', '', `
+      const scenarioSec = section(panel.labels.scenario || 'Scenario', '', `
         ${seg('Scenario', scenarios.map((s) => ({ value: s.id, label: s.label })), state.scenario, (o) => `data-op="scenario" data-v="${esc(o.value)}" data-k="sc-${esc(o.value)}"`)}
         <p class="demo-soft">${esc(sc.description || '')}</p>
         <div class="demo-scope"><span>Switching replaces all demo data.</span>
@@ -755,12 +772,19 @@
       const jumpGroups = jumpable.some((p) => p.jumpGroup)
         ? [...new Set(jumpable.map((p) => p.jumpGroup || areaLabel(p)))].map((label) => [label, jumpable.filter((p) => (p.jumpGroup || areaLabel(p)) === label)])
         : AREAS.map(([area, label]) => [label, jumpable.filter((p) => p.area === area)]);
-      const jumpSec = section(panel.labels.jump || 'Jump to', '', jumpGroups.map(([label, list]) => {
+      const jumpSec = section(panel.labels.jump || 'Screens', '', jumpGroups.map(([label, list]) => {
         if (!list.length) return '';
         return `<div class="demo-jump-group"><span>${esc(label)}</span><ul>${list.map((p) => `<li>
           <button type="button" class="demo-jump" data-op="jump" data-path="${esc(jumpPath(p))}" data-k="j-${esc(p.path)}"${currentPage && currentPage.path === p.path ? ' aria-current="page"' : ''}>
             <span class="txt"><span class="ttl">${esc(p.title)}</span><span class="pur">${esc(p.purpose || '')}</span></span><span class="here">Here</span></button></li>`).join('')}</ul></div>`;
-      }).join(''));
+      }).join('') + (panel.scenario ? '' : resetRow));
+
+      const builderSec = `<section class="demo-section"><details class="demo-builder"${builderOpen ? ' open' : ''}><summary class="demo-section-head"><h3>Builder tools</h3><span>For whoever is building it</span></summary>
+        <div class="demo-builder-body">
+          <a class="demo-btn demo-btn-quiet" href="#/design-system" data-op="jump" data-path="/design-system">Design system</a>
+          <button type="button" class="demo-btn demo-btn-quiet" data-op="wipe" data-k="wipe">Clear everything stored</button>
+          <pre class="demo-raw">${esc(JSON.stringify({ scenario: state.scenario, session: state.session, persona: state.persona, axes: state.axes, params: Object.fromEntries(parseHash().params) }, null, 2))}</pre>
+        </div></details></section>`;
 
       const status = typeof cfg.status === 'function' && currentPage
         ? cfg.status(ctxFor(currentPage))
@@ -777,8 +801,9 @@
         </header>
         <div class="demo-body">
           <p class="demo-disclaimer" id="demo-desc">${panel.intro || `Not part of the product. Data is saved in this browser.${esc(desc)} All companies, people and emails are made up.`}</p>
-          ${section(panel.labels.paths || 'Demo paths', sketch ? 'Sketch · first path only' : (panel.labels.pathsAside != null ? panel.labels.pathsAside : 'Scripted walkthroughs'), pathCards)}
-          ${panel.scenario ? scenarioSec : ''}${sketch || !panel.axes ? '' : axisSecs}${personaSec}${panel.errors ? errorSec : ''}${jumpSec}${panel.scenario ? '' : resetSec}
+          ${section(panel.labels.paths || 'Start here', sketch ? 'Sketch · first path only' : (panel.labels.pathsAside != null ? panel.labels.pathsAside : 'Guided tours'), pathCards)}
+          ${screenSection(currentPage, currentPage ? ctxFor(currentPage) : null)}
+          ${panel.scenario ? scenarioSec : ''}${sketch || !panel.axes ? '' : axisSecs}${personaSec}${panel.errors ? errorSec : ''}${jumpSec}${builderSec}
         </div>`;
     }
 
@@ -796,7 +821,11 @@
       if (focusK) { const f = drawer.querySelector(`[data-k="${CSS.escape(focusK)}"]`); if (f) f.focus({ preventScroll: true }); }
     }
     function renderChrome() {
-      if (pill) { pill.dataset.armed = String(armed); pill.setAttribute('aria-expanded', String(drawerOpen)); }
+      if (pill) {
+        pill.dataset.armed = String(armed); pill.setAttribute('aria-expanded', String(drawerOpen));
+        const hero = heroChoice(currentPage);
+        pill.innerHTML = `<span class="demo-dot" aria-hidden="true"></span>${hero ? `<span class="demo-pill-hero">${esc(hero)}</span>` : ''}${esc(cfg.pill || 'Tours & screens')}`;
+      }
       document.querySelectorAll('[data-dk-arm]').forEach((b) => b.setAttribute('aria-checked', String(armed)));
       renderPanel();
     }
@@ -826,7 +855,14 @@
       else if (op === 'axis') setAxis(b.dataset.key, v);
       else if (op === 'persona') setPersona(v);
       else if (op === 'arm') { e.preventDefault(); armed = !armed; renderChrome(); }
+      else if (op === 'param') setParam(b.dataset.key, v, { push: false });
+      else if (op === 'wipe') {
+        try { localStorage.removeItem(KEY); localStorage.removeItem(PATH_KEY); localStorage.removeItem(INTRO_KEY); } catch (err) { /* ignore */ }
+        location.hash = '#' + homePath();
+        location.reload();
+      }
       else if (op === 'jump') {
+        e.preventDefault();
         const page = resolve(b.dataset.path);
         const session = page.jumpSession || (page.area === 'app' ? 'in' : page.area === 'public' ? 'out' : undefined);
         closeDrawer(false);
@@ -840,7 +876,7 @@
       pill.className = 'demo-pill';
       pill.setAttribute('aria-label', panel.title);
       pill.setAttribute('aria-haspopup', 'dialog');
-      pill.innerHTML = `<span class="demo-dot" aria-hidden="true"></span>${esc(cfg.pill || 'Demo')}`;
+      pill.innerHTML = `<span class="demo-dot" aria-hidden="true"></span>${esc(cfg.pill || 'Tours & screens')}`;
       pill.addEventListener('click', () => (drawerOpen ? closeDrawer() : openDrawer()));
 
       scrim = document.createElement('div');
@@ -858,6 +894,7 @@
       drawer.setAttribute('aria-describedby', 'demo-desc');
       drawer.addEventListener('click', onPanelClick);
       drawer.addEventListener('toggle', (e) => {
+        if (!renderingPanel && e.target.matches('details.demo-builder')) { builderOpen = e.target.open; return; }
         if (renderingPanel || !e.target.matches('details[data-path]')) return;
         const id = e.target.dataset.path;
         if (e.target.open) openPaths.add(id); else openPaths.delete(id);
@@ -1058,6 +1095,14 @@
       fontLoaded,
     };
 
+    // #/any?dk-tour=<path id> starts that tour, exactly as the drawer's Start does
+    function startTourFromLink() {
+      const tour = parseHash().params.get('dk-tour');
+      if (!tour || !paths.some((x) => x.id === tour)) return false;
+      startPath(tour);
+      return true;
+    }
+
     function boot() {
       root = document.getElementById(cfg.root || 'app');
       if (!root) { root = document.createElement('div'); root.id = 'app'; document.body.prepend(root); }
@@ -1066,10 +1111,10 @@
       document.addEventListener('click', onDocClick, true);
       document.addEventListener('submit', (e) => { lastTrigger = e.submitter || lastTrigger; }, true);
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && drawerOpen) { e.preventDefault(); closeDrawer(); } });
-      window.addEventListener('hashchange', render);
+      window.addEventListener('hashchange', () => { if (!startTourFromLink()) render(); });
       window.addEventListener('storage', (e) => { if (e.key === KEY) { adopt(load()); render(); } });
       if (!location.hash || location.hash === '#') history.replaceState(null, '', '#' + homePath());
-      render();
+      if (!startTourFromLink()) render();
     }
     // Boot after init returns, so page renders can use the `kit` constant.
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
@@ -1078,5 +1123,5 @@
     return kit;
   }
 
-  window.DemoKit = { init, esc, fmt, iso, version: '1.1.0' };
+  window.DemoKit = { init, esc, fmt, iso, version: '1.3.0' };
 })();
