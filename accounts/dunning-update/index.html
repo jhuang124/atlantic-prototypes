@@ -1654,15 +1654,15 @@ const pages = [
     purpose: 'Today’s account page with the card-only form. Opens signed in.',
     sideCardHead: HEAD.subscription, sideCardError: () => !(kindOf() === 'failed' && kit.derived.ended),
     get preconditions() { return SCENE.subscription(); } },
-  { path: '/restart', title: 'Resubscribe', area: 'public', jumpGroup: 'Placeholders (not built)',
+  { path: '/restart', title: 'Resubscribe', area: 'public', jumpGroup: 'Placeholders (not built)', hidden: true,
     purpose: 'Where a canceled subscription goes. Reactivation is its own prototype.',
     render: stubPage('Resubscribe', 'This is where the reactivation flow takes over: one-page checkout with the expired-card repair and “You’re back.”',
       '') },
-  { path: '/cancel', title: 'Cancel', area: 'public', jumpGroup: 'Placeholders (not built)', purpose: 'The quiet way out. Today’s cancel flow, unchanged.',
+  { path: '/cancel', title: 'Cancel', area: 'public', jumpGroup: 'Placeholders (not built)', hidden: true, purpose: 'The quiet way out. Today’s cancel flow, unchanged.',
     render: stubPage('Cancel your subscription', 'The existing cancel flow. Offered as a plain link so nobody feels trapped on a payment page.') },
-  { path: '/help', title: 'Help Center', area: 'public', jumpGroup: 'Placeholders (not built)', purpose: 'Where “We’re happy to help” goes.',
+  { path: '/help', title: 'Help Center', area: 'public', jumpGroup: 'Placeholders (not built)', hidden: true, purpose: 'Where “We’re happy to help” goes.',
     render: stubPage('Help Center', 'support.theatlantic.com, where Customer Care answers billing questions.') },
-  { path: '/reading', title: 'Back to reading', area: 'public', jumpGroup: 'Placeholders (not built)', purpose: 'Where “Back to TheAtlantic.com” lands.',
+  { path: '/reading', title: 'Back to reading', area: 'public', jumpGroup: 'Placeholders (not built)', hidden: true, purpose: 'Where “Back to TheAtlantic.com” lands.',
     render: stubPage('Back to The Atlantic', 'theatlantic.com, where they were before the email.') },
 ];
 
@@ -1682,15 +1682,15 @@ const kit = DemoKit.init({
   paths: SHOW_GIFT ? paths : paths.filter((p) => (p.start || {}).scenario !== 'gift'),
   saves: ['pay with a wallet', 'pay by card', 'save a card', 'save with a wallet', 'save a new card'],
   validate: (s) => s && s.sub && typeof s.sub.status === 'string' && s.old && s.subscriber,
-  // Presenter layer: one drawer (kit 1.3.0), opened from the pill. Guided tours, then This screen
-  // (the controls for the page you're on), then Screens and Reset. Nothing beside the page.
+  // Presenter layer: one drawer (kit 1.4.0) from the pill, three tabs: This screen (the controls
+  // for the page you're on), Tours, Screens (with Reset). Nothing beside the page.
   pill: 'Tours & screens',
   intro: { title: 'A clickable prototype, not the product',
     body: 'It compares today’s failed-payment flow with a proposed sign-in-free page. Open <b>Tours &amp; screens</b> for a guided walkthrough, or to change what’s on the screen you’re looking at.',
     action: 'Open the tours' },
-  panel: { title: 'Tours & screens', scenario: false, axes: false, errors: false,
+  panel: { scenario: false, axes: false, errors: false,
     intro: 'Not part of the product. A tour sets everything up and walks one flow step by step; This screen changes what’s on the page you’re looking at. Nothing is charged, and everyone in it is made up.',
-    labels: { paths: 'Guided tours', pathsAside: 'Start sets everything up', jump: 'Screens' },
+    labels: { paths: 'Tours', jump: 'Screens' },
     resetHint: 'Clears payments and saved cards so the flow starts fresh. Version and display settings stay.' },
   errorSwitch: { title: 'Show a payment error', hint: 'Next payment or save fails.' },
   status: ({ page }) => {
