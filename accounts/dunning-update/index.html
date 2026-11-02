@@ -358,60 +358,49 @@
 .w-body p.first::first-line { font-variant: small-caps; letter-spacing: .035em; }
 .w-body p.w-print { margin-top: 36px; padding-top: 16px; border-top: 1px solid #dedede; font: italic 16px/1.45 var(--font-serif); color: #6f6c69; }
 
-/* The callout comes to the reader: a white sheet that rises from the bottom once they're into the
-   story, or a beat after the page opens (the reactivation prototype's scroll sheet). It's sticky
-   inside the article, so it docks to the bottom of the screen while they read and settles under the
-   last paragraph at the end. The story fades into it (no scrim) and stays live and scrollable
-   above it; nothing is trapped. Payment failed is the strong one; card expiring is a lighter heads-up. */
+/* The callout comes to the reader in the site's own on-site nudge format: the warm full-width bar
+   pinned to the bottom of the story (red A mark, Garamond headline and line, red monospace button,
+   thin close), rising once they're into the story or a beat after the page opens. It's sticky inside
+   the article, so it docks to the bottom of the screen while they read and settles under the last
+   paragraph at the end; the story stays live and scrollable above it. The pop-up is the same nudge,
+   stacked and centered in a window over the story. No card, amount or date on theatlantic.com. */
 .w-dock { position: sticky; bottom: 0; z-index: 35; margin: 56px -24px 0; }
-.w-pop-x, .w-pop-wm { display: none; }
-.w-dock.is-pop { position: fixed; inset: 0; margin: 0; display: grid; place-items: center; padding: 24px; background: rgb(0 0 0 / .45); }
-.w-dock.is-pop .w-call { width: min(560px, 100%); padding: 40px 48px 32px; border: 0; border-radius: 6px; box-shadow: 0 24px 60px rgb(0 0 0 / .25); text-align: center; }
-.w-dock.is-pop .w-call::before, .w-dock.is-pop .w-call-kick, .w-dock.is-pop .w-call-foot { display: none; }
-.w-dock.is-pop .w-pop-wm { display: block; height: 30px; width: auto; margin: 0 auto 24px; }
-.w-dock.is-pop .w-pop-x { display: block; position: absolute; top: 16px; right: 16px; width: 24px; height: 24px; border: 0; border-radius: 50%; background: #2c2825; cursor: pointer; }
-.w-dock.is-pop .w-pop-x::before, .w-dock.is-pop .w-pop-x::after { content: ''; position: absolute; left: 6px; right: 6px; top: 11px; height: 2px; background: #fff; transform: rotate(45deg); }
-.w-dock.is-pop .w-pop-x::after { transform: rotate(-45deg); }
-.w-dock.is-pop h2 { font-weight: 600; font-size: 32px; }
-.w-dock.is-pop .w-call-body { margin: 0 auto 24px; font-size: 19px; }
-.w-dock.is-pop .w-call-acts { flex-direction: column; gap: 14px; }
-.w-dock.is-pop .w-call-btn { width: 100%; font-family: var(--font-sans); }
-.w-dock.is-pop[data-state="in"] .w-call { animation: wPopIn .22s cubic-bezier(.22,.61,.36,1) both; }
-.w-dock.is-pop[data-state="out"] { animation: wFade .2s reverse both; }
-@keyframes wPopIn { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
-.acct.is-phone .w-dock.is-pop .w-call { padding: 36px 24px 24px; }
 .w-dock[data-state="waiting"] { visibility: hidden; }
-.w-call { position: relative; padding: 24px 28px 20px; background: #fff; border-top: 1px solid #e7e3db;
-  box-shadow: 0 -1px 4px rgb(33 39 44 / .05), 0 -12px 28px rgb(33 39 44 / .07); }
+.w-call { position: relative; padding: 24px 80px; background: #f8f7f4; color: #20272d; box-shadow: 0 -1px 0 rgb(32 39 45 / .05), 0 -8px 24px rgb(32 39 45 / .06); }
 .w-call:focus { outline: none; }
-.w-call::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 72px; pointer-events: none;
-  background: linear-gradient(to bottom, rgb(255 255 255 / 0), rgb(255 255 255 / .3) 58%, rgb(255 255 255 / .88) 90%, #fff); }
-.w-call-in { max-width: 660px; margin: 0 auto; }
+.w-call-in { display: flex; align-items: center; gap: 40px; max-width: 1280px; margin: 0 auto; }
+.w-call-mark { flex: none; font: 400 128px/.74 var(--font-serif); color: #E7131A; user-select: none; }
+.w-call-txt { flex: 1; min-width: 0; }
+.w-call h2 { margin: 0 0 6px; font: 400 28px/1.3 var(--font-serif); color: #20272d; }
+.w-call h2 i { font-style: italic; }
+.w-call-body { margin: 0; max-width: 64ch; font: 18px/1.5 var(--font-serif); color: #20272d; }
+.w-call-acts { flex: none; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.w-call-btn { padding: 18px 40px; border: 0; border-radius: 4px; background: #E7131A; color: #fff; font: 500 16px/20px var(--font-mono); white-space: nowrap; cursor: pointer; }
+.w-call-btn:hover { background: #B80F15; }
+.w-call-btn:focus-visible, .w-call-later:focus-visible, .w-call-x:focus-visible { outline: 2px solid #166999; outline-offset: 2px; }
+.w-call-later { display: none; border: 0; background: none; padding: 4px 0; font: 14px/1 var(--font-sans); color: #20272d; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.w-call-x { position: absolute; top: 18px; right: 24px; width: 32px; height: 32px; padding: 0; border: 0; background: none; cursor: pointer; }
+.w-call-x::before, .w-call-x::after { content: ''; position: absolute; left: 7px; right: 7px; top: 15.5px; height: 1.5px; background: #20272d; transform: rotate(45deg); }
+.w-call-x::after { transform: rotate(-45deg); }
 .w-dock[data-state="in"] .w-call { animation: wSheetUp .36s cubic-bezier(.22,.61,.36,1) both; }
-.w-dock[data-state="in"] .w-call::before { animation: wFade .24s cubic-bezier(.22,.61,.36,1) both; }
 .w-dock[data-state="out"] .w-call { animation: wSheetDown .22s cubic-bezier(.55,.06,.68,.19) both; }
 @keyframes wSheetUp { from { opacity: .6; transform: translate3d(0, 100%, 0); } to { opacity: 1; transform: none; } }
 @keyframes wSheetDown { from { opacity: 1; transform: none; } to { opacity: 0; transform: translate3d(0, 100%, 0); } }
 @keyframes wFade { from { opacity: 0; } to { opacity: 1; } }
-.w-call-kick { margin: 0 0 10px; font: 500 11px/1.3 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: #6f6c69; }
-.w-call h2 { margin: 0 0 10px; font: 400 30px/1.1 var(--font-serif); color: #000; }
-.w-call-body { margin: 0 0 18px; max-width: 58ch; font: 18px/1.45 var(--font-serif); color: #45423f; }
-.w-call-body strong { font-weight: 600; color: #2c2825; }
-.w-call-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; }
-.w-call-btn { min-height: 48px; padding: 12px 24px; border: 1px solid #000; border-radius: 4px; background: #000; color: #fff; font: 500 16px/1.1 var(--font-mono); cursor: pointer; }
-.w-call-btn:hover { background: #2c2825; border-color: #2c2825; }
-.w-call-btn:focus-visible, .w-call-later:focus-visible { outline: 2px solid #166999; outline-offset: 2px; }
-.w-call-later { border: 0; background: none; padding: 4px 0; font: 14px/1 var(--font-sans); color: #2c2825; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
-.w-call-foot { margin: 0; font: 500 10px/1.4 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: #6f6c69; }
-.w-call-foot b { font-weight: 500; color: #2c2825; text-transform: none; letter-spacing: .02em; }
-/* Payment failed: the rubric's red kicker says it matters. Card expiring: grey kicker, smaller head, outlined button. */
-.w-dock.is-failed .w-call-kick { color: #DD1001; }
-.w-dock.is-expiring .w-call h2 { font-size: 25px; }
-.w-dock.is-expiring .w-call-body { font-size: 17px; }
-.w-dock.is-expiring .w-call-btn { background: #fff; color: #000; }
-.w-dock.is-expiring .w-call-btn:hover { background: #000; color: #fff; }
+/* Pop-up: the same nudge, stacked and centered (as the bar is on a phone), over a scrim */
+.w-dock.is-pop { position: fixed; inset: 0; margin: 0; display: grid; place-items: center; padding: 24px; background: rgb(0 0 0 / .45); }
+.w-dock.is-pop .w-call { width: min(520px, 100%); padding: 44px 48px 32px; box-shadow: 0 24px 60px rgb(0 0 0 / .25); }
+.w-dock.is-pop .w-call-in { flex-direction: column; gap: 20px; text-align: center; }
+.w-dock.is-pop .w-call-mark { font-size: 104px; }
+.w-dock.is-pop .w-call h2 { margin-bottom: 8px; }
+.w-dock.is-pop .w-call-later { display: block; }
+.w-dock.is-pop .w-call-x { top: 12px; right: 12px; }
+.w-dock.is-pop[data-state="in"] .w-call { animation: wPopIn .22s cubic-bezier(.22,.61,.36,1) both; }
+.w-dock.is-pop[data-state="out"] { animation: wFade .2s reverse both; }
+@keyframes wPopIn { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 .w-art:focus { outline: none; }
-@media (prefers-reduced-motion: reduce) { .w-dock .w-call, .w-dock .w-call::before { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .w-dock .w-call { animation: none !important; } }
+@container (max-width: 1040px) { .w-call { padding: 24px 56px 24px 40px; } .w-call-in { gap: 28px; } .w-call-btn { padding: 16px 28px; } }
 /* A real phone: clear the presenter pill in the corner */
 @media (max-width: 767px) { .acct.www .w-call { padding-bottom: 60px; } }
 
@@ -442,15 +431,16 @@
   .w-body p { font-size: 18px; margin-bottom: 24px; }
   .w-body p.first::first-letter { font-size: 62px; }
   .w-dock { margin: 40px -18px 0; }
-  .w-call { padding: 20px 18px 16px; }
-  .w-call::before { height: 56px; }
-  .w-call-kick { font-size: 10px; margin-bottom: 8px; }
-  .w-call h2 { font-size: 24px; margin-bottom: 8px; }
-  .w-dock.is-expiring .w-call h2 { font-size: 21px; }
-  .w-call-body, .w-dock.is-expiring .w-call-body { font-size: 16px; margin-bottom: 14px; }
-  .w-call-acts { gap: 10px 20px; }
-  .w-call-btn { padding: 12px 18px; font-size: 15px; }
-  .w-call-foot { flex-basis: 100%; margin: 2px 0 0; }
+  .w-call { padding: 16px 20px 24px; }
+  .w-call-in { flex-direction: column; gap: 14px; text-align: center; }
+  .w-call-mark, .w-dock.is-pop .w-call-mark { font-size: 84px; }
+  .w-call h2 { font-size: 24px; line-height: 33px; margin-bottom: 6px; }
+  .w-call-body { font-size: 17px; }
+  .w-call-acts { gap: 12px; }
+  .w-call-btn { padding: 11px 24px; font-size: 13px; letter-spacing: .06em; }
+  .w-call-x { top: 6px; right: 6px; }
+  .w-dock.is-pop { padding: 16px; }
+  .w-dock.is-pop .w-call { padding: 36px 24px 24px; }
   .w-end { margin: 44px 0 56px; }
   .w-stage { margin: 0 16px 40px; }
   .w-foot { padding: 28px 18px 40px; }
@@ -652,8 +642,8 @@ const paths = [
     summary: 'Jane, reading signed in, learns her card runs out before the renewal. She saves a new one; nothing is charged.',
     start: { scenario: 'subscriber', session: 'in', axes: { day: 'd7' }, to: '#/article?device=desktop&layout=all&src=article-expiring' },
     steps: [
-      'The article, “Choose Your Overlord: Musk or Bezos?” by Josh Tyrangiel. A moment after it opens, or as soon as you scroll, a sheet rises from the bottom; the story stays readable above it.',
-      'The callout: “Your payment method is expiring.” Visa ending 3220 expires at the end of November, before the renewal on December 4, 2026; nothing is due today. One button, “Update Payment Method”, and a quiet “Remind me later”.',
+      'The article, “Choose Your Overlord: Musk or Bezos?” by Josh Tyrangiel. A moment after it opens, or as soon as you scroll, a bar rises from the bottom, in the site’s on-site nudge style; the story stays readable above it.',
+      'The callout: “A quick note from The Atlantic”: the payment method on file expires before the next renewal. No card, amount or date on theatlantic.com. One red button, “Update Payment Method”, and a close (×) that hides it for this visit.',
       '“Update Payment Method” → “Update your payment method”: the summary shows the card on file and the renewal date, then the list of methods with Card (last) open and “Save Card” under it. The prototype note asks whether wallets show when nothing is due.',
       '“Save Card” → “Thank you, Jane.”: the new card is saved, nothing was charged, and the subscription still renews on December 4, 2026.',
       '“Return to Your Article” → the same story, and the callout is gone.',
@@ -1281,20 +1271,23 @@ function heroArt() {
   </svg>`;
 }
 
-// The callout copy, sized for a sheet over the story: the card, the stakes and the date; the button
-// says the rest. Payment failed: access is at risk, with the date. Card expiring: a heads-up, nothing due.
+// The callout copy, in the voice of the site's marketing nudges. theatlantic.com is a public page
+// that anyone near the screen can read, so it carries no account detail: no card brand or last
+// four, no amount, no date, no email address. One plain line names the payment issue; the
+// accounts page the button opens shows the specifics.
+const ATL = '<i>The Atlantic</i>';
 function calloutCopy(s, d, kind) {
-  const g = s.gift, card = `${s.old.brand} ending ${s.old.last4}`;
+  const g = s.gift;
   if (kind === 'expiring') return g
-    ? { kick: `Before ${esc(g.first)}’s gift renews`, title: 'Your payment method is expiring.', cta: 'Update Payment Method',
-      body: `The ${card} that pays for ${esc(g.name)}’s gift expires at ${XP_CARD_END}, before the gift renews on ${F(XP_RENEWS)}. Nothing is due today.` }
-    : { kick: 'Before your renewal', title: 'Your payment method is expiring.', cta: 'Update Payment Method',
-      body: `Your ${card} expires at ${XP_CARD_END}, before your subscription renews on ${F(XP_RENEWS)}. Nothing is due today.` };
+    ? { title: `A quick note from ${ATL}`, cta: 'Update Payment Method',
+      body: 'The payment method for your gift subscription expires before its next renewal. Update it now, and your gift continues without interruption.' }
+    : { title: `A quick note from ${ATL}`, cta: 'Update Payment Method',
+      body: 'Your payment method on file expires before your next renewal. Update it now to keep enjoying our ideas and insight without interruption.' };
   return g
-    ? { kick: `About ${esc(g.first)}’s gift`, title: `We couldn’t renew ${esc(g.first)}’s gift.`, cta: 'Update Your Payment',
-      body: `Your ${card} has expired, so the ${money(PRICE)} renewal of ${esc(g.name)}’s gift didn’t go through. ${d.until}` }
-    : { kick: 'About your subscription', title: 'We couldn’t process your renewal.', cta: 'Update Your Payment',
-      body: `Your ${card} has expired, so your ${money(PRICE)} annual renewal didn’t go through. ${d.until}` };
+    ? { title: `Keep your gift of ${ATL} going`, cta: 'Update Your Payment',
+      body: 'We had trouble processing the latest payment for your gift subscription. Update your details so it continues, and keep supporting our independent journalism.' }
+    : { title: `Keep enjoying ${ATL}`, cta: 'Update Your Payment',
+      body: 'We had trouble processing your latest payment. Update your details to keep reading, and to keep supporting our independent journalism.' };
 }
 // The sheet rises a beat after the story opens, or as soon as the reader scrolls into it. Once it's
 // up, re-renders from This screen show it in place; a fresh visit, a new situation or "Show it
@@ -1367,14 +1360,12 @@ function articlePage(el, { state: s, derived: d }) {
     const c = calloutCopy(s, d, kind);
     const pop = kit.param('callout') === 'popup';
     callout = `<div class="w-dock is-${kind}${pop ? ' is-pop' : ''}" data-state="waiting">
-      <aside class="w-call" aria-labelledby="call-h"${pop ? ' role="dialog"' : ''}><div class="w-call-in">
-        ${pop ? '<button class="w-pop-x" type="button" data-later aria-label="Close"></button><img class="w-pop-wm" src="./assets/atlantic-logo.svg" alt="The Atlantic">' : ''}
-        <p class="w-call-kick">${c.kick}</p>
-        <h2 id="call-h">${c.title}</h2>
-        <p class="w-call-body">${c.body}</p>
-        <div class="w-call-acts"><button class="w-call-btn" type="button" data-cta>${c.cta}</button><button class="w-call-later" type="button" data-later>Remind me later</button>
-          <p class="w-call-foot">Signed in as <b>${esc(s.subscriber.email)}</b></p></div>
-      </div></aside></div>`;
+      <aside class="w-call" aria-labelledby="call-h"${pop ? ' role="dialog"' : ''}>
+        <button class="w-call-x" type="button" data-later aria-label="Close"></button>
+        <div class="w-call-in"><span class="w-call-mark" aria-hidden="true">A</span>
+          <div class="w-call-txt"><h2 id="call-h">${c.title}</h2><p class="w-call-body">${c.body}</p></div>
+          <div class="w-call-acts"><button class="w-call-btn" type="button" data-cta>${c.cta}</button>${pop ? '<button class="w-call-later" type="button" data-later>Remind me later</button>' : ''}</div>
+        </div></aside></div>`;
   }
   const navLink = (label, cls = '') => `<a class="${cls}" href="#/reading">${label}</a>`;
   el.innerHTML = `<div class="acct www${deviceOf() === 'desktop' ? '' : ' is-phone'}"><div class="vp">
