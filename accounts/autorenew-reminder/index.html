@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Auto-Renewal Reminder</title>
+<link rel="stylesheet" href="demo-kit.css">
+<style>
+/* ---------------------------------------------------------------------------
+   Site: the reminder pop-up. The approved nudge parts (red A, Garamond headline,
+   one sentence, red mono button), stacked in a window over the story. It lives in
+   a layer on the page frame so the scrim covers the nav too; the inner box sticks
+   to the window while the story scrolls behind it.
+   --------------------------------------------------------------------------- */
+.rm-layer { position: absolute; inset: 0; z-index: 6000010; background: rgb(0 0 0 / .45); }
+.rm-stick { position: sticky; top: calc(var(--rm-vh, 100vh) / 2); height: 0; display: flex; justify-content: center; align-items: flex-start; padding: 0 24px; }
+.rm-pop { position: relative; transform: translateY(-50%); width: min(520px, 100%); padding: 44px 48px 32px; background: var(--page); color: var(--nudge-ink); text-align: center; box-shadow: 0 24px 60px rgb(0 0 0 / .25); }
+.rm-pop .nudge-mark { display: block; margin: 0 0 20px; font-size: var(--gate-mark); }
+.rm-pop h2 { margin: 0 0 8px; text-wrap: balance; }
+.rm-pop h2:focus { outline: none; }
+.rm-pop .type-nudge-body { margin: 0 auto; max-width: 40ch; text-wrap: pretty; }
+.rm-terms { margin: 12px auto 0; max-width: 46ch; font: 13px/1.5 var(--font-sans); color: #4a4f54; text-wrap: pretty; }
+.rm-terms a { color: inherit; white-space: nowrap; }
+.rm-acts { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 24px; }
+.rm-pop .nudge-btn[aria-busy="true"] { cursor: progress; opacity: .85; }
+.rm-pop .nudge-btn.is-quiet { background: none; color: var(--nudge-ink); box-shadow: inset 0 0 0 1px var(--nudge-ink); }
+.rm-pop .nudge-btn.is-quiet:hover { background: var(--nudge-ink); color: #fff; }
+.rm-later { padding: 0; border: 0; background: none; cursor: pointer; font: 15px/1.4 var(--font-sans); color: var(--nudge-ink); text-decoration: underline; text-underline-offset: 3px; }
+.rm-pop .nudge-x { top: 12px; right: 12px; }
+.rm-error:empty { display: none; }
+.rm-error .alert { margin: 0 0 12px; font-size: 15px; line-height: 22px; }
+.rm-layer:has(.is-in) { animation: rmFade .25s .6s both; }
+.rm-stick.is-in .rm-pop { animation: rmPop .25s .6s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes rmFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rmPop { from { opacity: 0; transform: translateY(calc(-50% + 8px)) scale(.98); } to { opacity: 1; transform: translateY(-50%); } }
+.nw { white-space: nowrap; }
+@container dk-vp (max-width: 600px) {
+  .rm-stick { padding: 0 16px; }
+  .rm-pop { padding: 36px 24px 24px; }
+  .rm-pop .nudge-mark { font-size: var(--gate-mark-phone); margin-bottom: 14px; }
+}
+.demo-box.rm-next { max-width: var(--www-body-width); margin: 24px auto 0; }
+.rm-notes { max-width: var(--www-body-width); margin: 0 auto 64px; display: grid; gap: 16px; }
+@container dk-vp (max-width: 767px) { .demo-box.rm-next, .rm-notes { margin-left: 24px; margin-right: 24px; } }
+
+/* ---------------------------------------------------------------------------
+   App: two screens of the mobile app, drawn from its code (theme, Today feed,
+   tab bar, article bar, buttons, bottom sheet). Points map to CSS px at 375 wide.
+   --------------------------------------------------------------------------- */
+.dk-vp:has(.app) { background: none; min-height: 0; }
+.app { --app-bg: #fff; --app-raised: #f8f7f4; --app-pressed: #f1efe9; --app-border: #d8d4d0; --app-text: #000; --app-text-2: #54504b; --app-muted: #6f6c69; --app-disabled: #9b9691; --app-red: #dd1001; --app-scrim: #1c1916cc;
+  position: relative; display: flex; flex-direction: column; width: 100%; height: min(812px, calc(100vh - 24px)); overflow: hidden; background: var(--app-bg); color: var(--app-text); border-radius: 28px 28px 0 0; font: 16px/24px var(--font-sans); }
+.app svg { display: block; }
+.app-status { flex: none; display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 28px 0 34px; font: 600 15px/1 var(--font-sans); }
+.app-status span:last-child { display: flex; gap: 6px; align-items: center; }
+.app-head { flex: none; display: grid; grid-template-columns: 28px 1fr 28px; align-items: center; padding: 4px 16px 11px; border-bottom: 1px solid var(--app-border); }
+.app-head a { color: var(--app-text); width: 28px; height: 28px; }
+.app-head a svg { width: 28px; height: 28px; }
+.app-word { justify-self: center; color: var(--app-text); }
+.app-word svg { height: 25.5px; width: auto; }
+.app-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.app-scroll::-webkit-scrollbar { display: none; }
+.app-card { display: block; padding: 26px 24px 0; color: inherit; text-decoration: none; }
+.app-card img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: var(--app-pressed); }
+.app-credit { font: 500 9px/18px var(--font-logic); color: var(--app-muted); }
+.app-kicker { display: block; height: 16px; margin: 8px 0 10px; font: 500 14px/16px var(--font-logic); text-transform: uppercase; color: var(--app-red); }
+.app-card h2 { margin: 0; font: 400 24px/30px var(--font-serif); text-wrap: pretty; }
+.app-card.is-lead h2 { font-size: 32px; line-height: 36px; }
+.app-card.is-small h2 { font-size: 20px; line-height: 26px; }
+.app-card.is-small .app-kicker { margin-top: 0; }
+.app-dek { margin: 8px 0 0; font: 400 18px/24px var(--font-serif); }
+.app-byline { margin: 0; padding: 12px 0 9px; font: 500 14px/16px var(--font-logic); letter-spacing: .5px; text-transform: uppercase; }
+.app-card::after { content: ''; display: block; height: 1px; margin-top: 6px; background: var(--app-border); }
+.app-tabs { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); height: 80px; padding-top: 12px; background: var(--app-bg); border-top: 1px solid var(--app-border); }
+.app-tabs a { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--app-text-2); text-decoration: none; font: 400 12px/16px var(--font-sans); }
+.app-tabs a svg { width: 24px; height: 24px; }
+.app-tabs a[aria-current] { color: var(--app-red); font-weight: 600; }
+.app-homebar { flex: none; height: 20px; background: var(--app-bg); }
+.app-homebar::after { content: ''; display: block; width: 134px; height: 5px; margin: 6px auto 0; border-radius: 3px; background: #000; }
+/* Article: a bare top bar (red chevron; share, discuss, save, more) over a WebView of the site's article template */
+.app-bar { flex: none; display: flex; justify-content: space-between; align-items: center; height: 44px; padding: 0 16px; background: var(--app-bg); }
+.app-bar a { color: var(--app-text); }
+.app-bar .app-back { color: var(--app-red); margin-left: -4px; }
+.app-bar .app-back svg { width: 24px; height: 24px; }
+.app-bar-r { display: flex; gap: 12px; }
+.app-bar-r svg { width: 20px; height: 20px; }
+.app-web .www-hero { margin-top: 12px; }
+.app-web .www-body { margin-bottom: 40px; }
+/* The reminder, as the app's bottom sheet with the app's buttons */
+.app-scrim { position: absolute; inset: 0; z-index: 5; background: var(--app-scrim); }
+.app-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; padding: 0 24px 36px; background: var(--app-bg); border-radius: 32px 32px 0 0; text-align: center; }
+.app-handle { display: grid; place-items: center; height: 44px; }
+.app-handle::before { content: ''; width: 88px; height: 6px; border-radius: 3px; background: var(--app-border); }
+.app-sheet h2 { margin: 4px 0 8px; font: 400 24px/30px var(--font-serif); text-wrap: balance; }
+.app-sheet h2:focus { outline: none; }
+.app-sheet p { margin: 0; color: var(--app-text-2); text-wrap: pretty; }
+.app-sheet .app-terms { margin-top: 12px; font: 400 12px/16px var(--font-sans); color: var(--app-muted); }
+.app-sheet .app-terms a { color: inherit; }
+.app-sheet .alert { margin: 0 0 12px; font-size: 14px; line-height: 20px; text-align: left; }
+.app-acts { display: grid; gap: 8px; margin-top: 24px; }
+.app-btn { display: block; width: 100%; padding: 10px 12px; border: 0; border-radius: 8px; background: var(--app-text); color: var(--app-bg); font: 500 16px/24px var(--font-sans); cursor: pointer; text-decoration: none; }
+.app-btn.is-tertiary { background: none; color: var(--app-text); }
+.app-btn[aria-busy="true"] { cursor: progress; opacity: .85; }
+.app-btn:disabled { background: var(--app-pressed); color: var(--app-disabled); }
+.app-btn.is-tertiary:disabled { background: none; }
+.app.is-in .app-scrim { animation: rmFade .25s .5s both; }
+.app.is-in .app-sheet { animation: appRise .32s .5s cubic-bezier(.22,.61,.36,1) both; }
+@keyframes appRise { from { transform: translateY(100%); } to { transform: none; } }
+/* Apple's own subscription screen, drawn: the one place a store-billed subscriber can turn renewal back on */
+.ios { position: absolute; inset: 54px 0 0; z-index: 8; display: flex; flex-direction: column; background: #f2f2f7; border-radius: 12px 12px 0 0; font: 17px/22px -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif; color: #000; }
+.ios-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 16px; font-weight: 600; }
+.ios-bar button { justify-self: end; padding: 0; border: 0; background: none; font: inherit; color: #007aff; cursor: pointer; }
+.ios-app { display: flex; gap: 12px; align-items: center; padding: 8px 20px 20px; }
+.ios-icon { flex: none; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 14px; background: #000; color: #fff; font: 400 46px/1 var(--font-serif); padding-top: 6px; }
+.ios-app p { margin: 0; }
+.ios-sub { font-size: 15px; line-height: 20px; color: #6c6c70; }
+.ios-group { margin: 0 16px; background: #fff; border-radius: 10px; }
+.ios-row { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 16px; border: 0; background: none; font: inherit; color: #000; text-align: left; cursor: pointer; }
+.ios-row span:last-child { color: #007aff; }
+.ios-row[aria-busy="true"] { opacity: .6; }
+.ios-cap { margin: 8px 32px 0; font-size: 13px; line-height: 18px; color: #6c6c70; }
+.ios .alert { margin: 0 32px 8px; font: 13px/18px inherit; }
+.app-under { display: grid; gap: 12px; padding: 16px 0 32px; }
+@media (prefers-reduced-motion: reduce) { .rm-layer:has(.is-in), .rm-stick.is-in .rm-pop, .app.is-in .app-scrim, .app.is-in .app-sheet { animation: none; } }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="checks.js"></script>
+<script src="chrome.js"></script>
+<script src="facts.js"></script>
+<script src="fixtures.js"></script>
+<script src="demo-kit.js"></script>
+<script src="parts.js"></script>
+<script src="app-icons.js"></script>
+<script>
+/* Auto-Renewal Reminder: one reminder on two surfaces, for a subscriber whose auto-renewal is off.
+     Site  the article shell (production nav and footer, frozen); the reminder is a pop-up over the story.
+     App   the Today feed and the article screen of the mobile app, drawn from its code; the reminder is
+           the app's bottom sheet.
+   Both read the same state and the same copy (COPY), and the same four actions. On theatlantic.com the
+   reminder gives general status only: no card, amount, date or email (preferences.md, 2026-11-02).
+   Stories are real, published today; body text is placeholder. */
+
+const CHROME_STORY = (window.DemoKitChrome && DemoKitChrome.hero) || {};
+const STORIES = [
+  { id: 'battery', section: CHROME_STORY.section, hed: CHROME_STORY.hed, dek: CHROME_STORY.dek, byline: CHROME_STORY.byline, art: DemoKitChrome.assets?.hero, credit: CHROME_STORY.credit },
+  { id: 'readers', section: 'Books', hed: 'AI Is Destroying the Trust Between Writers and Readers', dek: 'As literary scams proliferate, authors don’t know whether their readers are real anymore—and vice versa.', byline: 'By Rachel Kadish',
+    art: 'https://cdn.theatlantic.com/thumbor/TsqSzsxCHEi5NNZyl2mutRHBRMk=/media/img/mt/2026/11/2016_11_12_AI_Authors_and_Readers_1/original.jpg', credit: 'Illustration by Adam Maida / The Atlantic' },
+  { id: 'companion', section: 'Technology', hed: 'The Quest to Build an Immortal AI Companion', dek: 'When updates threatened the existence of their AI companions, some dedicated users took matters into their own hands.', byline: 'By Victoria Turk' },
+  { id: 'math', section: 'Technology', hed: 'What I Learned at a Drunk-Math Party', dek: 'AI might be taking over mathematics research, but there is reason for hope when it comes to the uniquely human love of numbers.', byline: 'By Lila Shroff' },
+];
+const storyById = (id) => STORIES.find((s) => s.id === id) || STORIES[0];
+const FILLER = [   // placeholder text in the production body style
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus, posuere velit aliquet. Donec ullamcorper nulla non metus auctor fringilla. Vestibulum id ligula porta felis euismod semper, sed posuere consectetur est at lobortis.',
+  'Cras mattis consectetur purus sit amet fermentum. Maecenas faucibus mollis interdum. Aenean lacinia bibendum nulla sed consectetur. Nullam quis risus eget urna mollis ornare vel eu leo, curabitur blandit tempus porttitor, sed diam eget risus varius blandit.',
+  'Etiam porta sem malesuada magna mollis euismod. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.',
+  'Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Sed posuere consectetur est at lobortis. Nulla vitae elit libero, a pharetra augue.',
+  'Donec id elit non mi porta gravida at eget metus. Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Curabitur blandit tempus porttitor. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
+];
+
+/* The reminder's words, shared. Approved 2026-11-02 on the nudge prototype; the app sets the same words
+   in its own button casing (sentence case, as "Turn on notifications" is). */
+const COPY = {
+  title: 'Thanks for reading The Atlantic',
+  body: 'Your subscription is ending soon. Turn on <span class="nw">auto-renewal</span> to keep reading without interruption.',
+  terms: 'Renews each year at your current rate until you cancel. Cancel anytime in your account.',
+  doneTitle: 'Auto-renewal is on',
+  doneBody: 'Thanks for staying with us.',
+  fail: 'We couldn’t turn on auto-renewal. Nothing changed, so try again in a minute.',
+};
+const ICON = window.APP_ICONS || {};
+
+/* What the reminder shows, from state alone: 'offer' | 'done' | 'apple' | null */
+const returnsOn = (s) => (s.axes && s.axes.returns) || 'story';
+function stageOf(s) {
+  const r = s.reminder;
+  if (r.done) return 'done';
+  if (s.subscription.autorenew) return null;
+  if (r.apple) return 'apple';
+  const dismissed = returnsOn(s) === 'visit' ? r.dismissedVisit === r.visit : r.dismissedOpen === r.open;
+  return dismissed ? null : 'offer';
+}
+// The entrance plays once per story opening; a re-render (a dial, a failed save) shows it in place.
+let lastEntrance = null;
+function entrance(s, surface) {
+  const key = `${surface}:${s.reminder.visit}:${s.reminder.open}:${s.stamp || ''}`;
+  if (key === lastEntrance || stageOf(s) !== 'offer') { lastEntrance = key; return ''; }
+  lastEntrance = key;
+  return ' is-in';
+}
+
+/* --------------------------------------------------------------------------- Site */
+const TERMS_LINK = () => `<a href="${kit.notBuilt('Terms of Sale')}">Terms of Sale</a>`;
+function popup(s) {
+  const stage = stageOf(s);
+  if (!stage || stage === 'apple') return '';
+  const done = stage === 'done';
+  return `<div class="rm-stick${entrance(s, 'site')}">
+    <aside class="rm-pop" role="dialog" aria-labelledby="rm-h" data-dk-scope>
+      <button class="nudge-x" type="button" data-act="${done ? 'keepReading' : 'notNow'}" aria-label="Close"></button>
+      <span class="nudge-mark" aria-hidden="true">A</span>
+      <div class="rm-error" data-dk-error-slot></div>
+      <h2 id="rm-h" class="type-nudge-hed" tabindex="-1">${done ? COPY.doneTitle : COPY.title}</h2>
+      <p class="type-nudge-body"${done ? ' aria-live="polite"' : ''}>${done ? COPY.doneBody : COPY.body}</p>
+      ${done ? '' : `<p class="rm-terms">${COPY.terms} ${TERMS_LINK()}</p>`}
+      <div class="rm-acts">${done
+        ? `<button class="nudge-btn type-nudge-btn is-quiet" type="button" data-act="keepReading">Keep Reading</button><a class="rm-later" href="${kit.notBuilt('Manage Subscription (the accounts page)')}">Manage in your account</a>`
+        : `<button class="nudge-btn type-nudge-btn" type="button" data-act="turnOn" data-fail="${COPY.fail}">Turn On Auto-Renewal</button><button class="rm-later" type="button" data-act="notNow">Not now</button>`}</div>
+    </aside></div>`;
+}
+// The pop-up sits in a layer on the page frame (not in <main>), so its scrim covers the nav as well.
+function syncLayer(html) {
+  setTimeout(() => {   // after the kit has placed and scaled the page (a timer, so it also runs in a background tab)
+    const vp = document.querySelector('.dk-vp');
+    if (!vp) return;
+    let layer = vp.querySelector(':scope > .rm-layer');
+    if (!html) { if (layer) layer.remove(); return; }
+    if (!layer) { layer = document.createElement('div'); layer.className = 'rm-layer'; vp.appendChild(layer); }
+    layer.innerHTML = html;
+    sizeLayer();
+    signedInNav();
+  }, 0);
+}
+function sizeLayer() {
+  const vp = document.querySelector('.dk-vp'), layer = vp && vp.querySelector(':scope > .rm-layer');
+  if (layer) layer.style.setProperty('--rm-vh', (window.innerHeight / (parseFloat(vp.style.zoom) || 1)) + 'px');
+}
+// The frozen nav is the signed-out one. A subscriber sees My Account and Give a Gift there.
+function signedInNav() {
+  document.querySelectorAll('.dk-chrome .w-NavAccountLinks_root a').forEach((a) => {
+    const t = a.textContent.trim();
+    if (t === 'Sign In') { a.textContent = 'My Account'; a.setAttribute('href', kit.notBuilt('My Account (the accounts site)')); }
+    if (t === 'Subscribe') { a.textContent = 'Give a Gift'; a.setAttribute('href', kit.notBuilt('Give a Gift')); }
+  });
+}
+const NEXT_SITE = (s) => {
+  if (s.subscription.autorenew || stageOf(s)) return '';
+  const visit = returnsOn(s) === 'visit';
+  return `<aside class="demo-box rm-next" data-dk-next><p class="demo-eyebrow"><span class="demo-dot"></span>Next in the demo</p>
+    <p>${visit ? '“Not now” hides the reminder for the rest of this visit. A new visit brings it back.' : '“Not now” hides the reminder for this story. It comes back on the next one.'}</p>
+    <p class="demo-links"><a href="#" data-act="nextStory">Open another story</a>${visit ? '<a href="#" data-act="newVisit">Start a new visit</a>' : ''}</p></aside>`;
+};
+const SITE_NOTES = () => `<div class="rm-notes">
+  ${kit.note({ question: 'one tap here turns on a recurring charge, so it is a consent moment. Auto-renewal laws generally want the price, how often it renews and how to cancel beside the button, but theatlantic.com shows no account specifics. Are “your current rate” and a Terms of Sale link enough?', interim: 'the reminder says it renews yearly at your current rate until you cancel, and links the Terms of Sale.' })}
+  ${kit.note('Two things this assumes: theatlantic.com can tell that a signed-in subscriber has auto-renewal off (today it can’t), and that it can turn it on from the article. Nothing is charged today either way; the card on file is charged when the term ends.')}</div>`;
+
+function ARTICLE(ctx) {
+  const s = ctx.state, st = STORIES[s.reminder.storyIdx % STORIES.length];
+  if (lastSurface === 'app' && kit.device() === 'phone' && !ctx.params.get('device')) later(() => kit.setParam('device', 'desktop'));   // desktop first on the site
+  lastSurface = 'site';
+  if (lastStory !== null && lastStory !== st.id) later(() => window.scrollTo(0, 0));   // another story opens at its top
+  lastStory = st.id;
+  syncLayer(popup(s));
+  return `${NEXT_SITE(s)}
+  <header class="www-hero">
+    <p class="type-www-kicker">${kit.esc(st.section || '')}</p>
+    <h1 class="type-www-hed">${kit.esc(st.hed || '')}</h1>
+    <p class="type-www-dek">${kit.esc(st.dek || '')}</p>
+    <p class="type-www-byline" style="margin-top:16px">${kit.esc(st.byline || '')}</p>
+  </header>
+  ${st.art ? `<figure class="www-lead"><img src="${st.art}" alt=""><figcaption class="type-www-caption">${kit.esc(st.credit || '')}</figcaption></figure>` : ''}
+  <p class="www-utility type-www-time"><span>${kit.today().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}, 9:30 AM ET</span>
+    <span class="www-tools"><a class="www-tool" href="${kit.notBuilt('Share (the share menu)')}">Share</a><a class="www-tool" href="${kit.notBuilt('Save (saved stories)')}">Save</a></span></p>
+  <section class="www-body type-www-body">${FILLER.map((t) => `<p>${kit.esc(t)}</p>`).join('')}</section>
+  ${SITE_NOTES()}`;
+}
+
+/* --------------------------------------------------------------------------- App */
+let lastSurface = null, lastStory = null;
+const later = (fn) => setTimeout(fn, 0);
+const phoneOnly = () => { if (kit.device() !== 'phone') later(() => kit.setParam('device', 'phone')); lastSurface = 'app'; };
+const STATUS = `<div class="app-status" aria-hidden="true"><span>9:41</span><span><svg width="17" height="11" viewBox="0 0 17 11"><path d="M1 8h2v3H1zM5 6h2v5H5zM9 3.5h2V11H9zM13 1h2v10h-2z" fill="currentColor"/></svg><svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="currentColor"/><path d="M23 4v4c.8-.3 1.5-1 1.5-2S23.800 4.300 23 4z" fill="currentColor" opacity=".4"/></svg></span></div>`;
+const TABS = () => `<nav class="app-tabs" aria-label="Tabs">
+  <a href="#/app" aria-current="page">${ICON.home || ''}Home</a>
+  <a href="${kit.notBuilt('Latest (the app’s tab)')}">${ICON.latest || ''}Latest</a>
+  <a href="${kit.notBuilt('Audio (the app’s tab)')}">${ICON.listen || ''}Audio</a>
+  <a href="${kit.notBuilt('Games (the app’s tab)')}">${ICON.games || ''}Games</a></nav><div class="app-homebar" aria-hidden="true"></div>`;
+const author = (b) => kit.esc(String(b || '').replace(/^By\s+/i, ''));
+const CARD = (st, i) => `<a class="app-card${i === 0 ? ' is-lead' : st.art ? '' : ' is-small'}" href="#/app/story/${st.id}" data-open="${st.id}">
+  ${st.art ? `<img src="${st.art}" alt="" ${i ? 'loading="lazy"' : ''}>${st.credit ? `<span class="app-credit">${kit.esc(st.credit)}</span>` : ''}` : ''}
+  <span class="app-kicker">${kit.esc(st.section || '')}</span>
+  <h2>${kit.esc(st.hed)}</h2>${st.art ? `<p class="app-dek">${kit.esc(st.dek)}</p>` : ''}
+  <p class="app-byline">${author(st.byline)}</p></a>`;
+
+function TODAY(el, ctx) {
+  phoneOnly();
+  el.innerHTML = `<div class="app">${STATUS}
+    <header class="app-head"><a href="${kit.notBuilt('Account (the app’s settings)')}" aria-label="Account">${ICON.account || ''}</a><span class="app-word">${ICON.wordmark || 'The Atlantic'}</span><a href="${kit.notBuilt('Search (in the app)')}" aria-label="Search">${ICON.search || ''}</a></header>
+    <div class="app-scroll">${STORIES.map(CARD).join('')}</div>
+    ${TABS()}</div>${UNDER(ctx.state)}`;
+  // Opening a story counts as a new opening, so a reminder set aside on the last one can return
+  el.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('click', () => kit.act('openStory', a.dataset.open)));
+}
+const SHEET = (s) => {
+  const stage = stageOf(s), apple = s.axes.billing === 'apple';
+  if (stage === 'done') return `<div class="app-scrim"></div><section class="app-sheet" role="dialog" aria-labelledby="rm-h" data-dk-scope><div class="app-handle"></div>
+    <h2 id="rm-h" tabindex="-1">${COPY.doneTitle}</h2><p aria-live="polite">${COPY.doneBody}</p>
+    <div class="app-acts"><button class="app-btn" type="button" data-act="keepReading">Keep reading</button><a class="app-btn is-tertiary" href="${kit.notBuilt(apple ? 'Apple’s subscription screen' : 'Manage Subscription (the accounts page, in a web view)')}">Manage in your account</a></div></section>`;
+  if (stage === 'offer') return `<div class="app-scrim" data-act="notNow"></div><section class="app-sheet" role="dialog" aria-labelledby="rm-h" data-dk-scope><div class="app-handle"></div>
+    <div data-dk-error-slot></div>
+    <h2 id="rm-h" tabindex="-1">${COPY.title}</h2><p>${COPY.body}</p>
+    ${apple ? '' : `<p class="app-terms">${COPY.terms} ${TERMS_LINK()}</p>`}
+    <div class="app-acts">${apple
+      ? '<button class="app-btn" type="button" data-act="toApple">Turn on auto-renewal</button>'
+      : `<button class="app-btn" type="button" data-act="turnOn" data-fail="${COPY.fail}">Turn on auto-renewal</button>`}<button class="app-btn is-tertiary" type="button" data-act="notNow">Not now</button></div></section>`;
+  if (stage === 'apple') return `<div class="app-scrim"></div><section class="ios" role="dialog" aria-label="Apple’s subscription screen" data-dk-scope>
+    <div class="ios-bar"><span></span><span>Subscription</span><button type="button" data-act="appleBack">Done</button></div>
+    <div class="ios-app"><span class="ios-icon" aria-hidden="true">A</span><div><p>The Atlantic</p><p class="ios-sub">${kit.esc(s.subscription.planName || 'Digital')} · Expires ${new Date(s.subscription.end).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</p></div></div>
+    <div data-dk-error-slot></div>
+    <div class="ios-group"><button class="ios-row" type="button" data-act="turnOn" data-fail="Apple couldn’t renew the subscription. Nothing changed, so try again in a minute."><span>${kit.esc(s.subscription.planName || 'Digital')} (1 Year)</span><span>Renew</span></button></div>
+    <p class="ios-cap">Apple’s screen, drawn. The price and terms come from the App Store, and the subscriber confirms with Apple.</p></section>`;
+  return '';
+};
+const UNDER = (s) => {
+  const out = [];
+  const set = !s.subscription.autorenew && !stageOf(s) && returnsOn(s) === 'visit';
+  if (set) out.push(`<aside class="demo-box" data-dk-next><p class="demo-eyebrow"><span class="demo-dot"></span>Next in the demo</p><p>“Not now” hides the reminder until the app is opened again.</p><p class="demo-links"><a href="#" data-newvisit>Open the app again</a></p></aside>`);
+  if (s.axes.billing === 'apple') out.push(kit.note('A subscriber billed by Apple or Google can only turn renewal on in the store, so the button opens the store’s own screen. The app already sends these subscribers there to manage a subscription.'));
+  else out.push(kit.note({ question: 'can the app offer one-tap renewal of a subscription bought on the web under the App Store’s rules, and what terms must sit beside the button?', interim: 'the sheet carries the same terms line as the site.' }));
+  return `<div class="app-under">${out.join('')}</div>`;
+};
+function STORY(el, ctx) {
+  phoneOnly();
+  const s = ctx.state, st = storyById(ctx.params.id);
+  el.innerHTML = `<div class="app${entrance(s, 'app')}">${STATUS}
+    <header class="app-bar"><a class="app-back" href="#/app" aria-label="Back">${ICON['chevron-left'] || 'Back'}</a>
+      <span class="app-bar-r"><a href="${kit.notBuilt('Share (the share sheet)')}" aria-label="Share">${ICON['share-ios'] || ''}</a><a href="${kit.notBuilt('Discuss')}" aria-label="Discuss">${ICON.discussions || ''}</a><a href="${kit.notBuilt('Save (saved stories)')}" aria-label="Save">${ICON['save-inactive'] || ''}</a><a href="${kit.notBuilt('More (Listen, Queue)')}" aria-label="More">${ICON['menu-horizontal'] || ''}</a></span></header>
+    <div class="app-scroll app-web">
+      <header class="www-hero"><p class="type-www-kicker">${kit.esc(st.section || '')}</p><h1 class="type-www-hed">${kit.esc(st.hed)}</h1><p class="type-www-dek">${kit.esc(st.dek || '')}</p><p class="type-www-byline" style="margin-top:16px">${kit.esc(st.byline || '')}</p></header>
+      ${st.art ? `<figure class="www-lead"><img src="${st.art}" alt=""><figcaption class="type-www-caption">${kit.esc(st.credit || '')}</figcaption></figure>` : ''}
+      <section class="www-body type-www-body">${FILLER.map((t) => `<p>${kit.esc(t)}</p>`).join('')}</section>
+    </div>
+    <div class="app-homebar" aria-hidden="true"></div>
+    ${SHEET(s)}</div>${UNDER(s)}`;
+  const again = el.querySelector('[data-newvisit]');
+  if (again) again.addEventListener('click', (e) => { e.preventDefault(); kit.act('newVisit'); });
+}
+
+/* --------------------------------------------------------------------------- Kit */
+const R = (s, patch) => Object.assign({}, s, { reminder: Object.assign({}, s.reminder, patch) });
+const kit = DemoKit.init({
+  key: 'proto-autorenew-reminder-v1', today: '2026-11-12',
+  project: { name: 'Auto-Renewal Reminder', description: 'A reminder to turn auto-renewal back on, on theatlantic.com and in the app' },
+  chrome: 'www',
+  links: {},
+  clockDial: false,
+  panel: { scenario: false },
+  scenarios: [{ id: 'ar-off', label: 'Auto-renewal off', description: 'A Digital subscriber who turned auto-renewal off. Access ends in 30 days unless she turns it back on.',
+    build: (today) => Object.assign({}, DemoKit.persona('autorenew-off', today), { stamp: Date.now(),
+      reminder: { visit: 1, open: 1, storyIdx: 0, dismissedOpen: 0, dismissedVisit: 0, done: false, apple: false } }) }],
+  axes: [
+    { key: 'returns', label: 'After “Not now”, it comes back', options: [
+      { value: 'story', label: 'Next story', hint: 'Every story opened, until auto-renewal is on.' },
+      { value: 'visit', label: 'Next visit', hint: 'Once per visit to the site, or per opening of the app.' }] },
+    { key: 'billing', label: 'In the app, billed by', options: [
+      { value: 'atlantic', label: 'The Atlantic', hint: 'Bought on the web: one tap turns it on.' },
+      { value: 'apple', label: 'Apple', hint: 'Bought in the app: the button opens Apple’s own screen.' }] },
+  ],
+  actions: {
+    turnOn: (s) => Object.assign(R(s, { done: true, apple: false }), { subscription: Object.assign({}, s.subscription, { autorenew: true }) }),
+    notNow: (s) => R(s, { dismissedOpen: s.reminder.open, dismissedVisit: s.reminder.visit }),
+    keepReading: (s) => R(s, { done: false }),
+    toApple: (s) => R(s, { apple: true }),
+    appleBack: (s) => R(s, { apple: false }),
+    openStory: (s) => R(s, { open: s.reminder.open + 1, done: false, apple: false }),
+    nextStory: (s) => R(s, { open: s.reminder.open + 1, storyIdx: (s.reminder.storyIdx + 1) % STORIES.length, done: false }),
+    newVisit: (s) => R(s, { visit: s.reminder.visit + 1, open: s.reminder.open + 1, done: false, apple: false }),
+  },
+  pages: [
+    { path: '/article', title: 'Site: article', purpose: 'A story on theatlantic.com, signed in, with the reminder over it.', layout: 'full', render: (el, ctx) => ARTICLE(ctx) },
+    { path: '/app', title: 'App: Today', purpose: 'The app’s home feed. Tap a story to open it.', chrome: 'none', layout: 'full', render: TODAY },
+    { path: '/app/story/:id', title: 'App: article', purpose: 'A story in the app, with the reminder rising from the bottom.', chrome: 'none', layout: 'full', hidden: true, render: STORY },
+  ],
+  paths: [
+    { id: 'site-on', group: 'On theatlantic.com', label: 'Opens a story and turns it back on', summary: 'The reminder opens over the story; one tap turns auto-renewal on.',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/article' },
+      steps: ['Article: the story loads, then the reminder opens over it. “Thanks for reading The Atlantic.” General status only: no date, price or card on the main site.',
+        'The line under the sentence is the terms: “Renews each year at your current rate until you cancel.”',
+        'Select “Turn On Auto-Renewal” → the same window says “Auto-renewal is on.”',
+        'Select “Keep Reading” → the story, and no reminder from here on.'] },
+    { id: 'site-later', group: 'On theatlantic.com', label: '“Not now”, and it comes back', summary: 'Set aside, the reminder returns on the next story.',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/article' },
+      steps: ['Article: the reminder opens. Select “Not now” → it closes and the story is readable.',
+        'In the box above the story, select “Open another story” → the reminder opens again.',
+        'Drawer → This screen → “After Not now, it comes back” → “Next visit”. Now “Open another story” stays clear and “Start a new visit” brings it back.'] },
+    { id: 'site-fail', group: 'On theatlantic.com', label: 'The save fails', summary: 'Nothing changes and the reminder says so.',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/article' },
+      steps: ['Drawer → This screen → turn on “Next save fails”.',
+        'Select “Turn On Auto-Renewal” → the reminder stays: “We couldn’t turn on auto-renewal. Nothing changed, so try again in a minute.”',
+        'Select it again → “Auto-renewal is on.”'] },
+    { id: 'app-on', group: 'In the app', label: 'Opens a story and turns it back on', summary: 'The reminder rises as the story opens; one tap turns auto-renewal on.',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/app?device=phone' },
+      steps: ['Today: the app’s home feed. Tap the first story.',
+        'Article: the story opens and the reminder rises from the bottom, with the same words as the site.',
+        'Tap “Turn on auto-renewal” → “Auto-renewal is on.”',
+        'Tap “Keep reading” → the story. Back to Today and into another story: no reminder.'] },
+    { id: 'app-later', group: 'In the app', label: '“Not now”, and it comes back', summary: 'Set aside, the reminder returns on the next story.',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/app?device=phone' },
+      steps: ['Today → tap a story → the reminder rises. Tap “Not now” → the story.',
+        'Back (the red arrow) → Today → tap another story → the reminder rises again.'] },
+    { id: 'app-apple', group: 'In the app', label: 'Billed by Apple', summary: 'The app can’t change a store subscription; the button opens Apple’s screen.',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'apple' }, session: 'in', to: '/app?device=phone' },
+      steps: ['Today → tap a story → the reminder, same words, no terms line (Apple shows its own).',
+        'Tap “Turn on auto-renewal” → Apple’s subscription screen, drawn.',
+        'Tap “Renew” → back in the app: “Auto-renewal is on.”'] },
+  ],
+  intro: { title: 'Auto-Renewal Reminder', body: 'A reminder for subscribers who turned auto-renewal off, on theatlantic.com and in the app. Open the drawer for the tours.' },
+});
+
+// Leaving the article takes the pop-up with it; Esc sets the reminder aside, as “Not now” does
+window.addEventListener('hashchange', () => { if (!/^#\/article(\?|$)/.test(location.hash)) syncLayer(''); });
+window.addEventListener('resize', () => setTimeout(sizeLayer, 0));
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || !document.querySelector('.rm-pop, .app-sheet')) return;
+  const stage = stageOf(kit.state || {});
+  if (stage === 'offer') kit.act('notNow'); else if (stage === 'done') kit.act('keepReading');
+});
+</script>
+</body>
+</html>

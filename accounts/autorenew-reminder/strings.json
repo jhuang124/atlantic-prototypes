@@ -1,0 +1,580 @@
+{
+ "capturedAt": "2026-11-12",
+ "source": "accounts-frontend develop 58e002aa, ~/repos/accounts-frontend-harvest",
+ "howToRead": "Production copy by surface, then by source file, in the order the file has it. {braces} are values the page fills in. Quote it; don't paraphrase. Products-page plan names, prices and details are in facts.json (they come from the API and Zephr at run time).",
+ "surfaces": {
+  "checkout": {
+   "products/routes/Purchase/index.js": [
+    "Subscribe to The Atlantic",
+    "Enter your email to sign in or create an account",
+    "Add Payment Information"
+   ],
+   "products/components/CreditCardFormStripe.js": [
+    "Mailing Address",
+    "Billing Address",
+    "Automatic Renewal",
+    "In order to complete your purchase, please enroll in automatic renewal. You’ll get uninterrupted access to The Atlantic and play a vital role in supporting independent journalism. If you change your mind, cancel within two days for a refund on your order.",
+    "Payment Information",
+    "You've chosen to pay with",
+    "Loading payment form…",
+    "Or",
+    "Start My Subscription",
+    "Start My Trial",
+    "Start My Free Trial",
+    "Sign in above to enter your payment details."
+   ],
+   "products/components/CreditCardForm.js": [
+    "Start My Subscription",
+    "Start My Trial",
+    "Start My Free Trial",
+    "Payment Information",
+    "You've chosen to pay with",
+    "Or",
+    "Mailing Address",
+    "Billing Address",
+    "Same as Mailing Address",
+    "Automatic Renewal",
+    "In order to complete your purchase, please enroll in automatic renewal. You’ll get uninterrupted access to The Atlantic and play a vital role in supporting independent journalism. If you change your mind, cancel within two days for a refund on your order."
+   ],
+   "products/components/AddressForm.js": [
+    "Mailing Address",
+    "Billing Address",
+    "Same as Mailing Address"
+   ],
+   "components/AddressFields.js": [
+    "State",
+    "Province",
+    "Choose Province",
+    "Name",
+    "Address 1",
+    "1234 Street Dr",
+    "Address 2 (optional)",
+    "ex: Apt/Suite/Floor",
+    "Country/Region",
+    "City",
+    "Anytown",
+    "Zip/Postal Code"
+   ],
+   "products/components/PaymentFlows.js": [
+    "Payment Information",
+    "The card below will be charged {formatAmount( selectedPlan.price} on {trialDueDate} for your next one-year term.",
+    "You've chosen to pay with"
+   ],
+   "products/components/OrderSummary.js": [
+    "Refund",
+    "Due today",
+    "Order Summary",
+    "Subtotal",
+    "Shipping",
+    "Estimated tax refund",
+    "Estimated tax",
+    "Discount ({promoCode})",
+    "Discount",
+    "Tax is based on your address and .",
+    "At the end of your trial, your subscription will automatically begin at a rate of {subscriptionSubtotal} a year, plus tax where applicable.",
+    "will be applied when your subscription begins",
+    ", if applicable, will be applied when you purchase",
+    "You will be charged {formatAmount(shippingPlan.price)} for shipping.",
+    "Canadian",
+    "Taxes are included in the displayed price in AUS, EU, and NZ.",
+    "Seller has collected the simplified sellers use tax on taxable transactions delivered into Alabama and the tax will be remitted on the customer's behalf to the Alabama Department of Revenue.",
+    "Seller's program account number is SSU-R012305862."
+   ],
+   "products/components/CartBenefits.js": [
+    "free trial",
+    "Complimentary tote bag",
+    "Your {trialDays}-day {trialPriceDisplay} {trialLabel} includes:",
+    "Your {selectedPlan.name} subscription includes:",
+    "All the benefits in your {trialLabel}",
+    "12 issues of the print magazine"
+   ],
+   "products/components/CancellationPolicy.js": [
+    "{children} account page, email, or call (855) 940-0585 to cancel. Cancellations take effect at the end of your current billing period. Please read our full terms here .",
+    "Automatic Renewal",
+    "By proceeding, you agree that your subscription will commence at the end of your trial period on {trialDueDate}, and you will be charged {amount}, plus shipping where applicable, for your initial one-year term. Cancel prior to this date to avoid being charged. Your subscription will automatically renew on an annual basis until you cancel. Before each renewal, you will receive a notification of your term and rate then in effect. Visit your",
+    "tax and",
+    "By proceeding, you agree that your subscription will renew on an annual basis until you cancel. Before each renewal, you will receive a notification of your term and rate then in effect. Visit your",
+    "{children} account page, email, or call (855) 940-0585 to cancel. Full terms here .",
+    "Enroll in automatic renewal for uninterrupted access"
+   ],
+   "products/components/AutomaticRenewalNotice.js": [
+    "Automatic Renewal",
+    "In order to complete your purchase, please enroll in automatic renewal. You’ll get uninterrupted access to The Atlantic and play a vital role in supporting independent journalism. If you change your mind, cancel within two days for a refund on your order."
+   ],
+   "products/components/PaymentMethodRadioGroup.js": [
+    "Credit or Debit card"
+   ],
+   "products/components/WalletButton.js": [
+    "Completing purchase…"
+   ],
+   "products/routes/SinglePagePurchase/LoginForm.js": [
+    "Your Email",
+    "Email",
+    "Password",
+    "Sign In",
+    "Or Use",
+    "Forgot your email or"
+   ],
+   "products/routes/SinglePagePurchase/RegistrationForm.js": [
+    "First Name",
+    "Last Name",
+    "Your Email",
+    "Email",
+    "Password",
+    "Subject to The Atlantic's Privacy Policy and Terms and Conditions .",
+    "Sign me up for The Atlantic Daily newsletter, our editors’ guide to the stories and ideas that matter.",
+    "Create Account",
+    "Or Use"
+   ],
+   "products/routes/SinglePagePurchase/Authentication.js": [
+    "Account"
+   ],
+   "products/routes/GiftPurchase/GiftPurchase.js": [
+    "Enter your email to sign in or create an account",
+    "Gift details",
+    "Tell Us About Your Gift Recipient",
+    "Add Payment Information"
+   ],
+   "products/routes/GiftPurchase/AddGiftRecipient.js": [
+    "Gift Recipient Information",
+    "First Name",
+    "Last Name",
+    "Gift Recipient's Email Address",
+    "Message for Gift Recipient",
+    "We hope you enjoy your year of unlimited access.",
+    "Select a date to email your gift recipient",
+    "MM/DD/YYYY",
+    "Your gift recipient will receive an email with a redemption code on the date specified above.",
+    "Gift Recipient Mailing Address",
+    "Continue to Payment"
+   ]
+  },
+  "confirmation": {
+   "products/routes/Purchase/PurchaseConfirmation.js": [
+    "We hope you enjoy your {selectedPlan.isPaidTrial ? \"\" : }trial.",
+    "You are now a subscriber.",
+    "A confirmation email is on the way!",
+    "FOR ELIGIBLE PRINT & DIGITAL, PREMIUM, AND PREMIUM PLUS SUBSCRIBERS: Tote bags included with new subscriptions will be delivered within 4-6 weeks, and will arrive separately from your first magazine issue. For assistance,",
+    "Order Summary",
+    "Subscription Plan",
+    "Email",
+    "Trial valid through",
+    "Next Billing Date",
+    "Payment Method",
+    "You Paid",
+    "Billing Address",
+    "Mailing Address"
+   ],
+   "products/components/onboarding/OnboardingFlowPurchaseConfirmation.js": [
+    "We hope you enjoy your {selectedPlan.isPaidTrial ? \"\" : }trial.",
+    "You are now a subscriber.",
+    "Thank you for joining The Atlantic and supporting independent journalism. You'll receive a confirmation email with details about your new subscription."
+   ],
+   "products/components/onboarding/OnboardingPurchaseConfirmation.js": [
+    "We hope you enjoy your {selectedPlan.isPaidTrial ? \"\" : }trial.",
+    "You are now a subscriber.",
+    "A confirmation email is on the way. Thank you for joining The Atlantic and supporting our journalism."
+   ],
+   "products/components/onboarding/OnboardingNudge.js": [
+    "trial opt-in",
+    "same-day start",
+    "Skip",
+    "Previous",
+    "{steps.map(s => ( <div key={s} cl}",
+    "Finish",
+    "Next",
+    "Get the most out of your subscription. Get started with your subscriber benefits.",
+    "We’ll help you get started with your new benefits.",
+    "Continue",
+    "Return to Article",
+    "{ref.current.offsetHeight}px"
+   ],
+   "components/ConfirmationTemplate.js": [
+    "Download The Atlantic App",
+    "See Your Account",
+    "For eligible Print & Digital subscribers: Tote bags included with new subscriptions will be delivered within 4-6 weeks, and will arrive separately from your first magazine issue. For assistance,",
+    ", Premium, and Premium Plus",
+    "and Premium",
+    "U.S. subscribers who receive the print magazine can expect their first issues in 8-10 weeks, Canadian subscribers in 10-11 weeks, and International subscribers in 11-12 weeks.",
+    "U.S. subscribers who receive the print magazine can expect their first issues in 4–6 weeks, Canadian subscribers in 6–7 weeks, and International subscribers in 7–8 weeks.",
+    "Subscribers who receive their print magazine can expect their first issues in 6-8 weeks.",
+    "Do you have suggestions for how we can improve the checkout experience? Let us know at {FEEDBACK_EMAIL} .",
+    "Order Summary",
+    "Subscription Plan",
+    "Email",
+    "Trial valid through",
+    "Next Billing Date",
+    "Payment Method",
+    "You Paid",
+    "{confirmation.discount_amount} off",
+    "Discount",
+    "Billing Address",
+    "Mailing Address"
+   ],
+   "products/components/ConfirmationTemplate.js": [
+    "U.S. subscribers who receive the print magazine can expect their first issues in 8-10 weeks, Canadian subscribers in 10-11 weeks, and International subscribers in 11-12 weeks.",
+    "U.S. subscribers who receive the print magazine can expect their first issues in 4–6 weeks, Canadian subscribers in 6–7 weeks, and International subscribers in 7–8 weeks.",
+    "Subscribers who receive their print magazine can expect their first issues in 6-8 weeks.",
+    "See Your Account"
+   ],
+   "products/routes/GiftPurchase/GiftConfirmation.js": [
+    "Please check your inbox for an order receipt. Your gift recipient will receive an email with a redemption code on the date specified below.",
+    "FOR ELIGIBLE PRINT & DIGITAL, PREMIUM, AND PREMIUM PLUS SUBSCRIPTIONS: Tote bags included with new subscriptions will be delivered within 4-6 weeks, and will arrive separately from the first magazine issue. For assistance,",
+    "Thank you for purchasing a gift subscription.",
+    "Give Another Gift",
+    "Your Gift Order",
+    "Subscription Type",
+    "Gift Recipient Email",
+    "Valid Through",
+    "Gift Recipient Mailing Address",
+    "Gift Email Scheduled For",
+    "You Paid",
+    "{confirmation.discount_amount} off",
+    "Discount",
+    "Your Email",
+    "Card Info",
+    "Billing Address"
+   ]
+  },
+  "account": {
+   "accounts/routes/AccountDetails/Subscription.js": [
+    "Interested in upgrading your subscription?",
+    "See Options >",
+    "Need to make a change to your subscription?",
+    "Manage >",
+    "See Details",
+    "Subscribe to The Atlantic",
+    "If you’re not currently a subscriber, rejoin today and enjoy unlimited access.",
+    "See Plans",
+    "Your Subscription",
+    "You have Digital access to The Atlantic through",
+    "Digital Access",
+    "You have digital access to The Atlantic through",
+    "You have canceled your Digital trial, but you have access to The Atlantic through",
+    "You have a Digital trial to The Atlantic through",
+    "You have Print & Digital access to The Atlantic through",
+    "You have canceled your Print & Digital trial, but you have access to The Atlantic through",
+    "You have a Print & Digital trial to The Atlantic through",
+    "You have Premium access to The Atlantic through",
+    "You have Premium Plus access to The Atlantic through"
+   ],
+   "accounts/routes/AccountDetails/AutorenewPrompt.js": [
+    "Don't Lose Your Access",
+    "Your subscription is due to expire soon. Please turn on auto-renewal to stay a subscriber and avoid any interruption in service.",
+    "Turn On Auto-Renewal"
+   ],
+   "accounts/routes/Subscription/SubscriptionDetails.js": [
+    "Subscription Period",
+    "Renewal Rate",
+    "Current Term Rate",
+    "Trial Period",
+    "Trial Rate",
+    "Manage",
+    "As an {subType[data.type]} subscriber, you enjoy:",
+    "As a Premium subscriber, you enjoy:",
+    "As a Premium Plus subscriber, you enjoy:",
+    "As a Digital subscriber, you enjoy:",
+    "As a Digital trial subscriber, you enjoy:",
+    "As a Print & Digital subscriber, you enjoy:",
+    "As a Print & Digital trial subscriber, you enjoy:",
+    "Digital",
+    "Print & Digital",
+    "Digital subscription, plus:",
+    "Premium",
+    "Print & Digital subscription, plus:",
+    "Restart your subscription today.",
+    "Explore Options",
+    "Become an Atlantic subscriber today."
+   ],
+   "accounts/routes/Subscription/BillingInfo.js": [
+    "Payment Method",
+    "Card Expiration",
+    "Next Billing Date",
+    "We don’t have a credit card on file for you.",
+    "Billing Information",
+    "+ Add a New Payment Method"
+   ],
+   "accounts/routes/Subscription/AddCreditCard.js": [
+    "Saved",
+    "Cancel",
+    "Add a New Payment Method",
+    "For your convenience, you’ll be enrolled in auto-renewal and enjoy uninterrupted service. We’ll always send a reminder before charging this card for your next one-year term. You can opt out by clicking “Manage” above."
+   ],
+   "accounts/routes/Subscription/AddCreditCardStripe.js": [
+    "Loading payment form…",
+    "Save",
+    "Saved",
+    "Cancel"
+   ],
+   "accounts/routes/Subscription/JustCanceled.js": [
+    "We’re sorry to see you go",
+    "You will receive an email confirming your cancellation. We thank you for your time, and hope to welcome you back in the future. If you have five minutes, please tell us about your experience with The Atlantic by emailing us or taking a survey . Your feedback would be incredibly helpful in our efforts to improve and better meet the needs of our readers.",
+    "Take Our Survey"
+   ],
+   "accounts/routes/ModifySubscription/ModifySubscriptionBase.js": [
+    "change plan button"
+   ],
+   "accounts/routes/ModifySubscription/ManageSubscription.js": [
+    "End Your Subscription",
+    "Your subscription is enrolled in automatic renewal, which ensures uninterrupted access to The Atlantic. We’ll always send a reminder before charging the card on file for your next one-year term.",
+    "If you’d like to cancel your subscription,",
+    "Next Billing Date:",
+    "Renewal Rate:",
+    "Cancel",
+    "Don’t Lose Access. Restart Your Subscription.",
+    "Resubscribe",
+    "Your access to The Atlantic is currently scheduled to end on {autorenewDate}. Resubscribe to keep enjoying unlimited articles, audio, and more."
+   ],
+   "accounts/routes/ModifySubscription/Autorenew.js": [
+    "Auto-Renewal: On",
+    "Turn Off",
+    "With auto-renewal, you enjoy uninterrupted service and paperless billing. We’ll always send a reminder before charging the card on file for your next one-year term.",
+    "Next Billing Date:",
+    "Renewal Rate:",
+    "Auto-Renewal: Off",
+    "Turn On",
+    "We’ll always send a reminder before charging the card on file for your next one-year term.",
+    "You have canceled your subscription, so it will not renew after the expiry date. To reactivate, turn on Auto-Renewal.",
+    "Turn on auto-renewal and enjoy uninterrupted service and paperless billing."
+   ],
+   "accounts/routes/ModifySubscription/TurnOnAutorenew.js": [
+    "Gain unlimited access to The Atlantic. You will always be notified before your subscription is renewed. You can cancel your subscription at any time.",
+    "Use card on file",
+    "Add a new payment method",
+    "Save",
+    "All Set!",
+    "Saved",
+    "Cancel",
+    "Resubscribe for Uninterrupted Access"
+   ],
+   "accounts/routes/ModifySubscription/TurnOffAutorenew.js": [
+    "Turn Off Auto-Renewal",
+    "Auto-renewal ensures you never miss an issue of The Atlantic or experience any interruptions in your subscription service. Are you sure you want to turn it off and receive additional renewal notifications?",
+    "No, I'll keep it on",
+    "Yes, I want to turn off auto-renewal"
+   ],
+   "accounts/routes/ModifySubscription/CancelSubscription.js": [
+    "Cancel Trial",
+    "Cancel Subscription",
+    "You will immediately lose access to all benefits included in this trial, and you will no longer be allowed to sign up for a free trial.",
+    "If you cancel your subscription, you’ll lose your unlimited access to The Atlantic. Are you sure you want to cancel?",
+    "No, I'll keep my trial",
+    "No, I'll keep my subscription",
+    "- trial",
+    "Cancel my trial",
+    "Yes, I want to cancel"
+   ],
+   "accounts/routes/ModifySubscription/DiscountOffer.js": [
+    "display - current term discount page",
+    "display - next term discount page (AR {isAutorenew ? \"on\" : \"off\"})",
+    "< Back",
+    "current term",
+    "next term (AR {isAutorenew ? \"On\" : \"Off\"})",
+    "On",
+    "Off",
+    "Stay with The Atlantic and Don’t lose unlimited access to TheAtlantic.com and get {formattedDiscountAmount} off . Don’t lose these benefits:",
+    "your current subscription",
+    "Take {formattedDiscountAmount} off - current term",
+    "Take {formattedDiscountAmount} off - next term (AR {isAutorenew ? \"on\" : \"off\"})",
+    "Get {formattedDiscountAmount} back now",
+    "Take {formattedDiscountAmount} off",
+    "No, cancel my subscription",
+    "No, cancel my subscription - current term",
+    "No, cancel my subscription - next term (AR {isAutorenew ? \"on\" : \"off\"})",
+    "Three Atlantic magazine covers and a mobile device using The Atlantic mobile app."
+   ]
+  },
+  "signin": {
+   "auth/components/EmailLoginForm.js": [
+    "Your Email",
+    "name@provider.com",
+    "Continue",
+    "Or Use",
+    "Social registration is currently disabled.",
+    "Forgot your email or"
+   ],
+   "auth/components/LoginForm.js": [
+    "Your Email",
+    "Password",
+    "Sign In",
+    "Or Use",
+    "Forgot your email or"
+   ],
+   "auth/components/RegistrationForm.js": [
+    "Your Email",
+    "First Name",
+    "Last Name",
+    "Password",
+    "Sign me up for The Atlantic Daily newsletter, our editors’ guide to the stories and ideas that matter.",
+    "Create Account",
+    "By creating an account, you agree to The Atlantic’s terms of service and privacy policy ."
+   ],
+   "auth/components/MagicLink.js": [
+    "Use email to sign in",
+    "Enter the email address you use for your account, and we’ll send you a link to sign in without a password.",
+    "Your Email",
+    "name@provider.com",
+    "Next"
+   ],
+   "auth/components/EmailSent.js": [
+    "Email sent!",
+    "Please check your inbox for a link to sign into your account. This link will expire in 3 hours.",
+    "If you don’t see an email in your inbox or spam folder, it’s possible you don’t have an account with us yet. Create one today.",
+    "For further assistance, please contact our Customer Care team .",
+    "Back to Sign In"
+   ],
+   "auth/components/ResetPassword.js": [
+    "Reset your password",
+    "Enter the email address you use for your account, and we’ll send you a link to create a new password.",
+    "Your Email",
+    "name@provider.com",
+    "Next"
+   ],
+   "auth/components/InvalidLink.js": [
+    "Invalid Link",
+    "Looks like this link is is invalid.",
+    "Please click the button below to head back to The Atlantic and request another link to be sent to this email address.",
+    "Back to your account"
+   ],
+   "components/PageNotFound.js": [
+    "Page Not Found",
+    "We can’t find the page you’re looking for.",
+    "We’re sorry for the inconvenience. If you keep running into the same issue,",
+    "Take Me Back to My Account"
+   ],
+   "components/ErrorPage.js": [
+    "Sorry—we’re experiencing an issue.",
+    "We’re having trouble displaying the page you’re looking for. We expect to resolve the problem soon. If you keep experiencing it though,",
+    "Take Me to The Atlantic Homepage"
+   ]
+  },
+  "plans": {
+   "utils/getSubscriptionName.ts": [
+    "Digital",
+    "Print & Digital",
+    "Premium",
+    "Premium Plus"
+   ],
+   "components/BenefitList.tsx": [
+    "Unlimited access on any device",
+    "unlimited articles",
+    "Unlimited, ad-free access on any device",
+    "unlimited adfree articles",
+    "12 magazine issues in PDF",
+    "digital issues",
+    "12 magazine issues in PDF (your last issue will be {endDate})",
+    "digital issues date",
+    "12 magazine issues delivered to your door",
+    "print issues",
+    "12 magazine issues delivered to your door (your last issue will be {endDate})",
+    "print issues date",
+    "The Atlantic app for iOS and Android",
+    "Narrated stories and podcasts",
+    "Listen to professionally narrated versions of Atlantic long reads, including cover stories",
+    "A digital archive, from 1857 to today",
+    "Full access to games",
+    "Daily games and full archive access",
+    "Access to games and archive",
+    "Gift articles to share with other readers",
+    "gift articles",
+    "Subscriber events and discounts",
+    "Enjoy early access to The Atlantic Festival, along with film screenings, conversations with journalists, and more subscriber-only events",
+    "Free digital gift subscription",
+    "Premium subscribers can share a year of The Atlantic with another reader",
+    "free digital gift",
+    "Ad-free web and app access",
+    "Digital subscriptions for three friends",
+    "Additional plan members receive unlimited digital access",
+    "The Atlantic scrapbook",
+    "Tote and scrapbook available while supplies last and will arrive separately from magazine.",
+    "Complimentary tote bag",
+    "Tote bags only available for new {{PRODUCTS}} subscribers on a first-come, first-served basis while supplies last. Color may vary. Limit one per customer. Tote will arrive separately from magazine issue. Import fees, declaration fees, import duties, and/or taxes may be imposed on free gifts shipped outside the U.S. All such fees are the customer’s responsibility.",
+    "Premium Plus tote bag",
+    "Exclusive Premium Plus tote bag",
+    "Access to events and discounts"
+   ],
+   "products/utils/ZephrDecisionEngineContextProvider.tsx": [
+    "Unlimited Access—and a Free Tote*",
+    "Start My Free Trial",
+    "Special offer: Get a free tote bag when you start a Print & Digital or Premium subscription.*",
+    "Best value",
+    "Tax will be added to prices in applicable locations after your trial ends. Trial limited to one per person.",
+    "Select",
+    "Skip the trial: See all our subscription options, including gifts, academic discounts, and more.",
+    "See All Plans",
+    "application/json",
+    "ZephrFailure",
+    "Zephr Decision",
+    "useZephrDecisionEngine must be used within a ZephrDecisionEngineContextProvider"
+   ],
+   "accounts/routes/ModifySubscription/SeeSubscriptionOptions.js": [
+    "Change Your Subscription",
+    "Looking to make a change? We can help find the best option for you.",
+    "Current Subscription",
+    "Expiration Date",
+    "Choose a New Plan",
+    "Payment",
+    "Refund",
+    "Estimated {transactionType}: {formatPrice( Math.abs(subtotal +} *",
+    "Collapse",
+    "See All Benefits",
+    "Plus tax and/or shipping if applicable. Final payment or refund will be calculated at checkout.",
+    "The total number of print magazines will be pro-rated when upgrading from a Digital plan to a Print + Digital or Premium plan.",
+    "Tote bags only available for new Print & Digital and subscribers on a first-come, first-served basis while supplies last. Color may vary. Limit one per customer. Tote will arrive separately from magazine issue. Import fees, declaration fees, import duties, and/or taxes may be imposed on free gifts shipped outside the U.S. All such fees are the customer’s responsibility. All prices are in U.S. dollars.",
+    "Premium Plus",
+    "Premium",
+    "Premium Plus subscribers enjoy ad-free access, print magazine, exclusive tote, and scrapbook. Tote and scrapbook available while supplies last and will arrive separately from magazine. Additional plan members receive unlimited digital access.",
+    "Next",
+    "Keep my current plan"
+   ]
+  },
+  "errors": {
+   "utils/formValidation.js": [
+    "Required",
+    "Please enter an address that is 27 characters or fewer.",
+    "Please use numbers and roman-alphabet letters. We are unable to recognize other characters.",
+    "Invalid postal code",
+    "Please enter an email address that is 254 characters or fewer.",
+    "Please enter a valid email address",
+    "Purchase a subscription for yourself <a href=\"https://accounts.theatlantic.com/products/?source=giftredirect\">here</a>.",
+    "Please enter a name that is 128 characters or fewer.",
+    "Please enter a gift message that is 255 characters or fewer.",
+    "Please enter a gift message that is 10 lines or fewer.",
+    "Please enter a gift message without emojis.",
+    "Please enter an invite message that is 255 characters or fewer.",
+    "Please enter an invite message without emojis.",
+    "Please remove \"ATL\" from the beginning of your account number",
+    "Invalid account number",
+    "Your password must be at least 8 characters.",
+    "\\p{N}",
+    "\\p{Lu}",
+    "\\p{Ll}",
+    "[^0-9a-zA-Z\\p{Cyrillic}]",
+    "one number",
+    "one uppercase letter",
+    "one lowercase letter",
+    "one special character",
+    "Your password is too weak.",
+    "Please try adding at least:",
+    "{recommendations .slice(0, -1) .j}, or {recommendations.slice(-1)}.",
+    "{nameType} name cannot exceed {limit} characters.",
+    "Password and confirmation password do not match"
+   ],
+   "products/components/StripeAddressErrors.js": [
+    "Address line 1",
+    "Address line 2",
+    "ZIP code"
+   ],
+   "fixtures/creditCards/errorMessages/errorMessages.json (Stripe, as users see it)": [
+    "Your card's expiry year is in the past.",
+    "Your card number is invalid.",
+    "Your card has insufficient funds.",
+    "Your card’s security code is incomplete.",
+    "Your card was declined.",
+    "Your card has expired.",
+    "Your card's security code is incorrect.",
+    "An error occurred while processing your card. Try again in a little bit."
+   ]
+  }
+ }
+}

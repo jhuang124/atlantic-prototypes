@@ -1,0 +1,47 @@
+/* The day's facts, captured by `proto anchors` from accounts.theatlantic.com/products/ on 2026-11-12.
+   Prices and plan copy as production shows them. Don't type a price anywhere else. */
+window.ATL_FACTS = {
+ "capturedAt": "2026-11-12",
+ "source": "accounts.theatlantic.com/products/",
+ "samples": 5,
+ "headline": "JOURNALISM THAT EXPLAINS AMERICA AND THE WORLD",
+ "headlinesSeen": [
+  "JOURNALISM THAT EXPLAINS AMERICA AND THE WORLD",
+  "UNDERSTAND AMERICA AFTER THE MIDTERMS."
+ ],
+ "dek": "Start your year of unlimited articles, audio, and more. Starting at less than $2 a week.",
+ "plans": [
+  {
+   "name": "Digital",
+   "price": "89.99",
+   "period": "/year",
+   "details": "Unlimited access on any device, The Atlantic app, narrated articles, games, and more",
+   "badge": "",
+   "cta": "Select",
+   "planId": "plan_digital_standard8999"
+  },
+  {
+   "name": "Print & Digital",
+   "price": "99.99",
+   "period": "/year",
+   "details": "All the benefits of a digital subscription, along with 12 issues of the print magazine and a free tote",
+   "badge": "BEST VALUE",
+   "cta": "Select",
+   "planId": "plan_print_standard9999"
+  },
+  {
+   "name": "Premium",
+   "price": "130",
+   "period": "/year",
+   "details": "A Print & Digital subscription, along with ad-free reading and a free digital gift subscription to share",
+   "badge": "",
+   "cta": "Select",
+   "planId": "plan_premium_standard13000",
+   "seen": [
+    "130",
+    "125"
+   ]
+  }
+ ],
+ "finePrint": "Prices for new subscriptions only. Tax may apply. Taxes are included in displayed price in AUS, EU, and NZ. For Print & Digital and Premium subscriptions mailed outside of the US, add international shipping (calculated at checkout). *Tote bags only available for new Print & Digital, Premium, and Premium Plus subscribers on a first-come, first-served basis while supplies last. Color may vary. Limit one per customer. Tote will arrive separately from magazine issue. Import fees, declaration fees, import duties, and/or taxes may be imposed on free gifts shipped outside the U.S. All such fees are the customer's responsibility."
+};
