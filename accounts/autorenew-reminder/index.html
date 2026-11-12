@@ -409,6 +409,20 @@ const kit = DemoKit.init({
   intro: { title: 'Auto-Renewal Reminder', body: 'A reminder for subscribers who turned auto-renewal off, on theatlantic.com and in the app. Open the drawer for the tours.' },
 });
 
+// Restart, at the top of This screen: the subscriber is back to auto-renewal off and the reminder is due
+// again, on whichever surface is showing. The dials keep their settings.
+function addRestart() {
+  const whole = document.querySelector('.demo-drawer .demo-whole');
+  if (!whole || whole.parentElement.querySelector('[data-restart]')) return;
+  whole.insertAdjacentHTML('beforebegin', '<div class="demo-scope"><span>Auto-renewal goes back to off and the reminder shows again.</span><button type="button" class="demo-btn" data-restart>Restart</button></div>');
+}
+new MutationObserver(addRestart).observe(document.body, { childList: true, subtree: true });
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('[data-restart]')) return;
+  kit.resetData();
+  if (location.hash.startsWith('#/app/')) kit.navigate('/app');
+  window.scrollTo(0, 0);
+});
 // Leaving the article takes the pop-up with it; Esc sets the reminder aside, as “Not now” does
 window.addEventListener('hashchange', () => { if (!/^#\/article(\?|$)/.test(location.hash)) syncLayer(''); });
 window.addEventListener('resize', () => setTimeout(sizeLayer, 0));
