@@ -151,6 +151,8 @@
 .rm-pop .nudge-btn[aria-busy="true"]::after, .app-btn[aria-busy="true"]::after, .ios-row[aria-busy="true"] span:last-child::after { content: ''; position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgb(255 255 255 / .35); border-top-color: #fff; animation: rmSpin .7s linear infinite; }
 .ios-row[aria-busy="true"] span:last-child::after { border-color: rgb(60 60 67 / .2); border-top-color: #6c6c70; }
 @keyframes rmSpin { to { transform: rotate(360deg); } }
+/* The drawer stays open while the page is used: clicks pass through its (invisible) backdrop. It closes from its own X or the pill. */
+.demo-scrim { pointer-events: none; }
 @media (prefers-reduced-motion: reduce) { .rm-layer:has(.is-in), .rm-stick.is-in .rm-pop, .app.is-in .app-scrim, .app.is-in .app-sheet { animation: none; } }
 </style>
 </head>
