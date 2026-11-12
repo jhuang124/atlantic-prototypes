@@ -121,7 +121,8 @@
 .ios-row[aria-busy="true"] { opacity: .6; }
 .ios-cap { margin: 8px 32px 0; font-size: 13px; line-height: 18px; color: #6c6c70; }
 .ios .alert { margin: 0 32px 8px; font: 13px/18px inherit; }
-.app-under { display: grid; gap: 12px; padding: 16px 0 32px; }
+/* The app screen is the whole page: only the feed or the story scrolls, never the page around it */
+.dk-device:has(.app) { height: 100vh; min-height: 0; overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .rm-layer:has(.is-in), .rm-stick.is-in .rm-pop, .app.is-in .app-scrim, .app.is-in .app-sheet { animation: none; } }
 </style>
 </head>
@@ -289,7 +290,7 @@ function TODAY(el, ctx) {
   el.innerHTML = `<div class="app">${STATUS}
     <header class="app-head"><a href="${kit.notBuilt('Account (the app’s settings)')}" aria-label="Account">${ICON.account || ''}</a><span class="app-word">${ICON.wordmark || 'The Atlantic'}</span><a href="${kit.notBuilt('Search (in the app)')}" aria-label="Search">${ICON.search || ''}</a></header>
     <div class="app-scroll">${STORIES.map(CARD).join('')}</div>
-    ${TABS()}</div>${UNDER(ctx.state)}`;
+    ${TABS()}</div>`;
   // Opening a story counts as a new opening, so a reminder set aside on the last one can return
   el.querySelectorAll('[data-open]').forEach((a) => a.addEventListener('click', () => kit.act('openStory', a.dataset.open)));
 }
@@ -313,14 +314,6 @@ const SHEET = (s) => {
     <p class="ios-cap">Apple’s screen, drawn. The price and terms come from the App Store, and the subscriber confirms with Apple.</p></section>`;
   return '';
 };
-const UNDER = (s) => {
-  const out = [];
-  const set = !s.subscription.autorenew && !stageOf(s) && returnsOn(s) === 'visit';
-  if (set) out.push(`<aside class="demo-box" data-dk-next><p class="demo-eyebrow"><span class="demo-dot"></span>Next in the demo</p><p>“Not now” hides the reminder until the app is opened again.</p><p class="demo-links"><a href="#" data-newvisit>Open the app again</a></p></aside>`);
-  if (s.axes.billing === 'apple') out.push(kit.note('A subscriber billed by Apple or Google can only turn renewal on in the store, so the button opens the store’s own screen. The app already sends these subscribers there to manage a subscription.'));
-  else out.push(kit.note({ question: 'can the app offer one-tap renewal of a subscription bought on the web under the App Store’s rules, and what terms must sit beside the button?', interim: 'the sheet carries the same terms line as the site.' }));
-  return `<div class="app-under">${out.join('')}</div>`;
-};
 function STORY(el, ctx) {
   phoneOnly();
   const s = ctx.state, st = storyById(ctx.params.id);
@@ -333,9 +326,7 @@ function STORY(el, ctx) {
       <section class="www-body type-www-body">${FILLER.map((t) => `<p>${kit.esc(t)}</p>`).join('')}</section>
     </div>
     <div class="app-homebar" aria-hidden="true"></div>
-    ${SHEET(s)}</div>${UNDER(s)}`;
-  const again = el.querySelector('[data-newvisit]');
-  if (again) again.addEventListener('click', (e) => { e.preventDefault(); kit.act('newVisit'); });
+    ${SHEET(s)}</div>`;
 }
 
 /* --------------------------------------------------------------------------- Kit */
@@ -353,7 +344,7 @@ const kit = DemoKit.init({
   axes: [
     { key: 'returns', label: 'After “Not now”, it comes back', options: [
       { value: 'story', label: 'Next story', hint: 'Every story opened, until auto-renewal is on.' },
-      { value: 'visit', label: 'Next visit', hint: 'Once per visit to the site, or per opening of the app.' }] },
+      { value: 'visit', label: 'Next visit', hint: 'Once per visit to the site, or per opening of the app. In the app, Restart stands in for opening it again.' }] },
     { key: 'billing', label: 'In the app, billed by', options: [
       { value: 'atlantic', label: 'The Atlantic', hint: 'Bought on the web: one tap turns it on.' },
       { value: 'apple', label: 'Apple', hint: 'Bought in the app: the button opens Apple’s own screen.' }] },
