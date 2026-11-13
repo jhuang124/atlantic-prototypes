@@ -3,15 +3,17 @@
 A reminder for subscribers who turned auto-renewal off. It appears when they open a story and keeps
 coming back until auto-renewal is on. One reminder, three versions:
 
-- **Desktop web**: a pop-up over the article on theatlantic.com. `index.html#/article`
+- **Desktop web**: theatlantic.com on a computer. `index.html#/home`
 - **Mobile web**: the same site in a phone's browser. `index.html#/mweb?device=phone`
-- **Mobile app**: a bottom sheet over the article screen, reached from the Today feed. `index.html#/app?device=phone`
+- **Mobile app**: the app, from its Today feed. `index.html#/app?device=phone`
+
+Every version runs homepage, then article, then the reminder (a pop-up on the web, a bottom sheet in the app).
 
 One tap on "Turn On Auto-Renewal" turns it on in place. "Not now" sets it aside until the next story.
 
 - Entry point: `index.html`. The **Tours & screens** button (bottom left) opens the presenter drawer.
   **This screen** switches between the three versions and has Restart (auto-renewal back to off, reminder due again)
-- A link can start a tour directly: `#/article?dk-tour=site-on`, `site-later`, `site-fail`,
+- A link can start a tour directly: `#/home?dk-tour=site-on`, `site-later`, `site-fail`,
   `#/mweb?dk-tour=mweb-on`, `mweb-later`, `#/app?dk-tour=app-on`, `app-later`, `app-apple`
 - Two dials: when the reminder comes back after "Not now" (next story or next visit), and who bills the
   app subscriber (The Atlantic, or Apple, where the button opens Apple's own screen)

@@ -130,6 +130,37 @@
 .ios-row[aria-busy="true"] { opacity: .6; }
 .ios-cap { margin: 8px 32px 0; font-size: 13px; line-height: 18px; color: #6c6c70; }
 .ios .alert { margin: 0 32px 8px; font: 13px/18px inherit; }
+/* Homepage: the top section of theatlantic.com (lead story, the stack beside it, the off-lead), with the
+   site's own measures: four columns with a 32px gap from 976 up, one column below. */
+.hp { --hp-rule: rgb(0 0 0 / .15); max-width: 1280px; margin: 0 auto; padding: 20px 16px 48px; color: #000; }
+.hp a { display: block; color: inherit; text-decoration: none; }
+.hp-top { display: grid; grid-template-columns: minmax(0, 1fr); row-gap: 20px; }
+.hp-top > * { padding-bottom: 20px; border-bottom: 1px solid var(--hp-rule); }
+.hp-top > :last-child { border-bottom: 0; }
+.hp img { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: cover; background: #eceae4; }
+.hp-credit { display: block; height: 17px; margin-top: 8px; font: 300 11px/11px var(--font-logic); color: rgb(0 0 0 / .6); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hp-lede { position: relative; text-align: center; }
+.hp-kicker { display: block; margin-top: 12px; font: 400 14px/1 var(--font-logic); letter-spacing: 1px; text-transform: uppercase; color: #e7131a; }
+.hp h2, .hp h3 { margin: 0; font-family: var(--font-garamond); font-weight: 400; text-wrap: pretty; }
+.hp-lede h2 { margin: 16px 0 8px; font-size: 32px; line-height: 40px; }
+.hp-dek { margin: 0 0 12px; font: 400 20px/28px var(--font-garamond); }
+.hp-by { margin: 12px 0 0; font: 500 13px/13px var(--font-logic); letter-spacing: .5px; text-transform: uppercase; }
+.hp-stack h3 { font-size: 18px; line-height: 26px; }
+.hp-stack a + a { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--hp-rule); }
+.hp-off h3 { margin-top: 12px; font-size: 24px; line-height: 32px; }
+.hp a:hover h2, .hp a:hover h3 { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+@container dk-vp (min-width: 576px) { .hp-lede h2 { margin-bottom: 12px; font-size: 38px; line-height: 44px; } }
+@container dk-vp (min-width: 976px) {
+  .hp-top { grid-template-columns: repeat(4, minmax(0, 1fr)); column-gap: 32px; }
+  .hp-top > * { grid-row: 1; border-bottom: 0; }
+  .hp-top { padding-bottom: 20px; border-bottom: 1px solid var(--hp-rule); }
+  .hp-off { grid-column: 1; }
+  .hp-lede { grid-column: 2 / 4; }
+  .hp-stack { grid-column: 4; }
+  .hp-lede::before, .hp-lede::after { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background: var(--hp-rule); }
+  .hp-lede::before { left: -16px; }
+  .hp-lede::after { right: -16px; }
+}
 /* Mobile web: the site's own page in the phone's browser (the production nav and footer at phone width) */
 .mw { position: relative; display: flex; flex-direction: column; width: 393px; height: 852px; overflow: hidden; border-radius: 47px; background: var(--surface); color: #000; }
 .mw-view { position: relative; flex: 1; min-height: 0; }
@@ -259,7 +290,8 @@ function sizeLayer() {
   if (layer) layer.style.setProperty('--rm-vh', (window.innerHeight / (parseFloat(vp.style.zoom) || 1)) + 'px');
 }
 // The frozen nav is the signed-out one. A subscriber sees My Account and Give a Gift there.
-function signedInNav(root) {
+function signedInNav(root, home) {
+  if (home) (root || document).querySelectorAll('a[data-prod-href="https://www.theatlantic.com/"]').forEach((a) => a.setAttribute('href', home));
   (root || document).querySelectorAll('.w-NavAccountLinks_root a').forEach((a) => {
     const t = a.textContent.trim();
     if (t === 'Sign In') { a.textContent = 'My Account'; a.setAttribute('href', kit.notBuilt('My Account (the accounts site)')); }
@@ -290,6 +322,24 @@ const ARTICLE_BODY = (s, st, notes) => `${NEXT_SITE(s)}
   <section class="www-body type-www-body">${FILLER.map((t) => `<p>${kit.esc(t)}</p>`).join('')}</section>
   ${notes ? SITE_NOTES() : ''}`;
 
+// The homepage's top section: the lead story, the stack beside it and the off-lead, each a way into a story.
+// Selecting one counts as opening it, so a reminder set aside on the last story can return.
+const by = (st) => `<p class="hp-by">${kit.esc(st.byline || '')}</p>`;
+const HOME_BODY = (to) => {
+  const [lede, off, ...stack] = STORIES;
+  const link = (st, inner, cls) => `<a${cls ? ` class="${cls}"` : ''} href="#${to}" data-read="${STORIES.indexOf(st)}">${inner}</a>`;
+  return `<div class="hp"><h1 class="sr-only">The Atlantic</h1><div class="hp-top">
+    <section class="hp-lede">${link(lede, `<img src="${lede.art}" alt=""><span class="hp-credit">${kit.esc(lede.credit || '')}</span><span class="hp-kicker">${kit.esc(lede.section || '')}</span><h2>${kit.esc(lede.hed)}</h2><p class="hp-dek">${kit.esc(lede.dek || '')}</p>${by(lede)}`)}</section>
+    <section class="hp-stack">${stack.map((st) => link(st, `<h3>${kit.esc(st.hed)}</h3>${by(st)}`)).join('')}</section>
+    <section class="hp-off">${link(off, `<img src="${off.art}" alt="" loading="lazy"><span class="hp-credit">${kit.esc(off.credit || '')}</span><h3>${kit.esc(off.hed)}</h3>${by(off)}`)}</section>
+  </div></div>`;
+};
+function HOME(ctx) {
+  if (kit.device() !== 'desktop') later(() => kit.setParam('device', 'desktop'));
+  later(() => signedInNav(document, '#/home'));
+  return HOME_BODY('/article');
+}
+
 // Desktop web: the article at 1280, always on the desktop frame
 function ARTICLE(ctx) {
   const s = ctx.state, st = STORIES[s.reminder.storyIdx % STORIES.length];
@@ -297,6 +347,7 @@ function ARTICLE(ctx) {
   if (lastStory !== null && lastStory !== st.id) later(() => window.scrollTo(0, 0));   // another story opens at its top
   lastStory = st.id;
   syncLayer(popup(s, 'site'));
+  later(() => signedInNav(document, '#/home'));
   return ARTICLE_BODY(s, st, true);
 }
 
@@ -374,15 +425,15 @@ function STORY(el, ctx) {
 const SAFARI = `<div class="mw-safari" aria-hidden="true"><div class="mw-url"><svg width="11" height="14" viewBox="0 0 11 14"><path d="M2.5 6V4a3 3 0 016 0v2M1.5 6h8a1 1 0 011 1v5a1 1 0 01-1 1h-8a1 1 0 01-1-1V7a1 1 0 011-1z" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>theatlantic.com</div>
   <div class="mw-tools">${['M14 4l-7 8 7 8', 'M10 4l7 8-7 8', 'M12 15V3m0 0L8 7m4-4l4 4M5 11v9h14v-9', 'M4 5c3-1 6-1 8 1 2-2 5-2 8-1v14c-3-1-6-1-8 1-2-2-5-2-8-1zM12 6v14', 'M8 8h11v11H8zM5 16V5h11']
     .map((d) => `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`).join('')}</div></div><div class="app-homebar"></div>`;
-function MWEB(el, ctx) {
+function MWEB(el, ctx, home) {
   phoneOnly();
-  const s = ctx.state, st = STORIES[s.reminder.storyIdx % STORIES.length], pop = popup(s, 'mweb');
+  const s = ctx.state, st = STORIES[s.reminder.storyIdx % STORIES.length], pop = home ? '' : popup(s, 'mweb');
   const part = (k) => (window.DemoKitChrome && DemoKitChrome.parts[k]) || '';
-  paint(el, 'mweb:' + st.id, `<div class="mw">${STATUS}
-    <div class="mw-view"><div class="mw-scroll" data-scroll><div class="dk-chrome">${part('www.nav')}</div>${ARTICLE_BODY(s, st, false)}<div class="dk-chrome">${part('www.footer')}</div></div>
+  paint(el, home ? 'mweb-home' : 'mweb:' + st.id, `<div class="mw">${STATUS}
+    <div class="mw-view"><div class="mw-scroll" data-scroll><div class="dk-chrome">${part('www.nav')}</div>${home ? HOME_BODY('/mweb/story') : ARTICLE_BODY(s, st, false)}<div class="dk-chrome">${part('www.footer')}</div></div>
       ${pop ? `<div class="rm-layer">${pop}</div>` : ''}</div>
     ${SAFARI}</div>`);
-  signedInNav(el);
+  signedInNav(el, '#/mweb');
 }
 
 /* --------------------------------------------------------------------------- Kit */
@@ -412,40 +463,42 @@ const kit = DemoKit.init({
     toApple: (s) => R(s, { apple: true }),
     appleBack: (s) => R(s, { apple: false }),
     openStory: (s) => R(s, { open: s.reminder.open + 1, done: false, apple: false }),
+    readStory: (s, i) => R(s, { open: s.reminder.open + 1, storyIdx: (+i || 0) % STORIES.length, done: false }),
     nextStory: (s) => R(s, { open: s.reminder.open + 1, storyIdx: (s.reminder.storyIdx + 1) % STORIES.length, done: false }),
     newVisit: (s) => R(s, { visit: s.reminder.visit + 1, open: s.reminder.open + 1, done: false, apple: false }),
   },
   pages: [
+    { path: '/home', title: 'Desktop web: homepage', purpose: 'The top of theatlantic.com, signed in. Select a story to open it.', layout: 'full', render: (el, ctx) => HOME(ctx) },
     { path: '/article', title: 'Desktop web: article', purpose: 'A story on theatlantic.com on a computer, signed in, with the reminder over it.', layout: 'full', render: (el, ctx) => ARTICLE(ctx) },
-    { path: '/mweb', title: 'Mobile web: article', purpose: 'The same story on theatlantic.com in a phone’s browser.', chrome: 'none', layout: 'full', render: MWEB },
+    { path: '/mweb', title: 'Mobile web: homepage', purpose: 'The top of theatlantic.com in a phone’s browser.', chrome: 'none', layout: 'full', render: (el, ctx) => MWEB(el, ctx, true) },
+    { path: '/mweb/story', title: 'Mobile web: article', purpose: 'A story on theatlantic.com in a phone’s browser, with the reminder over it.', chrome: 'none', layout: 'full', render: (el, ctx) => MWEB(el, ctx, false) },
     { path: '/app', title: 'Mobile app: Today', purpose: 'The app’s home feed. Tap a story to open it.', chrome: 'none', layout: 'full', render: TODAY },
     { path: '/app/story/:id', title: 'Mobile app: article', purpose: 'A story in the app, with the reminder rising from the bottom.', chrome: 'none', layout: 'full', hidden: true, render: STORY },
   ],
   paths: [
     { id: 'site-on', group: 'Desktop web', label: 'Opens a story and turns it back on',
-      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/article' },
-      steps: ['Article: the story loads, then the reminder opens over it. “Thanks for reading The Atlantic.” General status only: no date, price or card on the main site.',
-        'The line under the sentence is the terms: “Renews each year at your current rate until you cancel.”',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/home' },
+      steps: ['Homepage, signed in: select the top story.', 'Article: the reminder opens over the story. General status only, with the terms under it: no date, price or card.',
         'Select “Turn On Auto-Renewal” → the same window says “Auto-renewal is on.”',
         'Select “Keep Reading” → the story, and no reminder from here on.'] },
     { id: 'site-later', group: 'Desktop web', label: '“Not now”, and it comes back',
-      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/article' },
-      steps: ['Article: the reminder opens. Select “Not now” → it closes and the story is readable.',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/home' },
+      steps: ['Homepage: select the top story.', 'Article: the reminder opens. Select “Not now” → it closes and the story is readable.',
         'In the box above the story, select “Open another story” → the reminder opens again.',
-        'Drawer → This screen → “After Not now, it comes back” → “Next visit”. Now “Open another story” stays clear and “Start a new visit” brings it back.'] },
+        'This screen → “Next visit”: now another story stays clear, and “Start a new visit” brings it back.'] },
     { id: 'site-fail', group: 'Desktop web', label: 'The save fails',
-      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/article' },
-      steps: ['Drawer → This screen → turn on “Next save fails”.',
-        'Select “Turn On Auto-Renewal” → the reminder stays: “We couldn’t turn on auto-renewal. Nothing changed, so try again in a minute.”',
+      start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/home' },
+      steps: ['Homepage: select the top story. This screen → turn on “Next save fails”.',
+        'Select “Turn On Auto-Renewal” → the reminder stays and says nothing changed.',
         'Select it again → “Auto-renewal is on.”'] },
     { id: 'mweb-on', group: 'Mobile web', label: 'Opens a story and turns it back on',
       start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/mweb?device=phone' },
-      steps: ['Article, in the phone’s browser: the story loads, then the reminder opens over it.',
+      steps: ['Homepage, in the phone’s browser: tap the top story → the reminder opens over it.',
         'Tap “Turn On Auto-Renewal” → a spinner on the button, then “Auto-renewal is on.”',
         'Tap “Keep Reading” → the story, and no reminder from here on.'] },
     { id: 'mweb-later', group: 'Mobile web', label: '“Not now”, and it comes back',
       start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/mweb?device=phone' },
-      steps: ['Article: the reminder opens. Tap “Not now” → it closes and the story is readable.',
+      steps: ['Homepage: tap the top story.', 'Article: the reminder opens. Tap “Not now” → it closes and the story is readable.',
         'In the box above the story, tap “Open another story” → the reminder opens again.'] },
     { id: 'app-on', group: 'Mobile app', label: 'Opens a story and turns it back on',
       start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/app?device=phone' },
@@ -468,7 +521,7 @@ const kit = DemoKit.init({
 
 // This screen, top: the three versions (desktop web, mobile web, mobile app) and Restart, which puts the
 // subscriber back to auto-renewal off with the reminder due again. The dials keep their settings.
-const VERSIONS = [['desktop', 'Desktop web', '/article?device=desktop'], ['mweb', 'Mobile web', '/mweb?device=phone'], ['app', 'Mobile app', '/app?device=phone']];
+const VERSIONS = [['desktop', 'Desktop web', '/home?device=desktop'], ['mweb', 'Mobile web', '/mweb?device=phone'], ['app', 'Mobile app', '/app?device=phone']];
 const versionNow = () => (location.hash.startsWith('#/app') ? 'app' : location.hash.startsWith('#/mweb') ? 'mweb' : 'desktop');
 function addControls() {
   const whole = document.querySelector('.demo-drawer .demo-whole');
@@ -476,7 +529,7 @@ function addControls() {
   if (!whole.parentElement.querySelector('[data-restart]')) whole.insertAdjacentHTML('beforebegin', `<div class="demo-field"><p class="demo-eyebrow">Version</p>
       <fieldset class="demo-seg"><legend class="sr-only">Version</legend><div class="demo-seg-track" style="grid-template-columns:repeat(3,minmax(0,1fr))">
       ${VERSIONS.map(([v, label]) => `<button type="button" data-version="${v}">${label}</button>`).join('')}</div></fieldset></div>
-    <div class="demo-scope"><span>Auto-renewal goes back to off and the reminder shows again.</span><button type="button" class="demo-btn" data-restart>Restart</button></div>`);
+    <div class="demo-scope"><span>Back to the homepage, with auto-renewal off and the reminder due again.</span><button type="button" class="demo-btn" data-restart>Restart</button></div>`);
   const now = versionNow();
   whole.parentElement.querySelectorAll('[data-version]').forEach((b) => { const on = String(b.dataset.version === now); if (b.getAttribute('aria-pressed') !== on) b.setAttribute('aria-pressed', on); });
 }
@@ -488,11 +541,13 @@ fitPhone();
 if (window.DemoChecks) { const run = DemoChecks.run; DemoChecks.run = async (o) => (await run(o)).map((r) => (r.id === 'overflow' && document.querySelector('.phone') ? Object.assign({}, r, { ok: true, skipped: true, detail: 'The phone frame is 393 wide by design' }) : r)); }
 window.addEventListener('resize', fitPhone);
 document.addEventListener('click', (e) => {
+  const read = e.target.closest('[data-read]');
+  if (read) { kit.act('readStory', read.dataset.read); return; }   // then the link itself opens the article
   const v = e.target.closest('[data-version]');
   if (v) { kit.navigate(VERSIONS.find((x) => x[0] === v.dataset.version)[2]); return; }
   if (!e.target.closest('[data-restart]')) return;
   kit.resetData();
-  if (location.hash.startsWith('#/app/')) kit.navigate('/app');
+  kit.navigate(VERSIONS.find((x) => x[0] === versionNow())[2]);   // back to the start of this version: its homepage
   window.scrollTo(0, 0);
 });
 // Leaving the article takes the pop-up with it; Esc sets the reminder aside, as “Not now” does
