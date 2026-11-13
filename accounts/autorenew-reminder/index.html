@@ -13,21 +13,20 @@
    a layer on the page frame so the scrim covers the nav too; the inner box sticks
    to the window while the story scrolls behind it.
    --------------------------------------------------------------------------- */
-.rm-layer { position: absolute; inset: 0; z-index: 6000010; background: rgb(0 0 0 / .45); }
+.rm-layer { position: absolute; inset: 0; z-index: 6000010; background: rgb(0 0 0 / .4); }
 .rm-stick { position: sticky; top: calc(var(--rm-vh, 100vh) / 2); height: 0; display: flex; justify-content: center; align-items: flex-start; padding: 0 24px; }
-.rm-pop { position: relative; transform: translateY(-50%); width: min(520px, 100%); padding: 44px 48px 32px; background: var(--page); color: var(--nudge-ink); text-align: center; box-shadow: 0 24px 60px rgb(0 0 0 / .25); }
-.rm-pop .nudge-mark { display: block; margin: 0 0 20px; font-size: var(--gate-mark); }
-.rm-pop h2 { margin: 0 0 8px; text-wrap: balance; }
+.rm-pop { position: relative; transform: translateY(-50%); width: min(480px, 100%); padding: 62px 64px 64px; background: #fff; color: #21272c; text-align: center; }
+.rm-pop h2 { margin: 0; font: 400 28px/1.2 var(--font-garamond); text-wrap: balance; }
 .rm-pop h2:focus { outline: none; }
-.rm-pop .type-nudge-body { margin: 0 auto; max-width: 40ch; text-wrap: pretty; }
-.rm-terms { margin: 12px auto 0; max-width: 46ch; font: 13px/1.5 var(--font-sans); color: #4a4f54; text-wrap: pretty; }
-.rm-terms a { color: inherit; white-space: nowrap; }
-.rm-acts { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-top: 24px; }
-.rm-pop .nudge-btn[aria-busy="true"] { cursor: progress; opacity: .85; }
-.rm-pop .nudge-btn.is-quiet { background: none; color: var(--nudge-ink); box-shadow: inset 0 0 0 1px var(--nudge-ink); }
-.rm-pop .nudge-btn.is-quiet:hover { background: var(--nudge-ink); color: #fff; }
-.rm-later { padding: 0; border: 0; background: none; cursor: pointer; font: 15px/1.4 var(--font-sans); color: var(--nudge-ink); text-decoration: underline; text-underline-offset: 3px; }
-.rm-pop .nudge-x { top: 12px; right: 12px; }
+.rm-body { margin: 0; padding: 16px 0 24px; font: 400 20px/28px var(--font-garamond); text-wrap: pretty; }
+.rm-acts { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.rm-btn { display: inline-block; padding: 12px 24px; border: 0; border-radius: 4px; background: #e7131a; color: #fff; font: 500 16px/1.1 var(--font-logic); cursor: pointer; }
+.rm-btn:hover { background: #b80f15; }
+.rm-btn.is-quiet { background: none; color: #21272c; box-shadow: inset 0 0 0 1px #21272c; }
+.rm-btn.is-quiet:hover { background: #21272c; color: #fff; }
+.rm-later { padding: 0; border: 0; background: none; cursor: pointer; font: 400 14px/20px var(--font-graphik); color: #21272c; text-decoration: underline; text-underline-offset: 3px; }
+.rm-terms { margin: 16px 0 0; font: 400 12px/20px var(--font-graphik); color: #21272c; }
+.rm-pop .nudge-x { top: 18px; right: 18px; }
 .rm-error:empty { display: none; }
 .rm-error .alert { margin: 0 0 12px; font-size: 15px; line-height: 22px; }
 .rm-layer:has(.is-in) { animation: rmFade .25s .6s both; }
@@ -35,10 +34,11 @@
 @keyframes rmFade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rmPop { from { opacity: 0; transform: translateY(calc(-50% + 8px)) scale(.98); } to { opacity: 1; transform: translateY(-50%); } }
 .nw { white-space: nowrap; }
-@container dk-vp (max-width: 600px) {
-  .rm-stick { padding: 0 16px; }
-  .rm-pop { padding: 36px 24px 24px; }
-  .rm-pop .nudge-mark { font-size: var(--gate-mark-phone); margin-bottom: 14px; }
+@container dk-vp (max-width: 767px) {
+  .rm-stick { padding: 0 24px; }
+  .rm-pop { padding: 62px 24px 48px; }
+  .rm-pop h2 { font-size: 24px; }
+}
 }
 .demo-box.rm-next { max-width: var(--www-body-width); margin: 24px auto 0; }
 .rm-notes { max-width: var(--www-body-width); margin: 0 auto 64px; display: grid; gap: 16px; }
@@ -167,7 +167,7 @@
 .mw-scroll { height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .mw-scroll::-webkit-scrollbar { display: none; }
 .mw .rm-layer { display: grid; place-items: center; }
-.mw .rm-stick { position: static; height: auto; width: 100%; padding: 0 16px; }
+.mw .rm-stick { position: static; height: auto; width: 100%; padding: 0 24px; }
 .mw .rm-pop { transform: none; }
 .mw .rm-stick.is-in .rm-pop { animation-name: rmPopFlat; }
 @keyframes rmPopFlat { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
@@ -176,10 +176,10 @@
 .mw-tools { display: flex; justify-content: space-between; padding: 10px 14px 2px; color: #007aff; }
 .mw .app-homebar { --app-bg: #f7f7f8; }
 /* A save in progress: the button keeps its size and shows a spinner in place of its label */
-.rm-pop .nudge-btn[aria-busy="true"], .app-btn[aria-busy="true"] { position: relative; color: transparent; opacity: 1; }
+.rm-btn[aria-busy="true"], .app-btn[aria-busy="true"] { position: relative; color: transparent; opacity: 1; }
 .ios-row[aria-busy="true"] { opacity: 1; }
 .ios-row[aria-busy="true"] span:last-child { position: relative; color: transparent; }
-.rm-pop .nudge-btn[aria-busy="true"]::after, .app-btn[aria-busy="true"]::after, .ios-row[aria-busy="true"] span:last-child::after { content: ''; position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgb(255 255 255 / .35); border-top-color: #fff; animation: rmSpin .7s linear infinite; }
+.rm-btn[aria-busy="true"]::after, .app-btn[aria-busy="true"]::after, .ios-row[aria-busy="true"] span:last-child::after { content: ''; position: absolute; inset: 0; margin: auto; width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgb(255 255 255 / .35); border-top-color: #fff; animation: rmSpin .7s linear infinite; }
 .ios-row[aria-busy="true"] span:last-child::after { border-color: rgb(60 60 67 / .2); border-top-color: #6c6c70; }
 @keyframes rmSpin { to { transform: rotate(360deg); } }
 /* The drawer stays open while the page is used: clicks pass through its (invisible) backdrop. It closes from its own X or the pill. */
@@ -225,9 +225,9 @@ const FILLER = [   // placeholder text in the production body style
 /* The reminder's words, shared. Approved 2026-11-02 on the nudge prototype; the app sets the same words
    in its own button casing (sentence case, as "Turn on notifications" is). */
 const COPY = {
-  title: 'Thanks for reading The Atlantic',
-  body: 'Your subscription is ending soon. Turn on <span class="nw">auto-renewal</span> to keep reading without interruption.',
-  terms: 'Renews each year at your current rate until you cancel. Cancel anytime in your account.',
+  title: 'Don’t Lose Your Access',           // production: the accounts auto-renewal prompt's headline
+  body: 'Your subscription is ending soon. Turn on <span class="nw">auto-renewal</span> to keep reading.',
+  terms: 'We’ll always send a reminder before your subscription renews. Cancel anytime.',   // production's reassurance, shortened
   doneTitle: 'Auto-renewal is on',
   doneBody: 'Thanks for staying with us.',
   fail: 'We couldn’t turn on auto-renewal. Nothing changed, so try again in a minute.',
@@ -254,7 +254,6 @@ function entrance(s, surface) {
 }
 
 /* --------------------------------------------------------------------------- Site */
-const TERMS_LINK = () => `<a href="${kit.notBuilt('Terms of Sale')}">Terms of Sale</a>`;
 function popup(s, surface) {
   const stage = stageOf(s);
   if (!stage || stage === 'apple') return '';
@@ -262,14 +261,13 @@ function popup(s, surface) {
   return `<div class="rm-stick${entrance(s, surface || 'site')}">
     <aside class="rm-pop" role="dialog" aria-labelledby="rm-h" data-dk-scope>
       <button class="nudge-x" type="button" data-act="${done ? 'keepReading' : 'notNow'}" aria-label="Close"></button>
-      <span class="nudge-mark" aria-hidden="true">A</span>
       <div class="rm-error" data-dk-error-slot></div>
-      <h2 id="rm-h" class="type-nudge-hed" tabindex="-1">${done ? COPY.doneTitle : COPY.title}</h2>
-      <p class="type-nudge-body"${done ? ' aria-live="polite"' : ''}>${done ? COPY.doneBody : COPY.body}</p>
-      ${done ? '' : `<p class="rm-terms">${COPY.terms} ${TERMS_LINK()}</p>`}
+      <h2 id="rm-h" tabindex="-1">${done ? COPY.doneTitle : COPY.title}</h2>
+      <p class="rm-body"${done ? ' aria-live="polite"' : ''}>${done ? COPY.doneBody : COPY.body}</p>
       <div class="rm-acts">${done
-        ? `<button class="nudge-btn type-nudge-btn is-quiet" type="button" data-act="keepReading">Keep Reading</button><a class="rm-later" href="${kit.notBuilt('Manage Subscription (the accounts page)')}">Manage in your account</a>`
-        : `<button class="nudge-btn type-nudge-btn" type="button" data-act="turnOn" data-fail="${COPY.fail}">Turn On Auto-Renewal</button><button class="rm-later" type="button" data-act="notNow">Not now</button>`}</div>
+        ? `<button class="rm-btn is-quiet" type="button" data-act="keepReading">Keep Reading</button><a class="rm-later" href="${kit.notBuilt('Manage Subscription (the accounts page)')}">Manage in your account</a>`
+        : `<button class="rm-btn" type="button" data-act="turnOn" data-fail="${COPY.fail}">Turn On Auto-Renewal</button><button class="rm-later" type="button" data-act="notNow">Not now</button>`}</div>
+      ${done ? '' : `<p class="rm-terms">${COPY.terms}</p>`}
     </aside></div>`;
 }
 // The pop-up sits in a layer on the page frame (not in <main>), so its scrim covers the nav as well.
@@ -306,7 +304,7 @@ const NEXT_SITE = (s) => {
     <p class="demo-links"><a href="#" data-act="nextStory">Open another story</a>${visit ? '<a href="#" data-act="newVisit">Start a new visit</a>' : ''}</p></aside>`;
 };
 const SITE_NOTES = () => `<div class="rm-notes">
-  ${kit.note({ question: 'one tap here turns on a recurring charge, so it is a consent moment. Auto-renewal laws generally want the price, how often it renews and how to cancel beside the button, but theatlantic.com shows no account specifics. Are “your current rate” and a Terms of Sale link enough?', interim: 'the reminder says it renews yearly at your current rate until you cancel, and links the Terms of Sale.' })}
+  ${kit.note({ question: 'one tap here turns on a recurring charge, so it is a consent moment. Auto-renewal laws generally want the price, how often it renews and how to cancel beside the button, but theatlantic.com shows no account specifics. What is the least it has to say?', interim: 'the reminder carries one reassurance line (a reminder before each renewal, cancel anytime) and no price or terms link.' })}
   ${kit.note('Two things this assumes: theatlantic.com can tell that a signed-in subscriber has auto-renewal off (today it can’t), and that it can turn it on from the article. Nothing is charged today either way; the card on file is charged when the term ends.')}</div>`;
 
 const ARTICLE_BODY = (s, st, notes) => `${NEXT_SITE(s)}
@@ -394,7 +392,7 @@ const SHEET = (s) => {
   if (stage === 'offer') return `<div class="app-scrim" data-act="notNow"></div><section class="app-sheet" role="dialog" aria-labelledby="rm-h" data-dk-scope><div class="app-handle"></div>
     <div data-dk-error-slot></div>
     <h2 id="rm-h" tabindex="-1">${COPY.title}</h2><p>${COPY.body}</p>
-    ${apple ? '' : `<p class="app-terms">${COPY.terms} ${TERMS_LINK()}</p>`}
+    ${apple ? '' : `<p class="app-terms">${COPY.terms}</p>`}
     <div class="app-acts">${apple
       ? '<button class="app-btn" type="button" data-act="toApple">Turn on auto-renewal</button>'
       : `<button class="app-btn" type="button" data-act="turnOn" data-fail="${COPY.fail}">Turn on auto-renewal</button>`}<button class="app-btn is-tertiary" type="button" data-act="notNow">Not now</button></div></section>`;
@@ -478,7 +476,7 @@ const kit = DemoKit.init({
   paths: [
     { id: 'site-on', group: 'Desktop web', label: 'Opens a story and turns it back on',
       start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'atlantic' }, session: 'in', to: '/home' },
-      steps: ['Homepage, signed in: select the top story.', 'Article: the reminder opens over the story. General status only, with the terms under it: no date, price or card.',
+      steps: ['Homepage, signed in: select the top story.', 'Article: the reminder opens over the story. “Don’t Lose Your Access.” General status only: no date, price or card.',
         'Select “Turn On Auto-Renewal” → the same window says “Auto-renewal is on.”',
         'Select “Keep Reading” → the story, and no reminder from here on.'] },
     { id: 'site-later', group: 'Desktop web', label: '“Not now”, and it comes back',
@@ -512,7 +510,7 @@ const kit = DemoKit.init({
         'Back (the red arrow) → Today → tap another story → the reminder rises again.'] },
     { id: 'app-apple', group: 'Mobile app', label: 'Billed by Apple',
       start: { scenario: 'ar-off', axes: { returns: 'story', billing: 'apple' }, session: 'in', to: '/app?device=phone' },
-      steps: ['Today → tap a story → the reminder, same words, no terms line (Apple shows its own).',
+      steps: ['Today → tap a story → the reminder, same words, no fine print (Apple shows its own terms).',
         'Tap “Turn on auto-renewal” → Apple’s subscription screen, drawn.',
         'Tap “Renew” → back in the app: “Auto-renewal is on.”'] },
   ],
